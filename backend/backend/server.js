@@ -52,14 +52,20 @@ function isPrivateHostname(hostname) {
 
   if (host.startsWith("172.")) {
     const second = Number(host.split(".")[1]);
-    if (second >= 16 && second <= 31) return true;
+
+    if (second >= 16 && second <= 31) {
+      return true;
+    }
   }
 
   return false;
 }
 
 function validateUrl(url) {
-  if (!url) throw new Error("Missing url parameter.");
+  if (!url) {
+    throw new Error("Missing url parameter.");
+  }
+
   if (!isValidHttpUrl(url)) {
     throw new Error("Invalid HTTP/HTTPS URL.");
   }
@@ -91,17 +97,23 @@ async function getDirectMediaInfo(url) {
   });
 
   if (!response.ok) {
-    throw new Error(`Remote server returned HTTP ${response.status}.`);
+    throw new Error(
+      `Remote server returned HTTP ${response.status}.`
+    );
   }
 
-  const contentType = response.headers.get("content-type") || "";
-  const normalizedType = contentType.split(";")[0].toLowerCase();
+  const contentType =
+    response.headers.get("content-type") || "";
+
+  const normalizedType =
+    contentType.split(";")[0].toLowerCase();
 
   if (!ALLOWED_DIRECT_TYPES.includes(normalizedType)) {
     return null;
   }
 
-  const contentLength = response.headers.get("content-length");
+  const contentLength =
+    response.headers.get("content-length");
 
   let size = "Unknown";
 
@@ -109,14 +121,17 @@ async function getDirectMediaInfo(url) {
     const bytes = Number(contentLength);
 
     if (!Number.isNaN(bytes)) {
-      size = `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+      size =
+        `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
     }
   }
 
   const parsed = new URL(url);
+
   const filename =
     decodeURIComponent(
-      parsed.pathname.split("/").pop() || "media-file"
+      parsed.pathname.split("/").pop() ||
+      "media-file"
     );
 
   return {
@@ -135,11 +150,16 @@ async function extractSocialMedia(url) {
     noCallHome: true,
     noCheckCertificates: true,
     skipDownload: true,
-    noPlaylist: true
+    noPlaylist: true,
+
+    // Let yt-dlp select an appropriate format.
+    format: "best[ext=mp4]/best"
   });
 
   if (!result) {
-    throw new Error("Unable to extract media information.");
+    throw new Error(
+      "Unable to extract media information."
+    );
   }
 
   return result;
@@ -159,7 +179,10 @@ app.get("/api/media", async (req, res) => {
     validateUrl(url);
 
     // Direct media URL
-    const directInfo = await getDirectMediaInfo(url).catch(() => null);
+    const directInfo =
+      await getDirectMediaInfo(url).catch(
+        () => null
+      );
 
     if (directInfo) {
       return res.json(directInfo);
@@ -173,16 +196,20 @@ app.get("/api/media", async (req, res) => {
       });
     }
 
-    const info = await extractSocialMedia(url);
+    const info =
+      await extractSocialMedia(url);
 
-    const title = info.title || info.fulltitle || "Social media video";
+    const title =
+      info.title ||
+      info.fulltitle ||
+      "Social media video";
 
     const duration =
       typeof info.duration === "number"
         ? `${Math.round(info.duration)} seconds`
         : "Unknown";
 
-    res.json({
+    return res.json({
       title,
       contentType: "video/mp4",
       size: "Available on download",
@@ -191,9 +218,12 @@ app.get("/api/media", async (req, res) => {
       direct: false
     });
   } catch (error) {
-    console.error("MEDIA ERROR:", error);
+    console.error(
+      "MEDIA ERROR:",
+      error
+    );
 
-    res.status(500).json({
+    return res.status(500).json({
       error:
         error.message ||
         "Unable to inspect this media URL."
@@ -208,14 +238,16 @@ app.get("/api/download", async (req, res) => {
     validateUrl(url);
 
     // Direct media URL
-    const directResponse = await fetch(url, {
-      redirect: "follow"
-    });
+    const directResponse =
+      await fetch(url, {
+        redirect: "follow"
+      });
 
     const directType =
       (
-        directResponse.headers.get("content-type") ||
-        ""
+        directResponse.headers.get(
+          "content-type"
+        ) || ""
       )
         .split(";")[0]
         .toLowerCase();
@@ -228,13 +260,19 @@ app.get("/api/download", async (req, res) => {
 
       const filename = (
         decodeURIComponent(
-          parsed.pathname.split("/").pop() || "download"
+          parsed.pathname.split("/").pop() ||
+          "download"
         )
-      ).replace(/[^a-zA-Z0-9._-]/g, "_");
+      ).replace(
+        /[^a-zA-Z0-9._-]/g,
+        "_"
+      );
 
       res.setHeader(
         "Content-Type",
-        directResponse.headers.get("content-type") ||
+        directResponse.headers.get(
+          "content-type"
+        ) ||
           "application/octet-stream"
       );
 
@@ -258,30 +296,31 @@ app.get("/api/download", async (req, res) => {
       });
     }
 
-    /*
-      Stream a selected media format.
+    const subprocess =
+      youtubedl.exec(
+        url,
+        {
+          output: "-",
 
-      This intentionally uses a normal media format selection
-      and does not attempt to remove watermarks or bypass
-      platform access restrictions.
-    */
+          format:
+            "best[ext=mp4]/best",
 
-    const subprocess = youtubedl.exec(
-      url,
-      {
-        output: "-",
-        format: "best[ext=mp4]/best",
-        noWarnings: true,
-        noCallHome: true,
-        noCheckCertificates: true,
-        noPlaylist: true
-      },
-      {
-        maxBuffer: 1024 * 1024 * 50
-      }
+          noWarnings: true,
+          noCallHome: true,
+          noCheckCertificates: true,
+          noPlaylist: true
+        },
+        {
+          maxBuffer:
+            1024 * 1024 * 50
+        }
+      );
+
+    res.setHeader(
+      "Content-Type",
+      "video/mp4"
     );
 
-    res.setHeader("Content-Type", "video/mp4");
     res.setHeader(
       "Content-Disposition",
       'attachment; filename="socialtoolhub-video.mp4"'
@@ -289,25 +328,32 @@ app.get("/api/download", async (req, res) => {
 
     subprocess.stdout.pipe(res);
 
-    subprocess.stderr.on("data", (data) => {
-      console.error(
-        "yt-dlp:",
-        data.toString()
-      );
-    });
-
-    subprocess.on("error", (error) => {
-      console.error(
-        "DOWNLOAD ERROR:",
-        error
-      );
-
-      if (!res.headersSent) {
-        res.status(500).json({
-          error: "Download failed."
-        });
+    subprocess.stderr.on(
+      "data",
+      (data) => {
+        console.error(
+          "yt-dlp:",
+          data.toString()
+        );
       }
-    });
+    );
+
+    subprocess.on(
+      "error",
+      (error) => {
+        console.error(
+          "DOWNLOAD ERROR:",
+          error
+        );
+
+        if (!res.headersSent) {
+          res.status(500).json({
+            error:
+              "Download failed."
+          });
+        }
+      }
+    );
   } catch (error) {
     console.error(
       "DOWNLOAD ERROR:",
@@ -324,8 +370,11 @@ app.get("/api/download", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(
-    `SocialToolHub API running on port ${PORT}`
-  );
-});
+app.listen(
+  PORT,
+  () => {
+    console.log(
+      `SocialToolHub API running on port ${PORT}`
+    );
+  }
+);
