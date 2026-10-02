@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SocialToolHub — Media Downloader</title>
+  <meta name="description" content="Download media from direct, publicly accessible media URLs.">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Arial,sans-serif;min-height:100vh;background:#09090b;color:#fff}
+    header{border-bottom:1px solid #27272a;padding:18px 20px}
+    .nav{max-width:1100px;margin:auto;display:flex;justify-content:space-between;align-items:center}
+    .logo{font-size:22px;font-weight:800}.logo span{color:#6366f1}.badge{font-size:12px;color:#a1a1aa}
+    main{max-width:900px;margin:auto;padding:70px 20px}.hero{text-align:center}
+    .hero h1{font-size:clamp(36px,7vw,64px);line-height:1.05;margin-bottom:20px}
+    .gradient{background:linear-gradient(90deg,#818cf8,#c084fc,#f472b6);-webkit-background-clip:text;color:transparent}
+    .hero p{color:#a1a1aa;max-width:650px;margin:auto;line-height:1.7}
+    .card{margin-top:40px;background:#18181b;border:1px solid #27272a;border-radius:20px;padding:20px}
+    .input-row{display:flex;gap:10px}
+    input{flex:1;min-width:0;padding:16px;border-radius:12px;border:1px solid #3f3f46;background:#09090b;color:white;outline:none;font-size:15px}
+    input:focus{border-color:#6366f1}
+    button{border:0;border-radius:12px;padding:0 22px;background:#4f46e5;color:white;font-weight:700;cursor:pointer}
+    button:hover{background:#6366f1}button:disabled{opacity:.6;cursor:not-allowed}
+    #status{margin-top:18px;color:#a1a1aa;display:none}#result{margin-top:25px;display:none}
+    .media-card{background:#09090b;border:1px solid #27272a;border-radius:16px;padding:18px}
+    .media-title{font-size:18px;font-weight:700;margin-bottom:8px}.media-info{color:#a1a1aa;font-size:14px;margin-bottom:18px}
+    .download{display:inline-block;text-decoration:none;background:#16a34a;color:white;padding:12px 18px;border-radius:10px;font-weight:700}
+    .error{color:#f87171!important}.notice{margin-top:25px;padding:15px;border-radius:12px;background:#18181b;color:#a1a1aa;font-size:13px;line-height:1.6}
+    @media(max-width:650px){.input-row{flex-direction:column}button{height:50px}}
+  </style>
+</head>
+<body>
+<header><div class="nav"><div class="logo">SocialTool<span>Hub</span></div><div class="badge">Media Downloader</div></div></header>
+<main><section class="hero">
+  <h1>Download Your <span class="gradient">Media</span></h1>
+  <p>Paste a direct, publicly accessible media URL and download the file through our secure backend.</p>
+  <div class="card">
+    <form id="downloadForm">
+      <div class="input-row">
+        <input id="urlInput" type="url" placeholder="https://example.com/video.mp4" autocomplete="off" required>
+        <button id="submitButton" type="submit">Get Media</button>
+      </div>
+    </form>
+    <div id="status"></div>
+    <div id="result"><div class="media-card">
+      <div id="mediaTitle" class="media-title"></div>
+      <div id="mediaInfo" class="media-info"></div>
+      <a id="downloadButton" class="download" href="#" target="_blank" rel="noopener">Download</a>
+    </div></div>
+    <div class="notice">Only download content that you own or have permission to download. This service does not bypass private content, DRM, login restrictions, or other access controls.</div>
+  </div>
+</section></main>
+<script>
+const API_BASE="https://YOUR-BACKEND-URL.com";
+const form=document.getElementById("downloadForm"),input=document.getElementById("urlInput"),button=document.getElementById("submitButton");
+const statusBox=document.getElementById("status"),resultBox=document.getElementById("result"),mediaTitle=document.getElementById("mediaTitle"),mediaInfo=document.getElementById("mediaInfo"),downloadButton=document.getElementById("downloadButton");
+function showStatus(message,error=false){statusBox.style.display="block";statusBox.textContent=message;statusBox.classList.toggle("error",error)}
+form.addEventListener("submit",async e=>{
+  e.preventDefault();const url=input.value.trim();resultBox.style.display="none";
+  if(!url)return showStatus("Please enter a URL.",true);
+  button.disabled=true;button.textContent="Processing...";showStatus("Checking the media URL...");
+  try{
+    const response=await fetch(`${API_BASE}/api/media?url=${encodeURIComponent(url)}`);
+    const data=await response.json();if(!response.ok)throw new Error(data.error||"Unable to process this URL.");
+    mediaTitle.textContent=data.title||"Media file";
+    mediaInfo.textContent=`Type: ${data.contentType||"Unknown"} • Size: ${data.size||"Unknown"}`;
+    downloadButton.href=`${API_BASE}/api/download?url=${encodeURIComponent(url)}`;
+    resultBox.style.display="block";showStatus("Media is ready.");
+  }catch(error){showStatus(error.message||"Something went wrong.",true)}
+  finally{button.disabled=false;button.textContent="Get Media"}
+});
+</script>
+</body>
+</html>
