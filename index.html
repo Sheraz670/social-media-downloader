@@ -4,71 +4,467 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>SocialToolHub — Media Downloader</title>
-  <meta name="description" content="Download media from direct, publicly accessible media URLs.">
+  <meta name="description" content="SocialToolHub is a simple media downloader for publicly accessible and authorized media URLs.">
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
     body{font-family:Arial,sans-serif;min-height:100vh;background:#09090b;color:#fff}
     header{border-bottom:1px solid #27272a;padding:18px 20px}
     .nav{max-width:1100px;margin:auto;display:flex;justify-content:space-between;align-items:center}
     .logo{font-size:22px;font-weight:800}.logo span{color:#6366f1}.badge{font-size:12px;color:#a1a1aa}
-    main{max-width:900px;margin:auto;padding:70px 20px}.hero{text-align:center}
+
+    main{max-width:900px;margin:auto;padding:70px 20px}
+    .hero{text-align:center}
     .hero h1{font-size:clamp(36px,7vw,64px);line-height:1.05;margin-bottom:20px}
     .gradient{background:linear-gradient(90deg,#818cf8,#c084fc,#f472b6);-webkit-background-clip:text;color:transparent}
     .hero p{color:#a1a1aa;max-width:650px;margin:auto;line-height:1.7}
+
     .card{margin-top:40px;background:#18181b;border:1px solid #27272a;border-radius:20px;padding:20px}
     .input-row{display:flex;gap:10px}
     input{flex:1;min-width:0;padding:16px;border-radius:12px;border:1px solid #3f3f46;background:#09090b;color:white;outline:none;font-size:15px}
     input:focus{border-color:#6366f1}
     button{border:0;border-radius:12px;padding:0 22px;background:#4f46e5;color:white;font-weight:700;cursor:pointer}
-    button:hover{background:#6366f1}button:disabled{opacity:.6;cursor:not-allowed}
-    #status{margin-top:18px;color:#a1a1aa;display:none}#result{margin-top:25px;display:none}
+    button:hover{background:#6366f1}
+    button:disabled{opacity:.6;cursor:not-allowed}
+
+    #status{margin-top:18px;color:#a1a1aa;display:none}
+    #result{margin-top:25px;display:none}
     .media-card{background:#09090b;border:1px solid #27272a;border-radius:16px;padding:18px}
-    .media-title{font-size:18px;font-weight:700;margin-bottom:8px}.media-info{color:#a1a1aa;font-size:14px;margin-bottom:18px}
+    .media-title{font-size:18px;font-weight:700;margin-bottom:8px}
+    .media-info{color:#a1a1aa;font-size:14px;margin-bottom:18px}
     .download{display:inline-block;text-decoration:none;background:#16a34a;color:white;padding:12px 18px;border-radius:10px;font-weight:700}
-    .error{color:#f87171!important}.notice{margin-top:25px;padding:15px;border-radius:12px;background:#18181b;color:#a1a1aa;font-size:13px;line-height:1.6}
-    @media(max-width:650px){.input-row{flex-direction:column}button{height:50px}}
+    .download:hover{background:#22c55e}
+
+    .another{display:inline-block;margin-top:12px;background:#4f46e5;color:white;padding:12px 18px;border-radius:10px;font-weight:700;cursor:pointer;border:0}
+    .another:hover{background:#6366f1}
+
+    .error{color:#f87171!important}
+    .notice{margin-top:25px;padding:15px;border-radius:12px;background:#18181b;color:#a1a1aa;font-size:13px;line-height:1.6}
+
+    .content-section{
+      margin-top:70px;
+      padding:30px 20px;
+      background:#111113;
+      border:1px solid #27272a;
+      border-radius:18px;
+      scroll-margin-top:30px
+    }
+
+    .content-section h2{
+      font-size:28px;
+      margin-bottom:15px
+    }
+
+    .content-section h3{
+      font-size:19px;
+      margin-top:22px;
+      margin-bottom:8px
+    }
+
+    .content-section p,
+    .content-section li{
+      color:#a1a1aa;
+      line-height:1.8;
+      font-size:15px
+    }
+
+    .content-section ul{
+      padding-left:20px
+    }
+
+    footer{
+      border-top:1px solid #27272a;
+      margin-top:70px;
+      padding:35px 20px
+    }
+
+    .footer-inner{
+      max-width:1100px;
+      margin:auto;
+      text-align:center
+    }
+
+    .footer-links{
+      display:flex;
+      justify-content:center;
+      flex-wrap:wrap;
+      gap:18px;
+      margin-bottom:18px
+    }
+
+    .footer-links a{
+      color:#a1a1aa;
+      text-decoration:none;
+      font-size:14px
+    }
+
+    .footer-links a:hover{color:#fff}
+
+    .copyright{
+      color:#71717a;
+      font-size:13px;
+      line-height:1.6
+    }
+
+    @media(max-width:650px){
+      .input-row{flex-direction:column}
+      button{height:50px}
+      .content-section{padding:24px 18px}
+    }
   </style>
 </head>
+
 <body>
-<header><div class="nav"><div class="logo">SocialTool<span>Hub</span></div><div class="badge">Media Downloader</div></div></header>
-<main><section class="hero">
-  <h1>Download Your <span class="gradient">Media</span></h1>
-  <p>Paste a direct, publicly accessible media URL and download the file through our secure backend.</p>
-  <div class="card">
-    <form id="downloadForm">
-      <div class="input-row">
-        <input id="urlInput" type="url" placeholder="https://example.com/video.mp4" autocomplete="off" required>
-        <button id="submitButton" type="submit">Get Media</button>
-      </div>
-    </form>
-    <div id="status"></div>
-    <div id="result"><div class="media-card">
-      <div id="mediaTitle" class="media-title"></div>
-      <div id="mediaInfo" class="media-info"></div>
-      <a id="downloadButton" class="download" href="#" target="_blank" rel="noopener">Download</a>
-    </div></div>
-    <div class="notice">Only download content that you own or have permission to download. This service does not bypass private content, DRM, login restrictions, or other access controls.</div>
+
+<header>
+  <div class="nav">
+    <div class="logo">SocialTool<span>Hub</span></div>
+    <div class="badge">Media Downloader</div>
   </div>
-</section></main>
+</header>
+
+<main>
+
+  <section class="hero" id="home">
+    <h1>Download Your <span class="gradient">Media</span></h1>
+
+    <p>
+      Paste a publicly accessible media URL and download the available media
+      through our secure backend. Only download content that you own or have
+      permission to download.
+    </p>
+
+    <div class="card">
+
+      <form id="downloadForm">
+        <div class="input-row">
+          <input
+            id="urlInput"
+            type="url"
+            placeholder="Paste media URL here..."
+            autocomplete="off"
+            required
+          >
+
+          <button id="submitButton" type="submit">
+            Get Media
+          </button>
+        </div>
+      </form>
+
+      <div id="status"></div>
+
+      <div id="result">
+        <div class="media-card">
+
+          <div id="mediaTitle" class="media-title"></div>
+
+          <div id="mediaInfo" class="media-info"></div>
+
+          <a
+            id="downloadButton"
+            class="download"
+            href="#"
+            target="_blank"
+            rel="noopener"
+          >
+            Download
+          </a>
+
+          <br>
+
+          <button
+            id="anotherButton"
+            class="another"
+            type="button"
+          >
+            Download Another Video
+          </button>
+
+        </div>
+      </div>
+
+      <div class="notice">
+        Only download content that you own or have permission to download.
+        This service does not bypass private content, DRM, login restrictions,
+        or other access controls.
+      </div>
+
+    </div>
+  </section>
+
+
+  <section class="content-section" id="about">
+    <h2>About Us</h2>
+
+    <p>
+      SocialToolHub is a simple online media utility designed to help users
+      access and download publicly accessible media when they have the
+      necessary rights or permission to do so.
+    </p>
+
+    <p style="margin-top:12px">
+      Our goal is to provide a straightforward and easy-to-use interface
+      without requiring users to install additional software.
+    </p>
+  </section>
+
+
+  <section class="content-section" id="how">
+    <h2>How It Works</h2>
+
+    <h3>1. Paste a URL</h3>
+    <p>
+      Enter the URL of publicly accessible media into the input box.
+    </p>
+
+    <h3>2. Get Media</h3>
+    <p>
+      Click the "Get Media" button. The service checks whether the provided
+      URL can be processed.
+    </p>
+
+    <h3>3. Download</h3>
+    <p>
+      If supported media information is available, a download option will be
+      displayed.
+    </p>
+
+    <h3>4. Download Another Video</h3>
+    <p>
+      After completing a download, click "Download Another Video" to return
+      to the main input area and enter another URL.
+    </p>
+  </section>
+
+
+  <section class="content-section" id="privacy">
+    <h2>Privacy Policy</h2>
+
+    <p>
+      SocialToolHub respects your privacy. We do not ask users to provide
+      unnecessary personal information simply to use the media tool.
+    </p>
+
+    <h3>Information We Process</h3>
+    <p>
+      When you submit a media URL, the URL is sent to our backend service
+      for processing. Technical information such as browser or server
+      information may also be processed as part of normal website operation.
+    </p>
+
+    <h3>Cookies and Advertising</h3>
+    <p>
+      If advertising services are used on this website in the future,
+      third-party advertising providers may use cookies or similar
+      technologies according to their own policies.
+    </p>
+
+    <h3>Third-Party Services</h3>
+    <p>
+      This website may interact with third-party platforms or services.
+      Their own privacy policies and terms may apply when their services
+      are involved.
+    </p>
+  </section>
+
+
+  <section class="content-section" id="terms">
+    <h2>Terms of Service</h2>
+
+    <p>
+      By using SocialToolHub, you agree to use the website only for lawful
+      purposes and in accordance with applicable laws and the rights of
+      content owners.
+    </p>
+
+    <h3>Acceptable Use</h3>
+    <ul>
+      <li>Use the service only for lawful purposes.</li>
+      <li>Download content only when you have the necessary rights or permission.</li>
+      <li>Do not attempt to bypass DRM, private access, login restrictions, or security controls.</li>
+      <li>Do not use the service to infringe copyright or other intellectual property rights.</li>
+    </ul>
+
+    <h3>Service Availability</h3>
+    <p>
+      We do not guarantee that every URL or media platform will always be
+      supported. Availability may change because of technical or third-party
+      service changes.
+    </p>
+  </section>
+
+
+  <section class="content-section" id="disclaimer">
+    <h2>Disclaimer</h2>
+
+    <p>
+      SocialToolHub is a media utility. Users are responsible for ensuring
+      that they have the legal right or permission to download any content
+      they submit to the service.
+    </p>
+
+    <p style="margin-top:12px">
+      SocialToolHub does not encourage copyright infringement, unauthorized
+      downloading, or circumvention of access controls.
+    </p>
+
+    <p style="margin-top:12px">
+      We do not claim ownership of content hosted on third-party platforms.
+    </p>
+  </section>
+
+
+  <section class="content-section" id="copyright">
+    <h2>Copyright & DMCA</h2>
+
+    <p>
+      SocialToolHub respects the intellectual property rights of content
+      creators and copyright owners.
+    </p>
+
+    <p style="margin-top:12px">
+      If you believe that content or functionality associated with this
+      website infringes your rights, please contact us with sufficient
+      information to identify the issue.
+    </p>
+
+    <p style="margin-top:12px">
+      We do not intend to facilitate unauthorized access to private,
+      restricted, DRM-protected, or otherwise inaccessible content.
+    </p>
+  </section>
+
+
+  <section class="content-section" id="contact">
+    <h2>Contact Us</h2>
+
+    <p>
+      If you have questions, copyright concerns, technical issues, or other
+      website-related inquiries, you can contact the SocialToolHub team.
+    </p>
+
+    <p style="margin-top:12px">
+      Email: <strong>support@socialtoolhub.com</strong>
+    </p>
+
+    <p style="margin-top:12px;font-size:13px">
+      Replace this email address with your real support email before
+      publishing the website.
+    </p>
+  </section>
+
+</main>
+
+
+<footer>
+  <div class="footer-inner">
+
+    <div class="footer-links">
+      <a href="#home">Home</a>
+      <a href="#about">About Us</a>
+      <a href="#how">How It Works</a>
+      <a href="#privacy">Privacy Policy</a>
+      <a href="#terms">Terms</a>
+      <a href="#disclaimer">Disclaimer</a>
+      <a href="#copyright">Copyright / DMCA</a>
+      <a href="#contact">Contact</a>
+    </div>
+
+    <div class="copyright">
+      © 2026 SocialToolHub. All rights reserved.
+    </div>
+
+  </div>
+</footer>
+
+
 <script>
 const API_BASE="https://social-media-downloader-f8pv.onrender.com";
-const form=document.getElementById("downloadForm"),input=document.getElementById("urlInput"),button=document.getElementById("submitButton");
-const statusBox=document.getElementById("status"),resultBox=document.getElementById("result"),mediaTitle=document.getElementById("mediaTitle"),mediaInfo=document.getElementById("mediaInfo"),downloadButton=document.getElementById("downloadButton");
-function showStatus(message,error=false){statusBox.style.display="block";statusBox.textContent=message;statusBox.classList.toggle("error",error)}
+
+const form=document.getElementById("downloadForm"),
+input=document.getElementById("urlInput"),
+button=document.getElementById("submitButton"),
+statusBox=document.getElementById("status"),
+resultBox=document.getElementById("result"),
+mediaTitle=document.getElementById("mediaTitle"),
+mediaInfo=document.getElementById("mediaInfo"),
+downloadButton=document.getElementById("downloadButton"),
+anotherButton=document.getElementById("anotherButton");
+
+function showStatus(message,error=false){
+  statusBox.style.display="block";
+  statusBox.textContent=message;
+  statusBox.classList.toggle("error",error);
+}
+
 form.addEventListener("submit",async e=>{
-  e.preventDefault();const url=input.value.trim();resultBox.style.display="none";
-  if(!url)return showStatus("Please enter a URL.",true);
-  button.disabled=true;button.textContent="Processing...";showStatus("Checking the media URL...");
+  e.preventDefault();
+
+  const url=input.value.trim();
+
+  resultBox.style.display="none";
+
+  if(!url)
+    return showStatus("Please enter a URL.",true);
+
+  button.disabled=true;
+  button.textContent="Processing...";
+  showStatus("Checking the media URL...");
+
   try{
-    const response=await fetch(`${API_BASE}/api/media?url=${encodeURIComponent(url)}`);
-    const data=await response.json();if(!response.ok)throw new Error(data.error||"Unable to process this URL.");
+    const response=await fetch(
+      `${API_BASE}/api/media?url=${encodeURIComponent(url)}`
+    );
+
+    const data=await response.json();
+
+    if(!response.ok)
+      throw new Error(data.error||"Unable to process this URL.");
+
     mediaTitle.textContent=data.title||"Media file";
-    mediaInfo.textContent=`Type: ${data.contentType||"Unknown"} • Size: ${data.size||"Unknown"}`;
-    downloadButton.href=`${API_BASE}/api/download?url=${encodeURIComponent(url)}`;
-    resultBox.style.display="block";showStatus("Media is ready.");
-  }catch(error){showStatus(error.message||"Something went wrong.",true)}
-  finally{button.disabled=false;button.textContent="Get Media"}
+
+    mediaInfo.textContent=
+      `Type: ${data.contentType||"Unknown"} • Size: ${data.size||"Unknown"}`;
+
+    downloadButton.href=
+      `${API_BASE}/api/download?url=${encodeURIComponent(url)}`;
+
+    resultBox.style.display="block";
+
+    showStatus("Media is ready.");
+
+  }catch(error){
+
+    showStatus(
+      error.message||"Something went wrong.",
+      true
+    );
+
+  }finally{
+
+    button.disabled=false;
+    button.textContent="Get Media";
+
+  }
+});
+
+
+anotherButton.addEventListener("click",()=>{
+
+  resultBox.style.display="none";
+  statusBox.style.display="none";
+
+  input.value="";
+  input.focus();
+
+  window.scrollTo({
+    top:document.getElementById("home").offsetTop-20,
+    behavior:"smooth"
+  });
+
 });
 </script>
+
 </body>
 </html>
