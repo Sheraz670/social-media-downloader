@@ -79,14 +79,34 @@ function validateUrl(url) {
   return parsed;
 }
 
-function isSocialMediaUrl(url) {
+function getPlatform(url) {
   const host = new URL(url).hostname.toLowerCase();
 
-  return (
+  if (
     host.includes("youtube.com") ||
-    host === "youtu.be" ||
-    host.includes("instagram.com") ||
-    host.includes("tiktok.com")
+    host === "youtu.be"
+  ) {
+    return "youtube";
+  }
+
+  if (host.includes("tiktok.com")) {
+    return "tiktok";
+  }
+
+  if (host.includes("instagram.com")) {
+    return "instagram";
+  }
+
+  return "other";
+}
+
+function isSocialMediaUrl(url) {
+  const platform = getPlatform(url);
+
+  return (
+    platform === "youtube" ||
+    platform === "instagram" ||
+    platform === "tiktok"
   );
 }
 
@@ -143,17 +163,43 @@ async function getDirectMediaInfo(url) {
   };
 }
 
+/*
+  yt-dlp options.
+
+  YouTube:
+  - Uses Node as the JavaScript runtime.
+  - Allows yt-dlp to obtain its EJS challenge scripts.
+  
+  TikTok/Instagram:
+  - Uses the normal yt-dlp extractor.
+  - No watermark removal or access-control bypass.
+*/
+function getYtDlpOptions(url, forDownload = false) {
+  const platform = getPlatform(url);
+
+  const options = {
+    noWarnings: true,
+    noCheckCertificates: true,
+    noPlaylist: true
+  };
+
+  if (platform === "youtube") {
+    options.jsRuntimes = "node";
+    options.remoteComponents = "ejs:npm";
+  }
+
+  if (forDownload) {
+    options.format = "best[ext=mp4]/best";
+  }
+
+  return options;
+}
+
 async function extractSocialMedia(url) {
   const result = await youtubedl(url, {
     dumpSingleJson: true,
-    noWarnings: true,
-    noCallHome: true,
-    noCheckCertificates: true,
     skipDownload: true,
-    noPlaylist: true,
-
-    // Let yt-dlp select an appropriate format.
-    format: "best[ext=mp4]/best"
+    ...getYtDlpOptions(url)
   });
 
   if (!result) {
@@ -178,7 +224,6 @@ app.get("/api/media", async (req, res) => {
 
     validateUrl(url);
 
-    // Direct media URL
     const directInfo =
       await getDirectMediaInfo(url).catch(
         () => null
@@ -188,7 +233,6 @@ app.get("/api/media", async (req, res) => {
       return res.json(directInfo);
     }
 
-    // Supported social-media URL
     if (!isSocialMediaUrl(url)) {
       return res.status(415).json({
         error:
@@ -215,7 +259,8 @@ app.get("/api/media", async (req, res) => {
       size: "Available on download",
       duration,
       downloadable: true,
-      direct: false
+      direct: false,
+      platform: getPlatform(url)
     });
   } catch (error) {
     console.error(
@@ -237,7 +282,6 @@ app.get("/api/download", async (req, res) => {
 
     validateUrl(url);
 
-    // Direct media URL
     const directResponse =
       await fetch(url, {
         redirect: "follow"
@@ -288,7 +332,6 @@ app.get("/api/download", async (req, res) => {
       }
     }
 
-    // Social-media URL
     if (!isSocialMediaUrl(url)) {
       return res.status(415).json({
         error:
@@ -296,19 +339,18 @@ app.get("/api/download", async (req, res) => {
       });
     }
 
+    const platform = getPlatform(url);
+
     const subprocess =
       youtubedl.exec(
         url,
         {
           output: "-",
 
-          format:
-            "best[ext=mp4]/best",
-
-          noWarnings: true,
-          noCallHome: true,
-          noCheckCertificates: true,
-          noPlaylist: true
+          ...getYtDlpOptions(
+            url,
+            true
+          )
         },
         {
           maxBuffer:
@@ -323,7 +365,7 @@ app.get("/api/download", async (req, res) => {
 
     res.setHeader(
       "Content-Disposition",
-      'attachment; filename="socialtoolhub-video.mp4"'
+      `attachment; filename="socialtoolhub-${platform}-video.mp4"`
     );
 
     subprocess.stdout.pipe(res);
