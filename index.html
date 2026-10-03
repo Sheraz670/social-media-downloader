@@ -1364,7 +1364,7 @@ const API_BASE =
 
 const pages = {
 
-  "/": {
+   {
     title: "SocialToolHub — Media Downloader & Video to Script",
     description:
       "SocialToolHub provides simple tools for processing publicly accessible YouTube, TikTok, Facebook and Instagram media URLs and generating video transcripts.",
@@ -1948,7 +1948,6 @@ function setupPage() {
 /* =========================================================
    MEDIA DOWNLOADER
 ========================================================= */
-
 async function downloadMedia() {
 
   const input =
@@ -2001,19 +2000,9 @@ async function downloadMedia() {
 
     const response =
       await fetch(
-        API_BASE + "/api/media",
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json"
-          },
-
-          body: JSON.stringify({
-            url: url
-          })
-        }
+        API_BASE +
+        "/api/media?url=" +
+        encodeURIComponent(url)
       );
 
     let data = null;
@@ -2057,27 +2046,16 @@ async function downloadMedia() {
         .filter(Boolean)
         .join(" • ");
 
-    let downloadUrl =
-      data.downloadUrl ||
-      data.url ||
-      data.download_url;
-
-    if (!downloadUrl) {
-
-      throw new Error(
-        "The server did not return a download URL."
-      );
-    }
-
-    if (
-      downloadUrl.startsWith("/")
-    ) {
-      downloadUrl =
-        API_BASE + downloadUrl;
-    }
-
     downloadButton.href =
-      downloadUrl;
+      API_BASE +
+      "/api/download?url=" +
+      encodeURIComponent(url);
+
+    downloadButton.target =
+      "_blank";
+
+    downloadButton.rel =
+      "noopener";
 
     showElement(result);
 
@@ -2089,7 +2067,10 @@ async function downloadMedia() {
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      "MEDIA DOWNLOAD ERROR:",
+      error
+    );
 
     showStatus(
       status,
