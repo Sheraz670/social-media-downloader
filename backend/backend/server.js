@@ -350,19 +350,48 @@ function getYtDlpOptions(
     noPlaylist: true
   };
 
+  /*
+  ================================================
+  YOUTUBE
+  ================================================
+  */
+
   if (platform === "youtube") {
+
+    // Current yt-dlp requires an external
+    // JavaScript runtime for full YouTube support.
+    // Node 22+ is supported.
     options.jsRuntimes = "node";
-    options.remoteComponents = "ejs:npm";
+
+    /*
+      EJS is installed through requirements.txt:
+        yt-dlp-ejs
+
+      Do NOT use:
+        remoteComponents: "ejs:npm"
+
+      with Node.
+    */
   }
 
+  /*
+  ================================================
+  DOWNLOAD FORMAT
+  ================================================
+  */
+
   if (forDownload) {
+
     if (platform === "facebook") {
+
       options.format =
         "bestvideo+bestaudio/best";
 
       options.mergeOutputFormat =
         "mp4";
+
     } else {
+
       options.format =
         "best[ext=mp4]/best";
     }
@@ -370,7 +399,6 @@ function getYtDlpOptions(
 
   return options;
 }
-
 /*
 ==================================================
 SOCIAL MEDIA INFO
