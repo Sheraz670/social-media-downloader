@@ -1,11 +1,17 @@
 const express = require("express");
 const cors = require("cors");
 const { Readable } = require("stream");
-const { createReadStream, unlink } = require("fs");
+const {
+  createReadStream,
+  unlink,
+  mkdtempSync,
+  rmSync
+} = require("fs");
 const { promisify } = require("util");
 const os = require("os");
 const path = require("path");
 const crypto = require("crypto");
+const { spawn } = require("child_process");
 const youtubedl = require("youtube-dl-exec");
 
 const unlinkAsync = promisify(unlink);
@@ -283,12 +289,24 @@ function runYtDlpProcess(url, options) {
   });
 }
 
+/*
+==================================================
+HOME
+==================================================
+*/
+
 app.get("/", (req, res) => {
   res.json({
     service: "SocialToolHub Media API",
     status: "online"
   });
 });
+
+/*
+==================================================
+MEDIA INFO
+==================================================
+*/
 
 app.get("/api/media", async (req, res) => {
   try {
@@ -347,6 +365,175 @@ app.get("/api/media", async (req, res) => {
     });
   }
 });
+
+/*
+==================================================
+NEW: VIDEO URL -> WHISPER SCRIPT
+==================================================
+*/
+
+app.post("/api/transcribe", async (req, res) => {
+  let tempDir = null;
+
+  try {
+    const url = req.body?.url;
+
+    validateUrl(url);
+
+    if (!isSocialMediaUrl(url)) {
+      return res.status(415).json({
+        error:
+          "Please provide a supported YouTube, TikTok, Instagram, or Facebook URL."
+      });
+    }
+
+    tempDir = mkdtempSync(
+      path.join(
+        os.tmpdir(),
+        "socialtoolhub-transcribe-"
+      )
+    );
+
+    const audioFile = path.join(
+      tempDir,
+      "audio.mp3"
+    );
+
+    console.log(
+      "Downloading audio for transcription..."
+    );
+
+    await runYtDlpProcess(
+      url,
+      {
+        output: audioFile,
+
+        format: "bestaudio/best",
+
+        extractAudio: true,
+        audioFormat: "mp3",
+
+        ...getYtDlpOptions(url)
+      }
+    );
+
+    console.log(
+      "Audio downloaded. Starting Whisper..."
+    );
+
+    const pythonFile =
+      path.join(
+        __dirname,
+        "transcribe.py"
+      );
+
+    const pythonProcess = spawn(
+      "python3",
+      [
+        pythonFile,
+        audioFile
+      ]
+    );
+
+    let stdout = "";
+    let stderr = "";
+
+    pythonProcess.stdout.on(
+      "data",
+      (data) => {
+        stdout += data.toString();
+      }
+    );
+
+    pythonProcess.stderr.on(
+      "data",
+      (data) => {
+        stderr += data.toString();
+
+        console.error(
+          "Whisper:",
+          data.toString()
+        );
+      }
+    );
+
+    const exitCode =
+      await new Promise(
+        (resolve, reject) => {
+          pythonProcess.on(
+            "error",
+            reject
+          );
+
+          pythonProcess.on(
+            "close",
+            resolve
+          );
+        }
+      );
+
+    if (exitCode !== 0) {
+      throw new Error(
+        stderr.trim() ||
+        "Whisper transcription failed."
+      );
+    }
+
+    let result;
+
+    try {
+      result = JSON.parse(
+        stdout.trim()
+      );
+    } catch {
+      throw new Error(
+        "Invalid response received from Whisper."
+      );
+    }
+
+    if (result.error) {
+      throw new Error(result.error);
+    }
+
+    return res.json({
+      success: true,
+      text: result.text || ""
+    });
+
+  } catch (error) {
+    console.error(
+      "TRANSCRIPTION ERROR:",
+      error
+    );
+
+    return res.status(500).json({
+      error:
+        error.message ||
+        "Unable to generate script."
+    });
+
+  } finally {
+    if (tempDir) {
+      try {
+        rmSync(tempDir, {
+          recursive: true,
+          force: true
+        });
+      } catch (cleanupError) {
+        console.error(
+          "TEMP CLEANUP ERROR:",
+          cleanupError
+        );
+      }
+    }
+  }
+});
+
+/*
+==================================================
+DOWNLOAD
+==================================================
+*/
 
 app.get("/api/download", async (req, res) => {
   let tempFile = null;
@@ -421,6 +608,7 @@ app.get("/api/download", async (req, res) => {
       merge them into one MP4,
       then send the MP4 to the user.
     */
+
     if (platform === "facebook") {
       const randomName =
         `socialtoolhub-${crypto.randomUUID()}`;
@@ -498,6 +686,7 @@ app.get("/api/download", async (req, res) => {
     /*
       Existing TikTok / Instagram / YouTube flow.
     */
+
     const subprocess =
       youtubedl.exec(
         url,
@@ -553,6 +742,7 @@ app.get("/api/download", async (req, res) => {
         }
       }
     );
+
   } catch (error) {
     console.error(
       "DOWNLOAD ERROR:",
@@ -576,6 +766,12 @@ app.get("/api/download", async (req, res) => {
     res.end();
   }
 });
+
+/*
+==================================================
+START SERVER
+==================================================
+*/
 
 app.listen(
   PORT,
