@@ -1218,4 +1218,4 @@ app.get(
       const files =
         readdirSync(tempDir);
 
-      const downloadedFile 
+      const downloadedFile = files.find((file) => file.startsWith("video."));
