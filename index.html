@@ -1,800 +1,520 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-
-<title id="pageTitle">SocialToolHub — Media Downloader & Video to Script</title>
-
-<meta
-  id="metaDescription"
-  name="description"
-  content="SocialToolHub provides simple tools for processing publicly accessible media URLs and generating video transcripts."
->
-
-<meta name="robots" content="index,follow,max-image-preview:large">
-<meta name="theme-color" content="#09090b">
-
-<link
-  id="canonical"
-  rel="canonical"
-  href="https://social-media-downloader.afzainkhan90.workers.dev/"
->
-
-<meta property="og:type" content="website">
-<meta
-  id="ogTitle"
-  property="og:title"
-  content="SocialToolHub — Media Downloader & Video to Script"
->
-<meta
-  id="ogDescription"
-  property="og:description"
-  content="Simple tools for publicly accessible media URLs and video transcripts."
->
-<meta
-  id="ogUrl"
-  property="og:url"
-  content="https://social-media-downloader.afzainkhan90.workers.dev/"
->
-
-<meta name="twitter:card" content="summary">
-<meta
-  id="twitterTitle"
-  name="twitter:title"
-  content="SocialToolHub — Media Downloader & Video to Script"
->
-<meta
-  id="twitterDescription"
-  name="twitter:description"
-  content="Simple tools for publicly accessible media URLs and video transcripts."
->
-
-<style>
-
-*{
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
-}
-
-html{
-  scroll-behavior:smooth;
-}
-
-body{
-  font-family:Arial,sans-serif;
-  min-height:100vh;
-  background:#09090b;
-  color:#fff;
-}
-
-header{
-  border-bottom:1px solid #27272a;
-  padding:18px 20px;
-}
-
-.nav{
-  max-width:1100px;
-  margin:auto;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:20px;
-}
-
-.logo{
-  font-size:22px;
-  font-weight:800;
-  text-decoration:none;
-  color:#fff;
-}
-
-.logo span{
-  color:#6366f1;
-}
-
-.badge{
-  font-size:12px;
-  color:#a1a1aa;
-}
-
-.nav-links{
-  display:flex;
-  align-items:center;
-  gap:16px;
-  flex-wrap:wrap;
-}
-
-.nav-links a{
-  color:#a1a1aa;
-  text-decoration:none;
-  font-size:13px;
-}
-
-.nav-links a:hover{
-  color:#fff;
-}
-
-main{
-  max-width:1000px;
-  margin:auto;
-  padding:70px 20px;
-}
-
-.hero{
-  text-align:center;
-}
-
-.hero h1{
-  font-size:clamp(36px,7vw,64px);
-  line-height:1.05;
-  margin-bottom:20px;
-}
-
-.gradient{
-  background:linear-gradient(
-    90deg,
-    #818cf8,
-    #c084fc,
-    #f472b6
-  );
-  -webkit-background-clip:text;
-  background-clip:text;
-  color:transparent;
-}
-
-.hero p{
-  color:#a1a1aa;
-  max-width:700px;
-  margin:auto;
-  line-height:1.7;
-}
-
-.quick-links{
-  display:flex;
-  justify-content:center;
-  flex-wrap:wrap;
-  gap:10px;
-  margin-top:25px;
-}
-
-.quick-links a{
-  color:#c4b5fd;
-  border:1px solid #3f3f46;
-  background:#111113;
-  text-decoration:none;
-  padding:9px 13px;
-  border-radius:999px;
-  font-size:13px;
-}
-
-.quick-links a:hover{
-  background:#18181b;
-  color:#fff;
-}
-
-.tools{
-  margin-top:40px;
-  display:grid;
-  gap:25px;
-}
-
-.card{
-  background:#18181b;
-  border:1px solid #27272a;
-  border-radius:20px;
-  padding:20px;
-  text-align:left;
-}
-
-.card h2{
-  font-size:22px;
-  margin-bottom:8px;
-}
-
-.card-description{
-  color:#a1a1aa;
-  font-size:14px;
-  line-height:1.6;
-  margin-bottom:18px;
-}
-
-.input-row{
-  display:flex;
-  gap:10px;
-}
-
-input{
-  width:100%;
-  min-width:0;
-  padding:16px;
-  border-radius:12px;
-  border:1px solid #3f3f46;
-  background:#09090b;
-  color:white;
-  outline:none;
-  font-size:15px;
-}
-
-input:focus{
-  border-color:#6366f1;
-}
-
-button{
-  border:0;
-  border-radius:12px;
-  padding:0 22px;
-  min-height:50px;
-  background:#4f46e5;
-  color:white;
-  font-weight:700;
-  cursor:pointer;
-}
-
-button:hover{
-  background:#6366f1;
-}
-
-button:disabled{
-  opacity:.6;
-  cursor:not-allowed;
-}
-
-.script-button{
-  background:#7c3aed;
-}
-
-.script-button:hover{
-  background:#8b5cf6;
-}
-
-.secondary-button{
-  background:#27272a;
-}
-
-.secondary-button:hover{
-  background:#3f3f46;
-}
-
-#mediaStatus,
-#scriptStatus{
-  margin-top:18px;
-  color:#a1a1aa;
-  display:none;
-  line-height:1.6;
-}
-
-.error{
-  color:#f87171!important;
-}
-
-.success{
-  color:#4ade80!important;
-}
-
-.result{
-  margin-top:25px;
-  display:none;
-}
-
-.media-card,
-.script-card{
-  background:#09090b;
-  border:1px solid #27272a;
-  border-radius:16px;
-  padding:18px;
-}
-
-.media-title,
-.script-title{
-  font-size:18px;
-  font-weight:700;
-  margin-bottom:10px;
-}
-
-.media-info{
-  color:#a1a1aa;
-  font-size:14px;
-  margin-bottom:18px;
-  line-height:1.6;
-}
-
-.download{
-  display:inline-block;
-  text-decoration:none;
-  background:#16a34a;
-  color:white;
-  padding:12px 18px;
-  border-radius:10px;
-  font-weight:700;
-}
-
-.download:hover{
-  background:#22c55e;
-}
-
-/* AUDIO */
-
-.audio-box{
-  margin-top:15px;
-  padding:15px;
-  background:#18181b;
-  border:1px solid #27272a;
-  border-radius:12px;
-}
-
-.audio-title{
-  font-size:14px;
-  color:#a1a1aa;
-  margin-bottom:10px;
-}
-
-audio{
-  width:100%;
-  display:block;
-}
-
-.transcript-actions{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  margin-top:15px;
-}
-
-.transcript-button{
-  background:#7c3aed;
-}
-
-.transcript-button:hover{
-  background:#8b5cf6;
-}
-
-#languageInfo{
-  margin-top:15px;
-  padding:10px 12px;
-  border-radius:10px;
-  background:#18181b;
-  color:#a1a1aa;
-  font-size:14px;
-  display:none;
-}
-
-#scriptText{
-  width:100%;
-  min-height:260px;
-  resize:vertical;
-  padding:16px;
-  border-radius:12px;
-  border:1px solid #3f3f46;
-  background:#18181b;
-  color:#fff;
-  outline:none;
-  font-family:Arial,sans-serif;
-  font-size:15px;
-  line-height:1.7;
-  margin-top:15px;
-}
-
-.script-download{
-  background:#16a34a;
-}
-
-.script-download:hover{
-  background:#22c55e;
-}
-
-#copyScriptButton{
-  min-height:45px;
-}
-
-.notice{
-  margin-top:25px;
-  padding:15px;
-  border-radius:12px;
-  background:#18181b;
-  color:#a1a1aa;
-  font-size:13px;
-  line-height:1.6;
-  text-align:left;
-}
-
-.content-section{
-  margin-top:50px;
-  padding:30px 20px;
-  background:#111113;
-  border:1px solid #27272a;
-  border-radius:18px;
-  scroll-margin-top:30px;
-}
-
-.content-section h2{
-  font-size:28px;
-  margin-bottom:15px;
-}
-
-.content-section h3{
-  font-size:19px;
-  margin-top:22px;
-  margin-bottom:8px;
-}
-
-.content-section p,
-.content-section li{
-  color:#a1a1aa;
-  line-height:1.8;
-  font-size:15px;
-}
-
-.content-section ul{
-  padding-left:20px;
-}
-
-.faq-item{
-  border-top:1px solid #27272a;
-  padding:16px 0;
-}
-
-.faq-item:first-child{
-  border-top:0;
-}
-
-.faq-item summary{
-  cursor:pointer;
-  font-weight:700;
-  color:#fff;
-}
-
-.faq-answer{
-  margin-top:10px;
-}
-
-.platform-links{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:12px;
-  margin-top:20px;
-}
-
-.platform-links a{
-  display:block;
-  padding:14px;
-  border:1px solid #27272a;
-  border-radius:12px;
-  background:#09090b;
-  color:#c4b5fd;
-  text-decoration:none;
-}
-
-.platform-links a:hover{
-  border-color:#4f46e5;
-  color:#fff;
-}
-
-footer{
-  border-top:1px solid #27272a;
-  margin-top:70px;
-  padding:35px 20px;
-}
-
-.footer-inner{
-  max-width:1100px;
-  margin:auto;
-  text-align:center;
-}
-
-.footer-links{
-  display:flex;
-  justify-content:center;
-  flex-wrap:wrap;
-  gap:18px;
-  margin-bottom:18px;
-}
-
-.footer-links a{
-  color:#a1a1aa;
-  text-decoration:none;
-  font-size:14px;
-}
-
-.footer-links a:hover{
-  color:#fff;
-}
-
-.copyright{
-  color:#71717a;
-  font-size:13px;
-  line-height:1.6;
-}
-
-.small-note{
-  margin-top:10px;
-  color:#71717a;
-  font-size:12px;
-  line-height:1.6;
-}
-
-@media(max-width:750px){
-
-  .nav{
-    flex-direction:column;
-    align-items:flex-start;
-  }
-
-  .nav-links{
-    display:none;
-  }
-
-  .input-row{
-    flex-direction:column;
-  }
-
-  .input-row button{
-    width:100%;
-  }
-
-  .transcript-actions{
-    flex-direction:column;
-  }
-
-  .transcript-actions button{
-    width:100%;
-  }
-
-  .platform-links{
-    grid-template-columns:1fr;
-  }
-
-  .content-section{
-    padding:24px 18px;
-  }
-}
-
-</style>
-</head>
-
-<body>
-
-<header>
-
-<div class="nav">
-
-<a class="logo" href="/">
-SocialTool<span>Hub</span>
-</a>
-
-<div class="nav-links">
-
-<a href="/tiktok-video-downloader">TikTok</a>
-<a href="/instagram-video-downloader">Instagram</a>
-<a href="/facebook-video-downloader">Facebook</a>
-<a href="/youtube-video-downloader">YouTube</a>
+<!DOCTYPE html>  <html lang="en">  
+<head>  
+<meta charset="UTF-8">  
+<meta name="viewport" content="width=device-width,initial-scale=1">  <title>SocialToolHub — Media Downloader & Video to Script</title>  <meta id="metaDescription"  
+content="SocialToolHub provides simple tools for downloading publicly accessible media and generating video transcripts.">
+
+<meta name="robots" content="index,follow,max-image-preview:large">  
+<meta name="author" content="SocialToolHub">  <link id="canonical" rel="canonical" href="https://social-media-downloader.afzainkhan90.workers.dev/">  <meta property="og:type" content="website">  
+<meta property="og:site_name" content="SocialToolHub">  
+<meta id="ogTitle" property="og:title" content="SocialToolHub — Media Downloader & Video to Script">  
+<meta id="ogDescription" property="og:description" content="Simple online media downloader and video-to-script tools.">  
+<meta id="ogUrl" property="og:url" content="https://social-media-downloader.afzainkhan90.workers.dev/">  <style>  
+*{box-sizing:border-box;margin:0;padding:0}  
+  
+html{  
+  scroll-behavior:smooth;  
+}  
+  
+body{  
+  font-family:Arial,sans-serif;  
+  min-height:100vh;  
+  background:#09090b;  
+  color:#fff;  
+}  
+  
+header{  
+  border-bottom:1px solid #27272a;  
+  padding:18px 20px;  
+}  
+  
+.nav{  
+  max-width:1100px;  
+  margin:auto;  
+  display:flex;  
+  justify-content:space-between;  
+  align-items:center;  
+  gap:20px;  
+}  
+  
+.logo{  
+  font-size:22px;  
+  font-weight:800;  
+  text-decoration:none;  
+  color:#fff;  
+}  
+  
+.logo span{  
+  color:#6366f1;  
+}  
+  
+.badge{  
+  font-size:12px;  
+  color:#a1a1aa;  
+}  
+  
+main{  
+  max-width:950px;  
+  margin:auto;  
+  padding:65px 20px;  
+}  
+  
+.hero{  
+  text-align:center;  
+}  
+  
+.hero h1{  
+  font-size:clamp(36px,7vw,64px);  
+  line-height:1.05;  
+  margin-bottom:20px;  
+}  
+  
+.gradient{  
+  background:linear-gradient(90deg,#818cf8,#c084fc,#f472b6);  
+  -webkit-background-clip:text;  
+  color:transparent;  
+}  
+  
+.hero p{  
+  color:#a1a1aa;  
+  max-width:700px;  
+  margin:auto;  
+  line-height:1.8;  
+}  
+  
+.page-links{  
+  display:flex;  
+  justify-content:center;  
+  flex-wrap:wrap;  
+  gap:9px;  
+  margin-top:25px;  
+}  
+  
+.page-links a{  
+  color:#c4b5fd;  
+  border:1px solid #3f3f46;  
+  padding:9px 13px;  
+  border-radius:999px;  
+  text-decoration:none;  
+  font-size:13px;  
+}  
+  
+.page-links a:hover{  
+  background:#18181b;  
+}  
+  
+.tools{  
+  margin-top:40px;  
+  display:grid;  
+  gap:25px;  
+}  
+  
+.card{  
+  background:#18181b;  
+  border:1px solid #27272a;  
+  border-radius:20px;  
+  padding:22px;  
+  text-align:left;  
+}  
+  
+.card h2{  
+  font-size:22px;  
+  margin-bottom:8px;  
+}  
+  
+.card-description{  
+  color:#a1a1aa;  
+  font-size:14px;  
+  line-height:1.7;  
+  margin-bottom:18px;  
+}  
+  
+.input-row{  
+  display:flex;  
+  gap:10px;  
+}  
+  
+input{  
+  width:100%;  
+  min-width:0;  
+  padding:16px;  
+  border-radius:12px;  
+  border:1px solid #3f3f46;  
+  background:#09090b;  
+  color:white;  
+  outline:none;  
+  font-size:15px;  
+}  
+  
+input:focus{  
+  border-color:#6366f1;  
+}  
+  
+button{  
+  border:0;  
+  border-radius:12px;  
+  padding:0 22px;  
+  min-height:50px;  
+  background:#4f46e5;  
+  color:white;  
+  font-weight:700;  
+  cursor:pointer;  
+}  
+  
+button:hover{  
+  background:#6366f1;  
+}  
+  
+button:disabled{  
+  opacity:.6;  
+  cursor:not-allowed;  
+}  
+  
+.script-button,  
+.transcript-button{  
+  background:#7c3aed;  
+}  
+  
+.script-button:hover,  
+.transcript-button:hover{  
+  background:#8b5cf6;  
+}  
+  
+#mediaStatus,  
+#scriptStatus{  
+  margin-top:18px;  
+  color:#a1a1aa;  
+  display:none;  
+  line-height:1.6;  
+}  
+  
+.error{  
+  color:#f87171!important;  
+}  
+  
+.success{  
+  color:#4ade80!important;  
+}  
+  
+.result{  
+  margin-top:25px;  
+  display:none;  
+}  
+  
+.media-card,  
+.script-card{  
+  background:#09090b;  
+  border:1px solid #27272a;  
+  border-radius:16px;  
+  padding:18px;  
+}  
+  
+.media-title,  
+.script-title{  
+  font-size:18px;  
+  font-weight:700;  
+  margin-bottom:10px;  
+}  
+  
+.media-info{  
+  color:#a1a1aa;  
+  font-size:14px;  
+  margin-bottom:18px;  
+  line-height:1.6;  
+}  
+  
+.download{  
+  display:inline-block;  
+  text-decoration:none;  
+  background:#16a34a;  
+  color:white;  
+  padding:12px 18px;  
+  border-radius:10px;  
+  font-weight:700;  
+}  
+  
+.download:hover{  
+  background:#22c55e;  
+}  
+  
+.audio-box{  
+  margin-top:15px;  
+  padding:15px;  
+  background:#18181b;  
+  border:1px solid #27272a;  
+  border-radius:12px;  
+}  
+  
+.audio-title{  
+  font-size:14px;  
+  color:#a1a1aa;  
+  margin-bottom:10px;  
+}  
+  
+audio{  
+  width:100%;  
+  display:block;  
+}  
+  
+.transcript-actions{  
+  display:flex;  
+  gap:10px;  
+  flex-wrap:wrap;  
+  margin-top:15px;  
+}  
+  
+#languageInfo{  
+  margin-top:15px;  
+  padding:10px 12px;  
+  border-radius:10px;  
+  background:#18181b;  
+  color:#a1a1aa;  
+  font-size:14px;  
+  display:none;  
+}  
+  
+#scriptText{  
+  width:100%;  
+  min-height:260px;  
+  resize:vertical;  
+  padding:16px;  
+  border-radius:12px;  
+  border:1px solid #3f3f46;  
+  background:#18181b;  
+  color:#fff;  
+  outline:none;  
+  font-family:Arial,sans-serif;  
+  font-size:15px;  
+  line-height:1.7;  
+  margin-top:15px;  
+}  
+  
+.script-download{  
+  background:#16a34a;  
+}  
+  
+.notice{  
+  margin-top:25px;  
+  padding:15px;  
+  border-radius:12px;  
+  background:#18181b;  
+  color:#a1a1aa;  
+  font-size:13px;  
+  line-height:1.7;  
+  text-align:left;  
+}  
+  
+.content-section{  
+  margin-top:55px;  
+  padding:30px 22px;  
+  background:#111113;  
+  border:1px solid #27272a;  
+  border-radius:18px;  
+}  
+  
+.content-section h2{  
+  font-size:28px;  
+  margin-bottom:15px;  
+}  
+  
+.content-section h3{  
+  font-size:19px;  
+  margin-top:22px;  
+  margin-bottom:8px;  
+}  
+  
+.content-section p,  
+.content-section li{  
+  color:#a1a1aa;  
+  line-height:1.8;  
+  font-size:15px;  
+}  
+  
+.content-section ul{  
+  padding-left:20px;  
+}  
+  
+.faq{  
+  margin-top:20px;  
+}  
+  
+.faq details{  
+  border-top:1px solid #27272a;  
+  padding:15px 0;  
+}  
+  
+.faq summary{  
+  cursor:pointer;  
+  font-weight:700;  
+}  
+  
+.faq p{  
+  margin-top:10px;  
+}  
+  
+footer{  
+  border-top:1px solid #27272a;  
+  margin-top:70px;  
+  padding:35px 20px;  
+}  
+  
+.footer-inner{  
+  max-width:1100px;  
+  margin:auto;  
+  text-align:center;  
+}  
+  
+.footer-links{  
+  display:flex;  
+  justify-content:center;  
+  flex-wrap:wrap;  
+  gap:18px;  
+  margin-bottom:18px;  
+}  
+  
+.footer-links a{  
+  color:#a1a1aa;  
+  text-decoration:none;  
+  font-size:14px;  
+}  
+  
+.footer-links a:hover{  
+  color:#fff;  
+}  
+  
+.copyright{  
+  color:#71717a;  
+  font-size:13px;  
+  line-height:1.6;  
+}  
+  
+@media(max-width:650px){  
+  
+  main{  
+    padding:45px 15px;  
+  }  
+  
+  .input-row{  
+    flex-direction:column;  
+  }  
+  
+  .input-row button{  
+    width:100%;  
+  }  
+  
+  .transcript-actions{  
+    flex-direction:column;  
+  }  
+  
+  .transcript-actions button{  
+    width:100%;  
+  }  
+  
+  .content-section{  
+    padding:24px 18px;  
+  }  
+  
+  .badge{  
+    display:none;  
+  }  
+}  
+</style>  </head>  <body>  <header>  
+<div class="nav">  <a class="logo" href="/">  
+SocialTool<span>Hub</span>  
+</a>  <div class="badge">Media Downloader & Script Generator</div>  </div>  
+</header>  <main>  <section class="hero">  <h1 id="pageHeading">  
+Download Your <span class="gradient">Media</span>  
+</h1>  <p id="pageIntro">  
+Download publicly accessible media or extract audio and generate a  
+text transcript from supported video URLs.  
+</p>  <nav class="page-links" aria-label="Popular tools">  <a href="/tiktok-video-downloader">TikTok Downloader</a>
+<a href="/instagram-video-downloader">Instagram Downloader</a>
+<a href="/facebook-video-downloader">Facebook Downloader</a>
+<a href="/youtube-video-downloader">YouTube Downloader</a>
 <a href="/video-to-script">Video to Script</a>
 
-</div>
-
-<div class="badge">
-Media Tools
-</div>
-
-</div>
-
-</header>
-
-
-<main>
-
-<section class="hero" id="home">
-
-<h1 id="pageHeading">
-Download Your <span class="gradient">Media</span>
-</h1>
-
-<p id="pageIntro">
-Paste a publicly accessible media URL to download available media
-or extract audio and generate a text transcript.
-</p>
-
-
-<div class="quick-links">
-
-<a href="/tiktok-video-downloader">
-TikTok Video Downloader
-</a>
-
-<a href="/instagram-video-downloader">
-Instagram Video Downloader
-</a>
-
-<a href="/facebook-video-downloader">
-Facebook Video Downloader
-</a>
-
-<a href="/youtube-video-downloader">
-YouTube Video Downloader
-</a>
-
-<a href="/video-to-script">
-Video to Script Generator
-</a>
-
-</div>
-
-
-<div class="tools">
-
-
-<!-- MEDIA DOWNLOADER -->
-
-<div class="card" id="mediaCard">
-
-<h2 id="mediaHeading">
-Media Downloader
-</h2>
-
-<div
-id="mediaDescription"
-class="card-description"
->
-Download available media from a publicly accessible
-YouTube, TikTok, Facebook or Instagram URL.
-</div>
-
-<div class="input-row">
-
-<input
+</nav>  <div class="tools">  <!-- MEDIA DOWNLOADER -->  <div class="card">  <h2 id="mediaHeading">Media Downloader</h2>  <div id="mediaDescription" class="card-description">  
+Paste a publicly accessible YouTube, TikTok, Facebook or Instagram  
+URL to check available media.  
+</div>  <div class="input-row">  <input
 id="mediaUrlInput"
 type="url"
 placeholder="Paste video URL for download..."
 autocomplete="off"
->
 
-<button
-id="mediaButton"
-type="button"
->
-Get Media
-</button>
+> 
 
-</div>
-
-<div id="mediaStatus"></div>
-
-
-<div id="mediaResult" class="result">
-
-<div class="media-card">
-
-<div
-id="mediaTitle"
-class="media-title"
-></div>
-
-<div
-id="mediaInfo"
-class="media-info"
-></div>
-
-<a
+<button id="mediaButton" type="button">  
+Get Media  
+</button>  </div>  <div id="mediaStatus"></div>  <div id="mediaResult" class="result">  <div class="media-card">  <div id="mediaTitle" class="media-title"></div>  <div id="mediaInfo" class="media-info"></div>  <a
 id="downloadButton"
 class="download"
 href="#"
 target="_blank"
 rel="noopener"
->
+
+> 
+
 Download
 </a>
 
-</div>
-
-</div>
-
-</div>
-
-
-<!-- VIDEO TO SCRIPT -->
-
-<div class="card" id="scriptCard">
-
-<h2 id="scriptHeading">
-Video to Script Generator
-</h2>
-
-<div class="card-description">
-Extract audio from a publicly accessible video, then generate
-a transcript in the original spoken language.
-</div>
-
-<div class="input-row">
-
-<input
+</div>  </div>  </div>  <!-- SCRIPT GENERATOR -->  <div class="card">  <h2>Video to Script Generator</h2>  <div class="card-description">  
+Extract audio from a publicly accessible video and generate a  
+transcript in the original spoken language.  
+</div>  <div class="input-row">  <input
 id="scriptUrlInput"
 type="url"
-placeholder="Paste video URL..."
+placeholder="Paste video URL for transcript..."
 autocomplete="off"
->
+
+> 
 
 <button
 id="prepareAudioButton"
 class="script-button"
 type="button"
->
+
+> 
+
 Get Audio
 </button>
 
-</div>
-
-<div id="scriptStatus"></div>
-
-
-<div id="audioResult" class="result">
-
-<div class="script-card">
-
-<div class="script-title">
-Audio Ready
-</div>
-
-<div
-id="audioTitle"
-class="media-info"
-></div>
-
-<div class="audio-box">
-
-<div class="audio-title">
-Extracted Audio
-</div>
-
-<audio
+</div>  <div id="scriptStatus"></div>  <div id="audioResult" class="result">  <div class="script-card">  <div class="script-title">  
+Audio Ready  
+</div>  <div id="audioTitle" class="media-info"></div>  <div class="audio-box">  <div class="audio-title">  
+Extracted Audio  
+</div>  <audio
 id="audioPlayer"
 controls
 preload="metadata"
->
+
+> 
+
 Your browser does not support the audio player.
 </audio>
 
-</div>
-
-<div class="transcript-actions">
-
-<button
+</div>  <div class="transcript-actions">  <button
 id="transcriptButton"
 class="transcript-button"
 type="button"
->
+
+> 
+
 Transcript
 </button>
 
-</div>
-
-<div id="languageInfo"></div>
-
-
-<div
-id="transcriptResult"
-style="display:none"
->
-
-<div
-class="script-title"
-style="margin-top:20px"
->
-Generated Transcript
-</div>
-
-<textarea
-id="scriptText"
-readonly
-placeholder="Your transcript will appear here..."
-></textarea>
-
-<div class="transcript-actions">
-
-<button
+</div>  <div id="languageInfo"></div>  <div id="transcriptResult" style="display:none">  <div class="script-title" style="margin-top:20px">  
+Generated Transcript  
+</div>  <textarea  
+id="scriptText"  
+readonly  
+placeholder="Your transcript will appear here..."  
+></textarea>  <div class="transcript-actions">  <button
 id="copyScriptButton"
 type="button"
->
+
+> 
+
 Copy Transcript
 </button>
 
@@ -802,203 +522,351 @@ Copy Transcript
 id="downloadTranscriptButton"
 class="script-download"
 type="button"
->
+
+> 
+
 Download TXT
 </button>
 
-</div>
+</div>  </div>  </div>  </div>  </div>  <div class="notice">  
+Only download or transcribe content that you own or have permission  
+to use. SocialToolHub does not bypass private content, DRM, login  
+restrictions or other access controls.  
+</div>  </div>  </section>  <!-- SEO CONTENT -->  <section class="content-section">  <h2 id="seoTitle">Online Media Downloader</h2>  <div id="seoContent">  <p>  
+SocialToolHub provides simple online tools for working with publicly  
+accessible media URLs. You can use the downloader to check supported  
+media and use the video-to-script tool to extract audio and create a  
+text transcript.  
+</p>  <h3>Supported platforms</h3>  <p>  
+The service supports publicly accessible URLs from YouTube, TikTok,  
+Instagram and Facebook, subject to technical availability and the  
+rules of each platform.  
+</p>  <h3>Simple online workflow</h3>  <p>  
+Paste a supported URL, process the media and use the available result.  
+For transcription, the audio is prepared first and then processed by  
+the speech recognition system.  
+</p>  </div>  </section>  <section class="content-section">  <h2>Frequently Asked Questions</h2>  <div id="faqContent" class="faq">  <details>  
+<summary>What is SocialToolHub?</summary>  
+<p>  
+SocialToolHub is an online media utility that provides a media  
+downloader and a video-to-script transcription tool.  
+</p>  
+</details>  <details>  
+<summary>Can I download any private video?</summary>  
+<p>  
+No. The service is intended for publicly accessible content that you  
+are legally allowed to access, download or transcribe.  
+</p>  
+</details>  <details>  
+<summary>Does the transcript translate the video?</summary>  
+<p>  
+The transcription system attempts to detect the spoken language and  
+generates text in that spoken language rather than intentionally  
+translating it into another language.  
+</p>  
+</details>  </div>  </section>  <!-- ABOUT -->  <section class="content-section" id="about">  <h2>About SocialToolHub</h2>  <p>  
+SocialToolHub is designed to provide simple browser-based media  
+utilities without requiring users to install additional desktop  
+software.  
+</p>  <p style="margin-top:12px">  
+The website focuses on publicly accessible media processing,  
+downloading where technically available, audio extraction and  
+speech-to-text transcription.  
+</p>  </section>  <!-- HOW -->  <section class="content-section" id="how">  <h2>How It Works</h2>  <h3>1. Choose a tool</h3>  <p>  
+Choose a platform-specific downloader page or the Video to Script  
+tool from the navigation above.  
+</p>  <h3>2. Paste the URL</h3>  <p>  
+Paste the publicly accessible video or media URL into the search box.  
+</p>  <h3>3. Download media</h3>  <p>  
+The downloader checks the URL and provides an available download  
+option when supported.  
+</p>  <h3>4. Generate a script</h3>  <p>  
+For transcription, the service first extracts audio and then uses  
+speech recognition to generate the transcript.  
+</p>  </section>  <!-- PRIVACY -->  <section class="content-section" id="privacy">  <h2>Privacy Policy</h2>  <p>  
+SocialToolHub respects user privacy and aims to process only the  
+information necessary to provide its services.  
+</p>  <h3>Information processed</h3>  <p>  
+When you submit a URL, the URL is sent to the backend service for  
+processing. Technical information may also be processed as part of  
+normal website operation, security and troubleshooting.  
+</p>  <h3>Cookies and advertising</h3>  <p>  
+If advertising services are displayed on SocialToolHub, advertising  
+providers may use cookies or similar technologies according to their  
+own policies and applicable requirements.  
+</p>  <h3>Third-party services</h3>  <p>  
+Media platforms and other third-party services have their own terms,  
+privacy policies and technical restrictions. SocialToolHub does not  
+control those third-party policies.  
+</p>  </section>  <!-- TERMS -->  <section class="content-section" id="terms">  <h2>Terms of Service</h2>  <p>  
+By using SocialToolHub, you agree to use the website lawfully and  
+respect applicable copyright, intellectual property and platform  
+rules.  
+</p>  <h3>Acceptable use</h3>  <ul>  
+<li>Use the service only for lawful purposes.</li>  
+<li>Use downloaded or transcribed content only when you have the necessary rights or permission.</li>  
+<li>Do not attempt to bypass DRM, private access, login restrictions or security controls.</li>  
+<li>Do not use the service to infringe copyright or other intellectual property rights.</li>  
+</ul>  <h3>Availability</h3>  <p>  
+We do not guarantee that every URL will always be supported. Platform  
+changes, technical limitations or third-party restrictions may affect  
+availability.  
+</p>  </section>  <!-- DISCLAIMER -->  <section class="content-section" id="disclaimer">  <h2>Disclaimer</h2>  <p>  
+SocialToolHub is a technical media utility. Users are responsible for  
+ensuring that they have the legal right or permission to access,  
+download or transcribe content submitted to the service.  
+</p>  <p style="margin-top:12px">  
+SocialToolHub does not encourage copyright infringement,  
+unauthorized access or circumvention of access controls.  
+</p>  </section>  <!-- COPYRIGHT -->  <section class="content-section" id="copyright">  <h2>Copyright & DMCA</h2>  <p>  
+SocialToolHub respects the intellectual property rights of content  
+creators and copyright owners.  
+</p>  <p style="margin-top:12px">  
+If you believe that material associated with this website infringes  
+your rights, please contact the website operator with enough  
+information to identify the relevant material and the nature of the  
+claim.  
+</p>  </section>  <!-- CONTACT -->  <section class="content-section" id="contact">  <h2>Contact Us</h2>  <p>  
+For technical questions, copyright concerns, privacy questions or  
+other website-related inquiries, please contact the SocialToolHub  
+team.  
+</p>  <p style="margin-top:12px">  
+<strong>Support email:</strong> Please add your real support email  
+address here before publishing the website.  
+</p>  </section>  </main>  <footer>  <div class="footer-inner">  <div class="footer-links">  <a href="/">Home</a>
+<a href="/tiktok-video-downloader">TikTok Downloader</a>
+<a href="/instagram-video-downloader">Instagram Downloader</a>
+<a href="/facebook-video-downloader">Facebook Downloader</a>
+<a href="/youtube-video-downloader">YouTube Downloader</a>
+<a href="/video-to-script">Video to Script</a>
+<a href="#about">About</a>
+<a href="#how">How It Works</a>
+<a href="#privacy">Privacy</a>
+<a href="#terms">Terms</a>
+<a href="#disclaimer">Disclaimer</a>
+<a href="#copyright">Copyright / DMCA</a>
+<a href="#contact">Contact</a>
 
-</div>
+</div>  <div class="copyright">  
+© 2026 SocialToolHub. All rights reserved.  
+</div>  </div>  </footer>  <script>  
+  
+const API_BASE =  
+"https://social-media-downloader-f8pv.onrender.com";  
+  
+const SITE_URL =  
+"https://social-media-downloader.afzainkhan90.workers.dev";  
+  
+  
+/* =========================================================  
+   PAGE SEO CONFIG  
+========================================================= */  
+const pages = {
 
-</div>
+  "/": {
+    title: "SocialToolHub — Media Downloader & Video to Script",
+    description:
+      "SocialToolHub provides simple tools for processing publicly accessible YouTube, TikTok, Facebook and Instagram media URLs and generating video transcripts.",
+    heading:
+      'Download Your <span class="gradient">Media</span>',
+    intro:
+      "Paste a publicly accessible media URL to download available media or extract audio and generate a text transcript.",
+    mediaHeading:
+      "Media Downloader",
+    mediaDescription:
+      "Download available media from a publicly accessible YouTube, TikTok, Facebook or Instagram URL.",
+    placeholder:
+      "Paste video URL for download...",
+    button:
+      "Get Media",
+    seoTitle:
+      "Online Media Tools",
+    seo: `
+      <p>
+        SocialToolHub provides simple online tools for working with
+        publicly accessible media URLs. Supported tools include
+        YouTube, TikTok, Facebook and Instagram media processing,
+        along with video-to-script transcription.
+      </p>
 
-</div>
+      <h3>Video to Script</h3>
 
-</div>
+      <p>
+        Use the Video to Script Generator to extract audio from a
+        supported public video and generate a transcript in the
+        detected spoken language.
+      </p>
+    `
+  },
 
+  "/tiktok-video-downloader": {
+    title: "TikTok Video Downloader — SocialToolHub",
+    description:
+      "Download supported publicly accessible TikTok videos with SocialToolHub.",
+    heading:
+      'TikTok <span class="gradient">Video Downloader</span>',
+    intro:
+      "Paste a publicly accessible TikTok video URL to process available media.",
+    mediaHeading:
+      "TikTok Video Downloader",
+    mediaDescription:
+      "Download available media from a publicly accessible TikTok video URL.",
+    placeholder:
+      "Paste TikTok video URL...",
+    button:
+      "Get TikTok Video",
+    seoTitle:
+      "TikTok Video Downloader",
+    seo: `
+      <p>
+        SocialToolHub provides a simple TikTok video downloader
+        for supported publicly accessible TikTok URLs.
+      </p>
 
-<div class="notice">
-<strong>Important:</strong>
-Only download or transcribe content that you own or have
-permission to use. SocialToolHub does not bypass private
-content, DRM, login restrictions, or other access controls.
-</div>
+      <h3>How to use the TikTok downloader</h3>
 
-</div>
+      <p>
+        Paste a publicly accessible TikTok video URL above and select
+        Get TikTok Video to process the available media.
+      </p>
+    `
+  },
 
-</section>
+  "/instagram-video-downloader": {
+    title: "Instagram Video Downloader — SocialToolHub",
+    description:
+      "Download supported publicly accessible Instagram videos with SocialToolHub.",
+    heading:
+      'Instagram <span class="gradient">Video Downloader</span>',
+    intro:
+      "Paste a publicly accessible Instagram video URL to process available media.",
+    mediaHeading:
+      "Instagram Video Downloader",
+    mediaDescription:
+      "Download available media from a publicly accessible Instagram video URL.",
+    placeholder:
+      "Paste Instagram video URL...",
+    button:
+      "Get Instagram Video",
+    seoTitle:
+      "Instagram Video Downloader",
+    seo: `
+      <p>
+        SocialToolHub provides a simple Instagram video downloader
+        for supported publicly accessible Instagram URLs.
+      </p>
 
+      <h3>How to use the Instagram downloader</h3>
 
-<!-- SEO CONTENT -->
+      <p>
+        Paste a publicly accessible Instagram video URL above and
+        select Get Instagram Video to process the available media.
+      </p>
+    `
+  },
 
-<section
-class="content-section"
-id="seoSection"
->
+  "/facebook-video-downloader": {
+    title: "Facebook Video Downloader — SocialToolHub",
+    description:
+      "Download supported publicly accessible Facebook videos with SocialToolHub.",
+    heading:
+      'Facebook <span class="gradient">Video Downloader</span>',
+    intro:
+      "Paste a publicly accessible Facebook video URL to process available media.",
+    mediaHeading:
+      "Facebook Video Downloader",
+    mediaDescription:
+      "Download available media from a publicly accessible Facebook video URL.",
+    placeholder:
+      "Paste Facebook video URL...",
+    button:
+      "Get Facebook Video",
+    seoTitle:
+      "Facebook Video Downloader",
+    seo: `
+      <p>
+        SocialToolHub provides a simple Facebook video downloader
+        for supported publicly accessible Facebook URLs.
+      </p>
 
-<h2 id="seoTitle">
-Online Media Tools
-</h2>
+      <h3>How to use the Facebook downloader</h3>
 
-<div id="seoContent">
+      <p>
+        Paste a publicly accessible Facebook video URL above and
+        select Get Facebook Video to process the available media.
+      </p>
+    `
+  },
 
-<p>
-SocialToolHub provides simple tools for working with publicly
-accessible media URLs and generating transcripts from supported
-videos.
-</p>
+  "/youtube-video-downloader": {
+    title: "YouTube Video Downloader — SocialToolHub",
+    description:
+      "Download supported publicly accessible YouTube videos with SocialToolHub.",
+    heading:
+      'YouTube <span class="gradient">Video Downloader</span>',
+    intro:
+      "Paste a publicly accessible YouTube video URL to process available media.",
+    mediaHeading:
+      "YouTube Video Downloader",
+    mediaDescription:
+      "Download available media from a publicly accessible YouTube video URL.",
+    placeholder:
+      "Paste YouTube video URL...",
+    button:
+      "Get YouTube Video",
+    seoTitle:
+      "YouTube Video Downloader",
+    seo: `
+      <p>
+        SocialToolHub provides a simple YouTube video downloader
+        for supported publicly accessible YouTube URLs.
+      </p>
 
-</div>
+      <h3>How to use the YouTube downloader</h3>
 
-</section>
+      <p>
+        Paste a publicly accessible YouTube video URL above and
+        select Get YouTube Video to process the available media.
+      </p>
+    `
+  },
 
+  "/video-to-script": {
+    title: "Video to Script Generator — SocialToolHub",
+    description:
+      "Extract audio from supported public videos and generate transcripts in the detected spoken language.",
+    heading:
+      'Video to <span class="gradient">Script Generator</span>',
+    intro:
+      "Paste a publicly accessible video URL to extract audio and generate a transcript.",
+    mediaHeading:
+      "Video to Script Generator",
+    mediaDescription:
+      "Extract audio from a publicly accessible video and generate a transcript in the original spoken language.",
+    placeholder:
+      "Paste video URL...",
+    button:
+      "Get Audio",
+    seoTitle:
+      "Video to Script Generator",
+    seo: `
+      <p>
+        SocialToolHub's Video to Script Generator extracts audio
+        from supported publicly accessible videos and generates
+        a transcript in the detected spoken language.
+      </p>
 
-<!-- PLATFORM LINKS -->
+      <h3>How Video to Script works</h3>
 
-<section
-class="content-section"
-id="platforms"
->
+      <p>
+        Paste a supported public video URL, select Get Audio, and
+        then select Transcript after the audio is ready.
+      </p>
+    `
+  }
 
-<h2>
-Popular SocialToolHub Tools
-</h2>
-
-<p>
-Choose a dedicated tool page for the platform or task you need.
-</p>
-
-<div class="platform-links">
-
-<a href="/tiktok-video-downloader">
-<strong>TikTok Video Downloader</strong><br>
-Download available media from supported public TikTok URLs.
-</a>
-
-<a href="/instagram-video-downloader">
-<strong>Instagram Video Downloader</strong><br>
-Process supported publicly accessible Instagram media URLs.
-</a>
-
-<a href="/facebook-video-downloader">
-<strong>Facebook Video Downloader</strong><br>
-Process supported publicly accessible Facebook media URLs.
-</a>
-
-<a href="/youtube-video-downloader">
-<strong>YouTube Video Downloader</strong><br>
-Process supported publicly accessible YouTube media URLs.
-</a>
-
-<a href="/video-to-script">
-<strong>Video to Script Generator</strong><br>
-Extract audio and generate a transcript in the detected spoken language.
-</a>
-
-</div>
-
-</section>
-
-
-<!-- ABOUT -->
-
-<section
-class="content-section"
-id="about"
->
-
-<h2>
-About Us
-</h2>
-
-<p>
-SocialToolHub is a simple online media utility designed to help
-users process publicly accessible media when they have the
-necessary rights or permission to do so.
-</p>
-
-<p style="margin-top:12px">
-Our goal is to provide a straightforward interface for common
-media-processing tasks without requiring users to install
-additional desktop software.
-</p>
-
-</section>
-
-
-<!-- HOW IT WORKS -->
-
-<section
-class="content-section"
-id="how"
->
-
-<h2>
-How It Works
-</h2>
-
-<h3>
-1. Choose a Tool
-</h3>
-
-<p>
-Select the downloader for the platform you are using, or choose
-Video to Script when you want to extract spoken content as text.
-</p>
-
-<h3>
-2. Enter the Public URL
-</h3>
-
-<p>
-Paste the supported public media URL into the appropriate input
-field and select the processing button.
-</p>
-
-<h3>
-3. Download Media or Extract Audio
-</h3>
-
-<p>
-For supported media URLs, SocialToolHub can request available
-media information or prepare an audio file for transcription.
-</p>
-
-<h3>
-4. Generate a Transcript
-</h3>
-
-<p>
-After audio preparation is complete, select Transcript. The
-transcription service detects the spoken language and generates
-text in that language.
-</p>
-
-<h3>
-5. Copy or Download the Transcript
-</h3>
-
-<p>
-The generated transcript can be copied to the clipboard or
-downloaded as a TXT file.
-</p>
-
-</section>
-
-
-<!-- PRIVACY -->
-
-<section
-class="content-section"
-id="privacy"
->
-
-<h2>
-Privacy Policy
-</h2>
-
-<p>
-SocialToolHub is designed to minimize unnecessary collection of
+};
+  SocialToolHub is designed to minimize unnecessary collection of
 personal information. The service mainly processes URLs submitted
 by users so that the requested media operation can be performed.
 </p>
@@ -1361,7 +1229,7 @@ const API_BASE =
 
 const pages = {
 
-   {
+  "/": {
     title: "SocialToolHub — Media Downloader & Video to Script",
     description:
       "SocialToolHub provides simple tools for processing publicly accessible YouTube, TikTok, Facebook and Instagram media URLs and generating video transcripts.",
@@ -1667,164 +1535,7 @@ function getCurrentPath() {
 
   return "/";
 }
-/* =========================================================
-   MEDIA DOWNLOADER
-========================================================= */
 
-async function downloadMedia() {
-
-  const input =
-    $("mediaUrlInput");
-
-  const button =
-    $("mediaButton");
-
-  const status =
-    $("mediaStatus");
-
-  const result =
-    $("mediaResult");
-
-  const downloadButton =
-    $("downloadButton");
-
-  const title =
-    $("mediaTitle");
-
-  const info =
-    $("mediaInfo");
-
-  if (!input || !button) return;
-
-  const url =
-    input.value.trim();
-
-  if (!url) {
-
-    showStatus(
-      status,
-      "Please paste a video URL.",
-      "error"
-    );
-
-    return;
-  }
-
-  hideElement(result);
-
-  button.disabled = true;
-
-  showStatus(
-    status,
-    "Processing URL. Please wait..."
-  );
-
-  try {
-
-    const response =
-      await fetch(
-        API_BASE + "/api/media",
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json"
-          },
-
-          body: JSON.stringify({
-            url: url
-          })
-        }
-      );
-
-    let data = null;
-
-    try {
-      data = await response.json();
-    } catch {
-      data = null;
-    }
-
-    if (!response.ok) {
-
-      throw new Error(
-        data?.error ||
-        "The media request failed."
-      );
-    }
-
-    if (!data) {
-
-      throw new Error(
-        "The server returned an empty response."
-      );
-    }
-
-    title.textContent =
-      data.title ||
-      "Media ready";
-
-    const platform =
-      data.platform ||
-      "Supported platform";
-
-    const duration =
-      data.duration
-        ? `Duration: ${data.duration}`
-        : "";
-
-    info.textContent =
-      [platform, duration]
-        .filter(Boolean)
-        .join(" • ");
-
-    let downloadUrl =
-      data.downloadUrl ||
-      data.url ||
-      data.download_url;
-
-    if (!downloadUrl) {
-
-      throw new Error(
-        "The server did not return a download URL."
-      );
-    }
-
-    if (
-      downloadUrl.startsWith("/")
-    ) {
-      downloadUrl =
-        API_BASE + downloadUrl;
-    }
-
-    downloadButton.href =
-      downloadUrl;
-
-    showElement(result);
-
-    showStatus(
-      status,
-      "Media is ready.",
-      "success"
-    );
-
-  } catch (error) {
-
-    console.error(error);
-
-    showStatus(
-      status,
-      error.message ||
-      "Unable to process this URL.",
-      "error"
-    );
-
-  } finally {
-
-    button.disabled = false;
-  }
-}
 
 /* =========================================================
    PAGE SETUP
@@ -1923,14 +1634,10 @@ function setupPage() {
       page.description;
   }
 
-  /*
-     Video-to-Script page par Script card
-     upar show karna.
-  */
-
   if (path === "/video-to-script") {
 
-    const tools = document.querySelector(".tools");
+    const tools =
+      document.querySelector(".tools");
 
     const scriptCard =
       $("scriptCard");
@@ -1945,6 +1652,7 @@ function setupPage() {
 /* =========================================================
    MEDIA DOWNLOADER
 ========================================================= */
+
 async function downloadMedia() {
 
   const input =
@@ -2170,426 +1878,4 @@ async function prepareAudio() {
 
       throw new Error(
         data?.error ||
-        "Audio extraction failed."
-      );
-    }
-
-    if (!data) {
-
-      throw new Error(
-        "The server returned an empty response."
-      );
-    }
-
-    currentJobId =
-      data.jobId ||
-      data.id ||
-      data.job_id;
-
-    if (!currentJobId) {
-
-      throw new Error(
-        "The server did not return a job ID."
-      );
-    }
-
-    const audioUrl =
-      data.audioUrl ||
-      data.audio_url ||
-      (
-        API_BASE +
-        "/api/audio/" +
-        encodeURIComponent(
-          currentJobId
-        )
-      );
-
-    $("audioPlayer").src =
-      audioUrl;
-
-    $("audioTitle").textContent =
-      data.title ||
-      "Audio extracted successfully.";
-
-    showElement(audioResult);
-
-    showStatus(
-      status,
-      "Audio is ready. You can play it or select Transcript.",
-      "success"
-    );
-
-    $("audioPlayer").load();
-
-  } catch (error) {
-
-    console.error(error);
-
-    showStatus(
-      status,
-      error.message ||
-      "Unable to extract audio.",
-      "error"
-    );
-
-  } finally {
-
-    button.disabled = false;
-  }
-}
-
-
-/* =========================================================
-   TRANSCRIPT
-========================================================= */
-
-async function generateTranscript() {
-
-  const button =
-    $("transcriptButton");
-
-  const status =
-    $("scriptStatus");
-
-  const languageInfo =
-    $("languageInfo");
-
-  const transcriptResult =
-    $("transcriptResult");
-
-  const scriptText =
-    $("scriptText");
-
-  if (!currentJobId) {
-
-    showStatus(
-      status,
-      "Please extract the audio first.",
-      "error"
-    );
-
-    return;
-  }
-
-  button.disabled = true;
-
-  hideElement(transcriptResult);
-
-  hideElement(languageInfo);
-
-  showStatus(
-    status,
-    "Generating transcript. This may take some time..."
-  );
-
-  try {
-
-    const response =
-      await fetch(
-        API_BASE +
-        "/api/transcribe/" +
-        encodeURIComponent(
-          currentJobId
-        ),
-        {
-          method: "POST"
-        }
-      );
-
-    let data = null;
-
-    try {
-      data = await response.json();
-    } catch {
-      data = null;
-    }
-
-    if (!response.ok) {
-
-      throw new Error(
-        data?.error ||
-        "Transcription failed."
-      );
-    }
-
-    if (!data) {
-
-      throw new Error(
-        "The transcription server returned an empty response."
-      );
-    }
-
-    const transcript =
-      data.transcript ||
-      data.text ||
-      "";
-
-    if (!transcript.trim()) {
-
-      throw new Error(
-        "No transcript was generated."
-      );
-    }
-
-    scriptText.value =
-      transcript;
-
-    const language =
-      data.language ||
-      data.detectedLanguage ||
-      data.detected_language;
-
-    if (language) {
-
-      languageInfo.textContent =
-        "Detected language: " +
-        language;
-
-      showElement(languageInfo);
-    }
-
-    showElement(transcriptResult);
-
-    showStatus(
-      status,
-      "Transcript generated successfully.",
-      "success"
-    );
-
-  } catch (error) {
-
-    console.error(error);
-
-    showStatus(
-      status,
-      error.message ||
-      "Unable to generate transcript.",
-      "error"
-    );
-
-  } finally {
-
-    button.disabled = false;
-  }
-}
-
-
-/* =========================================================
-   COPY TRANSCRIPT
-========================================================= */
-
-async function copyTranscript() {
-
-  const text =
-    $("scriptText")?.value || "";
-
-  const button =
-    $("copyScriptButton");
-
-  const status =
-    $("scriptStatus");
-
-  if (!text.trim()) {
-
-    showStatus(
-      status,
-      "There is no transcript to copy.",
-      "error"
-    );
-
-    return;
-  }
-
-  try {
-
-    await navigator.clipboard.writeText(
-      text
-    );
-
-    const oldText =
-      button.textContent;
-
-    button.textContent =
-      "Copied!";
-
-    showStatus(
-      status,
-      "Transcript copied to clipboard.",
-      "success"
-    );
-
-    setTimeout(() => {
-
-      button.textContent =
-        oldText;
-
-    }, 1500);
-
-  } catch (error) {
-
-    console.error(error);
-
-    showStatus(
-      status,
-      "Could not copy the transcript.",
-      "error"
-    );
-  }
-}
-
-
-/* =========================================================
-   DOWNLOAD TXT
-========================================================= */
-
-function downloadTranscript() {
-
-  const text =
-    $("scriptText")?.value || "";
-
-  const status =
-    $("scriptStatus");
-
-  if (!text.trim()) {
-
-    showStatus(
-      status,
-      "There is no transcript to download.",
-      "error"
-    );
-
-    return;
-  }
-
-  const blob =
-    new Blob(
-      [text],
-      {
-        type:
-          "text/plain;charset=utf-8"
-      }
-    );
-
-  const url =
-    URL.createObjectURL(blob);
-
-  const link =
-    document.createElement("a");
-
-  link.href = url;
-
-  link.download =
-    "socialtoolhub-transcript.txt";
-
-  document.body.appendChild(link);
-
-  link.click();
-
-  link.remove();
-
-  URL.revokeObjectURL(url);
-
-  showStatus(
-    status,
-    "Transcript TXT file downloaded.",
-    "success"
-  );
-}
-
-
-/* =========================================================
-   ENTER KEY SUPPORT
-========================================================= */
-
-function setupEnterKeys() {
-
-  $("mediaUrlInput")?.addEventListener(
-    "keydown",
-    function(event) {
-
-      if (event.key === "Enter") {
-
-        event.preventDefault();
-
-        downloadMedia();
-      }
-
-    }
-  );
-
-
-$("scriptUrlInput")?.addEventListener(
-  "keydown",
-  function(event) {
-
-    if (event.key === "Enter") {
-
-      event.preventDefault();
-
-      prepareAudio();
-    }
-
-  }
-  );
-}
-
-
-/* =========================================================
-   BUTTON EVENTS
-========================================================= */
-
-function setupButtons() {
-
-  $("mediaButton")?.addEventListener(
-    "click",
-    downloadMedia
-  );
-
-  $("prepareAudioButton")?.addEventListener(
-    "click",
-    prepareAudio
-  );
-
-  $("transcriptButton")?.addEventListener(
-    "click",
-    generateTranscript
-  );
-
-  $("copyScriptButton")?.addEventListener(
-    "click",
-    copyTranscript
-  );
-
-  $("downloadTranscriptButton")?.addEventListener(
-    "click",
-    downloadTranscript
-  );
-}
-
-
-/* =========================================================
-   INITIALIZE
-========================================================= */
-
-document.addEventListener(
-  "DOMContentLoaded",
-  function() {
-
-    setupPage();
-
-    setupButtons();
-
-    setupEnterKeys();
-
-  }
-);
-
-
-/* =========================================================
-   END
-========================================================= */
-
-</script>
-
-</body>
-</html>
+    
