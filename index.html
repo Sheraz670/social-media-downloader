@@ -1295,3 +1295,53 @@ copyScriptButton.textContent="Copy Transcript";
 
 
 /* ======================
+/* =========================================================
+   DOWNLOAD TRANSCRIPT
+========================================================= */
+
+downloadTranscriptButton.addEventListener(
+  "click",
+  () => {
+
+    const text = scriptText.value;
+
+    if (!text) {
+      showScriptStatus(
+        "There is no transcript to download.",
+        true
+      );
+      return;
+    }
+
+    const blob = new Blob(
+      [text],
+      {
+        type: "text/plain;charset=utf-8"
+      }
+    );
+
+    const url =
+      URL.createObjectURL(blob);
+
+    const link =
+      document.createElement("a");
+
+    link.href = url;
+
+    link.download =
+      `${currentTitle || "transcript"}.txt`;
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    link.remove();
+
+    URL.revokeObjectURL(url);
+  }
+);
+
+</script>
+
+</body>
+</html>
