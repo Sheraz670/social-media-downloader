@@ -3,12 +3,64 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SocialToolHub — Media Downloader & Script Generator</title>
-<meta name="description" content="SocialToolHub is a simple media downloader and script generator for publicly accessible and authorized media URLs.">
+
+<title id="pageTitle">SocialToolHub — Media Downloader & Video to Script</title>
+
+<meta
+  id="metaDescription"
+  name="description"
+  content="SocialToolHub provides simple tools for processing publicly accessible media URLs and generating video transcripts."
+>
+
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="theme-color" content="#09090b">
+
+<link
+  id="canonical"
+  rel="canonical"
+  href="https://social-media-downloader.afzainkhan90.workers.dev/"
+>
+
+<meta property="og:type" content="website">
+<meta
+  id="ogTitle"
+  property="og:title"
+  content="SocialToolHub — Media Downloader & Video to Script"
+>
+<meta
+  id="ogDescription"
+  property="og:description"
+  content="Simple tools for publicly accessible media URLs and video transcripts."
+>
+<meta
+  id="ogUrl"
+  property="og:url"
+  content="https://social-media-downloader.afzainkhan90.workers.dev/"
+>
+
+<meta name="twitter:card" content="summary">
+<meta
+  id="twitterTitle"
+  name="twitter:title"
+  content="SocialToolHub — Media Downloader & Video to Script"
+>
+<meta
+  id="twitterDescription"
+  name="twitter:description"
+  content="Simple tools for publicly accessible media URLs and video transcripts."
+>
 
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+html{
+  scroll-behavior:smooth;
+}
 
 body{
   font-family:Arial,sans-serif;
@@ -28,11 +80,14 @@ header{
   display:flex;
   justify-content:space-between;
   align-items:center;
+  gap:20px;
 }
 
 .logo{
   font-size:22px;
   font-weight:800;
+  text-decoration:none;
+  color:#fff;
 }
 
 .logo span{
@@ -44,8 +99,25 @@ header{
   color:#a1a1aa;
 }
 
+.nav-links{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  flex-wrap:wrap;
+}
+
+.nav-links a{
+  color:#a1a1aa;
+  text-decoration:none;
+  font-size:13px;
+}
+
+.nav-links a:hover{
+  color:#fff;
+}
+
 main{
-  max-width:900px;
+  max-width:1000px;
   margin:auto;
   padding:70px 20px;
 }
@@ -61,16 +133,45 @@ main{
 }
 
 .gradient{
-  background:linear-gradient(90deg,#818cf8,#c084fc,#f472b6);
+  background:linear-gradient(
+    90deg,
+    #818cf8,
+    #c084fc,
+    #f472b6
+  );
   -webkit-background-clip:text;
+  background-clip:text;
   color:transparent;
 }
 
 .hero p{
   color:#a1a1aa;
-  max-width:650px;
+  max-width:700px;
   margin:auto;
   line-height:1.7;
+}
+
+.quick-links{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:25px;
+}
+
+.quick-links a{
+  color:#c4b5fd;
+  border:1px solid #3f3f46;
+  background:#111113;
+  text-decoration:none;
+  padding:9px 13px;
+  border-radius:999px;
+  font-size:13px;
+}
+
+.quick-links a:hover{
+  background:#18181b;
+  color:#fff;
 }
 
 .tools{
@@ -196,6 +297,7 @@ button:disabled{
   color:#a1a1aa;
   font-size:14px;
   margin-bottom:18px;
+  line-height:1.6;
 }
 
 .download{
@@ -212,7 +314,7 @@ button:disabled{
   background:#22c55e;
 }
 
-/* ================= AUDIO PLAYER ================= */
+/* AUDIO */
 
 .audio-box{
   margin-top:15px;
@@ -283,7 +385,6 @@ audio{
 }
 
 #copyScriptButton{
-  margin-top:12px;
   min-height:45px;
 }
 
@@ -299,7 +400,7 @@ audio{
 }
 
 .content-section{
-  margin-top:70px;
+  margin-top:50px;
   padding:30px 20px;
   background:#111113;
   border:1px solid #27272a;
@@ -327,6 +428,47 @@ audio{
 
 .content-section ul{
   padding-left:20px;
+}
+
+.faq-item{
+  border-top:1px solid #27272a;
+  padding:16px 0;
+}
+
+.faq-item:first-child{
+  border-top:0;
+}
+
+.faq-item summary{
+  cursor:pointer;
+  font-weight:700;
+  color:#fff;
+}
+
+.faq-answer{
+  margin-top:10px;
+}
+
+.platform-links{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+  margin-top:20px;
+}
+
+.platform-links a{
+  display:block;
+  padding:14px;
+  border:1px solid #27272a;
+  border-radius:12px;
+  background:#09090b;
+  color:#c4b5fd;
+  text-decoration:none;
+}
+
+.platform-links a:hover{
+  border-color:#4f46e5;
+  color:#fff;
 }
 
 footer{
@@ -365,7 +507,23 @@ footer{
   line-height:1.6;
 }
 
-@media(max-width:650px){
+.small-note{
+  margin-top:10px;
+  color:#71717a;
+  font-size:12px;
+  line-height:1.6;
+}
+
+@media(max-width:750px){
+
+  .nav{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .nav-links{
+    display:none;
+  }
 
   .input-row{
     flex-direction:column;
@@ -383,46 +541,103 @@ footer{
     width:100%;
   }
 
+  .platform-links{
+    grid-template-columns:1fr;
+  }
+
   .content-section{
     padding:24px 18px;
   }
 }
+
 </style>
 </head>
 
 <body>
 
 <header>
+
 <div class="nav">
-  <div class="logo">SocialTool<span>Hub</span></div>
-  <div class="badge">Media Downloader</div>
+
+<a class="logo" href="/">
+SocialTool<span>Hub</span>
+</a>
+
+<div class="nav-links">
+
+<a href="/tiktok-video-downloader">TikTok</a>
+<a href="/instagram-video-downloader">Instagram</a>
+<a href="/facebook-video-downloader">Facebook</a>
+<a href="/youtube-video-downloader">YouTube</a>
+<a href="/video-to-script">Video to Script</a>
+
 </div>
+
+<div class="badge">
+Media Tools
+</div>
+
+</div>
+
 </header>
+
 
 <main>
 
 <section class="hero" id="home">
 
-<h1>
+<h1 id="pageHeading">
 Download Your <span class="gradient">Media</span>
 </h1>
 
-<p>
+<p id="pageIntro">
 Paste a publicly accessible media URL to download available media
 or extract audio and generate a text transcript.
 </p>
 
+
+<div class="quick-links">
+
+<a href="/tiktok-video-downloader">
+TikTok Video Downloader
+</a>
+
+<a href="/instagram-video-downloader">
+Instagram Video Downloader
+</a>
+
+<a href="/facebook-video-downloader">
+Facebook Video Downloader
+</a>
+
+<a href="/youtube-video-downloader">
+YouTube Video Downloader
+</a>
+
+<a href="/video-to-script">
+Video to Script Generator
+</a>
+
+</div>
+
+
 <div class="tools">
 
-<!-- ================= MEDIA DOWNLOADER ================= -->
 
-<div class="card">
+<!-- MEDIA DOWNLOADER -->
 
-<h2>Media Downloader</h2>
+<div class="card" id="mediaCard">
 
-<div class="card-description">
-Download available media from a publicly accessible YouTube,
-TikTok, Facebook or Instagram URL.
+<h2 id="mediaHeading">
+Media Downloader
+</h2>
+
+<div
+id="mediaDescription"
+class="card-description"
+>
+Download available media from a publicly accessible
+YouTube, TikTok, Facebook or Instagram URL.
 </div>
 
 <div class="input-row">
@@ -434,7 +649,10 @@ placeholder="Paste video URL for download..."
 autocomplete="off"
 >
 
-<button id="mediaButton" type="button">
+<button
+id="mediaButton"
+type="button"
+>
 Get Media
 </button>
 
@@ -442,13 +660,20 @@ Get Media
 
 <div id="mediaStatus"></div>
 
+
 <div id="mediaResult" class="result">
 
 <div class="media-card">
 
-<div id="mediaTitle" class="media-title"></div>
+<div
+id="mediaTitle"
+class="media-title"
+></div>
 
-<div id="mediaInfo" class="media-info"></div>
+<div
+id="mediaInfo"
+class="media-info"
+></div>
 
 <a
 id="downloadButton"
@@ -467,15 +692,17 @@ Download
 </div>
 
 
-<!-- ================= SCRIPT GENERATOR ================= -->
+<!-- VIDEO TO SCRIPT -->
 
-<div class="card">
+<div class="card" id="scriptCard">
 
-<h2>Script Generator</h2>
+<h2 id="scriptHeading">
+Video to Script Generator
+</h2>
 
 <div class="card-description">
-Extract audio from a publicly accessible video, then generate a
-transcript in the original spoken language.
+Extract audio from a publicly accessible video, then generate
+a transcript in the original spoken language.
 </div>
 
 <div class="input-row">
@@ -483,7 +710,7 @@ transcript in the original spoken language.
 <input
 id="scriptUrlInput"
 type="url"
-placeholder="Paste video URL for transcript..."
+placeholder="Paste video URL..."
 autocomplete="off"
 >
 
@@ -500,8 +727,6 @@ Get Audio
 <div id="scriptStatus"></div>
 
 
-<!-- AUDIO RESULT -->
-
 <div id="audioResult" class="result">
 
 <div class="script-card">
@@ -510,7 +735,10 @@ Get Audio
 Audio Ready
 </div>
 
-<div id="audioTitle" class="media-info"></div>
+<div
+id="audioTitle"
+class="media-info"
+></div>
 
 <div class="audio-box">
 
@@ -542,9 +770,16 @@ Transcript
 
 <div id="languageInfo"></div>
 
-<div id="transcriptResult" style="display:none">
 
-<div class="script-title" style="margin-top:20px">
+<div
+id="transcriptResult"
+style="display:none"
+>
+
+<div
+class="script-title"
+style="margin-top:20px"
+>
 Generated Transcript
 </div>
 
@@ -583,186 +818,458 @@ Download TXT
 
 
 <div class="notice">
-Only download or transcribe content that you own or have permission
-to use. This service does not bypass private content, DRM, login
-restrictions, or other access controls.
+<strong>Important:</strong>
+Only download or transcribe content that you own or have
+permission to use. SocialToolHub does not bypass private
+content, DRM, login restrictions, or other access controls.
+</div>
+
 </div>
 
 </section>
 
 
-<section class="content-section" id="about">
+<!-- SEO CONTENT -->
 
-<h2>About Us</h2>
+<section
+class="content-section"
+id="seoSection"
+>
+
+<h2 id="seoTitle">
+Online Media Tools
+</h2>
+
+<div id="seoContent">
 
 <p>
-SocialToolHub is a simple online media utility designed to help users
-access and process publicly accessible media when they have the
+SocialToolHub provides simple tools for working with publicly
+accessible media URLs and generating transcripts from supported
+videos.
+</p>
+
+</div>
+
+</section>
+
+
+<!-- PLATFORM LINKS -->
+
+<section
+class="content-section"
+id="platforms"
+>
+
+<h2>
+Popular SocialToolHub Tools
+</h2>
+
+<p>
+Choose a dedicated tool page for the platform or task you need.
+</p>
+
+<div class="platform-links">
+
+<a href="/tiktok-video-downloader">
+<strong>TikTok Video Downloader</strong><br>
+Download available media from supported public TikTok URLs.
+</a>
+
+<a href="/instagram-video-downloader">
+<strong>Instagram Video Downloader</strong><br>
+Process supported publicly accessible Instagram media URLs.
+</a>
+
+<a href="/facebook-video-downloader">
+<strong>Facebook Video Downloader</strong><br>
+Process supported publicly accessible Facebook media URLs.
+</a>
+
+<a href="/youtube-video-downloader">
+<strong>YouTube Video Downloader</strong><br>
+Process supported publicly accessible YouTube media URLs.
+</a>
+
+<a href="/video-to-script">
+<strong>Video to Script Generator</strong><br>
+Extract audio and generate a transcript in the detected spoken language.
+</a>
+
+</div>
+
+</section>
+
+
+<!-- ABOUT -->
+
+<section
+class="content-section"
+id="about"
+>
+
+<h2>
+About Us
+</h2>
+
+<p>
+SocialToolHub is a simple online media utility designed to help
+users process publicly accessible media when they have the
 necessary rights or permission to do so.
 </p>
 
 <p style="margin-top:12px">
-Our goal is to provide a straightforward and easy-to-use interface
-without requiring users to install additional software.
+Our goal is to provide a straightforward interface for common
+media-processing tasks without requiring users to install
+additional desktop software.
 </p>
 
 </section>
 
 
-<section class="content-section" id="how">
+<!-- HOW IT WORKS -->
 
-<h2>How It Works</h2>
+<section
+class="content-section"
+id="how"
+>
 
-<h3>1. Media Downloader</h3>
+<h2>
+How It Works
+</h2>
+
+<h3>
+1. Choose a Tool
+</h3>
 
 <p>
-Paste a public media URL into the Media Downloader box and select
-Get Media. If the media is supported, a download option will appear.
+Select the downloader for the platform you are using, or choose
+Video to Script when you want to extract spoken content as text.
 </p>
 
-<h3>2. Extract Audio</h3>
+<h3>
+2. Enter the Public URL
+</h3>
 
 <p>
-Paste a video URL into the Script Generator and select Get Audio.
-The system extracts a lightweight audio file from the video.
+Paste the supported public media URL into the appropriate input
+field and select the processing button.
 </p>
 
-<h3>3. Generate Transcript</h3>
+<h3>
+3. Download Media or Extract Audio
+</h3>
 
 <p>
-After the audio is ready, select Transcript. Whisper automatically
-detects the spoken language and generates the transcript in the
-original language.
+For supported media URLs, SocialToolHub can request available
+media information or prepare an audio file for transcription.
 </p>
 
-<h3>4. Download Transcript</h3>
+<h3>
+4. Generate a Transcript
+</h3>
 
 <p>
-You can copy the generated transcript or download it as a TXT file.
+After audio preparation is complete, select Transcript. The
+transcription service detects the spoken language and generates
+text in that language.
 </p>
 
-</section>
-
-
-<section class="content-section" id="privacy">
-
-<h2>Privacy Policy</h2>
+<h3>
+5. Copy or Download the Transcript
+</h3>
 
 <p>
-SocialToolHub respects your privacy. We do not ask users to provide
-unnecessary personal information simply to use the media tool.
-</p>
-
-<h3>Information We Process</h3>
-
-<p>
-When you submit a media URL, the URL is sent to our backend service
-for processing. Technical information such as browser or server
-information may also be processed as part of normal website operation.
-</p>
-
-<h3>Cookies and Advertising</h3>
-
-<p>
-If advertising services are used on this website in the future,
-third-party advertising providers may use cookies or similar
-technologies according to their own policies.
-</p>
-
-<h3>Third-Party Services</h3>
-
-<p>
-This website may interact with third-party platforms or services.
-Their own privacy policies and terms may apply when their services
-are involved.
+The generated transcript can be copied to the clipboard or
+downloaded as a TXT file.
 </p>
 
 </section>
 
 
-<section class="content-section" id="terms">
+<!-- PRIVACY -->
 
-<h2>Terms of Service</h2>
+<section
+class="content-section"
+id="privacy"
+>
+
+<h2>
+Privacy Policy
+</h2>
 
 <p>
-By using SocialToolHub, you agree to use the website only for lawful
-purposes and in accordance with applicable laws and the rights of
-content owners.
+SocialToolHub is designed to minimize unnecessary collection of
+personal information. The service mainly processes URLs submitted
+by users so that the requested media operation can be performed.
 </p>
 
-<h3>Acceptable Use</h3>
+<h3>
+Information We Process
+</h3>
+
+<p>
+When you submit a media URL, that URL is sent to the SocialToolHub
+backend for processing. Normal technical information may also be
+processed by the hosting infrastructure as part of operating and
+securing the website.
+</p>
+
+<h3>
+Cookies
+</h3>
+
+<p>
+SocialToolHub itself does not require users to create an account
+to use the basic media tools. If advertising, analytics, or other
+third-party services are added, those services may use cookies or
+similar technologies according to their own policies.
+</p>
+
+<h3>
+Third-Party Platforms
+</h3>
+
+<p>
+Media URLs may point to third-party platforms. Those platforms
+have their own terms, privacy policies, copyright rules, and
+technical restrictions.
+</p>
+
+<h3>
+Data Retention
+</h3>
+
+<p>
+Temporary media-processing data may be stored by the backend while
+a request is being processed. Temporary data should not be treated
+as permanent storage or personal cloud storage.
+</p>
+
+</section>
+
+
+<!-- TERMS -->
+
+<section
+class="content-section"
+id="terms"
+>
+
+<h2>
+Terms of Service
+</h2>
+
+<p>
+By using SocialToolHub, you agree to use the service only for
+lawful purposes and in accordance with applicable laws and the
+rights of content owners.
+</p>
+
+<h3>
+Acceptable Use
+</h3>
 
 <ul>
-<li>Use the service only for lawful purposes.</li>
-<li>Download content only when you have the necessary rights or permission.</li>
-<li>Do not attempt to bypass DRM, private access, login restrictions, or security controls.</li>
-<li>Do not use the service to infringe copyright or other intellectual property rights.</li>
+
+<li>
+Use the service only for lawful purposes.
+</li>
+
+<li>
+Process or download content only when you have the necessary
+rights or permission.
+</li>
+
+<li>
+Do not attempt to bypass DRM, private access, login restrictions,
+or security controls.
+</li>
+
+<li>
+Do not use the service to infringe copyright or other intellectual
+property rights.
+</li>
+
+<li>
+Do not attempt to interfere with the operation or security of
+SocialToolHub or its infrastructure.
+</li>
+
 </ul>
 
-<h3>Service Availability</h3>
+<h3>
+Service Availability
+</h3>
 
 <p>
-We do not guarantee that every URL or media platform will always be
-supported. Availability may change because of technical or third-party
-service changes.
+SocialToolHub does not guarantee that every URL, media format,
+website, or platform will always be supported. Third-party
+technical changes can affect availability.
 </p>
 
 </section>
 
 
-<section class="content-section" id="disclaimer">
+<!-- DISCLAIMER -->
 
-<h2>Disclaimer</h2>
+<section
+class="content-section"
+id="disclaimer"
+>
+
+<h2>
+Disclaimer
+</h2>
 
 <p>
-SocialToolHub is a media utility. Users are responsible for ensuring
-that they have the legal right or permission to download or transcribe
-any content they submit to the service.
+SocialToolHub is a media utility. Users are responsible for
+ensuring that they have the legal right or permission to download,
+process, or transcribe content submitted to the service.
 </p>
 
 <p style="margin-top:12px">
-SocialToolHub does not encourage copyright infringement, unauthorized
-downloading, or circumvention of access controls.
+SocialToolHub does not encourage copyright infringement,
+unauthorized downloading, or circumvention of access controls.
+</p>
+
+<p style="margin-top:12px">
+The availability of a technical processing option does not mean
+that a particular use of that option is legally permitted.
 </p>
 
 </section>
 
 
-<section class="content-section" id="copyright">
+<!-- COPYRIGHT -->
 
-<h2>Copyright & DMCA</h2>
+<section
+class="content-section"
+id="copyright"
+>
+
+<h2>
+Copyright & DMCA
+</h2>
 
 <p>
-SocialToolHub respects the intellectual property rights of content
-creators and copyright owners.
+SocialToolHub respects intellectual property rights and the rights
+of copyright owners.
 </p>
 
-<p style="margin-top:12px">
-If you believe that content or functionality associated with this
-website infringes your rights, please contact us with sufficient
-information to identify the issue.
+<h3>
+Copyright Concerns
+</h3>
+
+<p>
+If you believe that content or functionality associated with
+SocialToolHub infringes your rights, please provide sufficient
+information to identify the material and explain the basis of your
+request.
+</p>
+
+<h3>
+Contact Information
+</h3>
+
+<p>
+A real contact email should be added to this page before publishing
+a formal copyright notice process.
 </p>
 
 </section>
 
 
-<section class="content-section" id="contact">
+<!-- CONTACT -->
 
-<h2>Contact Us</h2>
+<section
+class="content-section"
+id="contact"
+>
+
+<h2>
+Contact Us
+</h2>
 
 <p>
-If you have questions, copyright concerns, technical issues, or other
-website-related inquiries, you can contact the SocialToolHub team.
+For technical questions, copyright concerns, privacy questions,
+or other website-related inquiries, please use your real support
+email address.
 </p>
 
 <p style="margin-top:12px">
-Email: <strong>support@socialtoolhub.com</strong>
+<strong>Important:</strong>
+Replace the contact information with an email address that you
+actually control before publishing the website.
 </p>
 
-<p style="margin-top:12px;font-size:13px">
-Replace this email address with your real support email before
-publishing the website.
+</section>
+
+
+<!-- FAQ -->
+
+<section
+class="content-section"
+id="faq"
+>
+
+<h2>
+Frequently Asked Questions
+</h2>
+
+<div id="faqContent">
+
+<details class="faq-item">
+<summary>
+What URLs can SocialToolHub process?
+</summary>
+
+<p class="faq-answer">
+SocialToolHub is designed for supported publicly accessible
+YouTube, TikTok, Facebook, and Instagram URLs.
 </p>
+
+</details>
+
+
+<details class="faq-item">
+<summary>
+Can I generate a transcript from a video?
+</summary>
+
+<p class="faq-answer">
+Yes. Use Video to Script, prepare the audio, and then select
+Transcript. The transcription service detects the spoken language.
+</p>
+
+</details>
+
+
+<details class="faq-item">
+<summary>
+Does the transcript translate the video?
+</summary>
+
+<p class="faq-answer">
+No. The transcript is generated in the detected spoken language.
+It is not automatically translated into another language.
+</p>
+
+</details>
+
+
+<details class="faq-item">
+<summary>
+Can private or login-protected content be processed?
+</summary>
+
+<p class="faq-answer">
+No. SocialToolHub is intended for publicly accessible content
+and does not bypass private access, login restrictions, or DRM.
+</p>
+
+</details>
+
+</div>
 
 </section>
 
@@ -775,14 +1282,57 @@ publishing the website.
 
 <div class="footer-links">
 
-<a href="#home">Home</a>
-<a href="#about">About Us</a>
-<a href="#how">How It Works</a>
-<a href="#privacy">Privacy Policy</a>
-<a href="#terms">Terms</a>
-<a href="#disclaimer">Disclaimer</a>
-<a href="#copyright">Copyright / DMCA</a>
-<a href="#contact">Contact</a>
+<a href="/">
+Home
+</a>
+
+<a href="/tiktok-video-downloader">
+TikTok Downloader
+</a>
+
+<a href="/instagram-video-downloader">
+Instagram Downloader
+</a>
+
+<a href="/facebook-video-downloader">
+Facebook Downloader
+</a>
+
+<a href="/youtube-video-downloader">
+YouTube Downloader
+</a>
+
+<a href="/video-to-script">
+Video to Script
+</a>
+
+<a href="#about">
+About Us
+</a>
+
+<a href="#how">
+How It Works
+</a>
+
+<a href="#privacy">
+Privacy
+</a>
+
+<a href="#terms">
+Terms
+</a>
+
+<a href="#disclaimer">
+Disclaimer
+</a>
+
+<a href="#copyright">
+Copyright / DMCA
+</a>
+
+<a href="#contact">
+Contact
+</a>
 
 </div>
 
@@ -797,551 +1347,6 @@ publishing the website.
 
 <script>
 
-const API_BASE =
-"https://social-media-downloader-f8pv.onrender.com";
-
-
 /* =========================================================
-   MEDIA DOWNLOADER
-========================================================= */
-
-const mediaUrlInput =
-document.getElementById("mediaUrlInput");
-
-const mediaButton =
-document.getElementById("mediaButton");
-
-const mediaStatus =
-document.getElementById("mediaStatus");
-
-const mediaResult =
-document.getElementById("mediaResult");
-
-const mediaTitle =
-document.getElementById("mediaTitle");
-
-const mediaInfo =
-document.getElementById("mediaInfo");
-
-const downloadButton =
-document.getElementById("downloadButton");
-
-
-function showMediaStatus(message,error=false){
-
-mediaStatus.style.display="block";
-
-mediaStatus.textContent=message;
-
-mediaStatus.classList.toggle(
-"error",
-error
-);
-
-mediaStatus.classList.toggle(
-"success",
-!error
-);
-
-}
-
-
-mediaButton.addEventListener(
-"click",
-async ()=>{
-
-const url =
-mediaUrlInput.value.trim();
-
-mediaResult.style.display="none";
-
-if(!url){
-
-showMediaStatus(
-"Please enter a video URL.",
-true
-);
-
-return;
-}
-
-mediaButton.disabled=true;
-
-mediaButton.textContent="Processing...";
-
-showMediaStatus(
-"Checking the media URL..."
-);
-
-try{
-
-const response =
-await fetch(
-`${API_BASE}/api/media?url=${encodeURIComponent(url)}`
-);
-
-const data =
-await response.json();
-
-if(!response.ok){
-
-throw new Error(
-data.error ||
-"Unable to process this URL."
-);
-
-}
-
-mediaTitle.textContent =
-data.title ||
-"Media file";
-
-mediaInfo.textContent =
-`Type: ${
-data.contentType ||
-"Unknown"
-} • Size: ${
-data.size ||
-"Unknown"
-}`;
-
-downloadButton.href =
-`${API_BASE}/api/download?url=${encodeURIComponent(url)}`;
-
-mediaResult.style.display="block";
-
-showMediaStatus(
-"Media is ready."
-);
-
-}catch(error){
-
-showMediaStatus(
-error.message ||
-"Failed to fetch media.",
-true
-);
-
-}finally{
-
-mediaButton.disabled=false;
-
-mediaButton.textContent="Get Media";
-
-}
-
-}
-);
-
-
-/* =========================================================
-   SCRIPT GENERATOR
-   STEP 1: PREPARE AUDIO
-========================================================= */
-
-const scriptUrlInput =
-document.getElementById("scriptUrlInput");
-
-const prepareAudioButton =
-document.getElementById("prepareAudioButton");
-
-const scriptStatus =
-document.getElementById("scriptStatus");
-
-const audioResult =
-document.getElementById("audioResult");
-
-const audioTitle =
-document.getElementById("audioTitle");
-
-const audioPlayer =
-document.getElementById("audioPlayer");
-
-const transcriptButton =
-document.getElementById("transcriptButton");
-
-const transcriptResult =
-document.getElementById("transcriptResult");
-
-const languageInfo =
-document.getElementById("languageInfo");
-
-const scriptText =
-document.getElementById("scriptText");
-
-const copyScriptButton =
-document.getElementById("copyScriptButton");
-
-const downloadTranscriptButton =
-document.getElementById("downloadTranscriptButton");
-
-
-let currentJobId = null;
-let currentTranscript = "";
-let currentTitle = "transcript";
-
-
-function showScriptStatus(message,error=false){
-
-scriptStatus.style.display="block";
-
-scriptStatus.textContent=message;
-
-scriptStatus.classList.toggle(
-"error",
-error
-);
-
-scriptStatus.classList.toggle(
-"success",
-!error
-);
-
-}
-
-
-/* =========================================================
-   STEP 1
-   URL -> AUDIO
-========================================================= */
-
-prepareAudioButton.addEventListener(
-"click",
-async ()=>{
-
-const url =
-scriptUrlInput.value.trim();
-
-audioResult.style.display="none";
-transcriptResult.style.display="none";
-languageInfo.style.display="none";
-
-currentJobId=null;
-currentTranscript="";
-
-if(!url){
-
-showScriptStatus(
-"Please enter a video URL.",
-true
-);
-
-return;
-}
-
-prepareAudioButton.disabled=true;
-
-prepareAudioButton.textContent="Preparing...";
-
-showScriptStatus(
-"Extracting audio from the video. Please wait..."
-);
-
-try{
-
-const response =
-await fetch(
-`${API_BASE}/api/prepare-audio`,
-{
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify({
-url:url
-})
-}
-);
-
-const data =
-await response.json();
-
-if(!response.ok){
-
-throw new Error(
-data.error ||
-"Unable to prepare audio."
-);
-
-}
-
-if(!data.jobId){
-
-throw new Error(
-"Audio job was not created."
-);
-
-}
-
-currentJobId =
-data.jobId;
-
-audioTitle.textContent =
-data.title ||
-"Audio extracted successfully";
-
-audioPlayer.src =
-`${API_BASE}/api/audio/${encodeURIComponent(currentJobId)}`;
-
-audioPlayer.load();
-
-audioResult.style.display="block";
-
-showScriptStatus(
-"Audio is ready. Click Transcript to generate the text."
-);
-
-audioResult.scrollIntoView({
-behavior:"smooth",
-block:"start"
-});
-
-}catch(error){
-
-showScriptStatus(
-error.message ||
-"Failed to prepare audio.",
-true
-);
-
-}finally{
-
-prepareAudioButton.disabled=false;
-
-prepareAudioButton.textContent="Get Audio";
-
-}
-
-}
-);
-
-
-/* =========================================================
-   STEP 2
-   AUDIO -> WHISPER TRANSCRIPT
-========================================================= */
-
-transcriptButton.addEventListener(
-"click",
-async ()=>{
-
-if(!currentJobId){
-
-showScriptStatus(
-"Please prepare the audio first.",
-true
-);
-
-return;
-}
-
-transcriptButton.disabled=true;
-
-transcriptButton.textContent="Transcribing...";
-
-showScriptStatus(
-"Whisper is detecting the language and generating the transcript. Please wait..."
-);
-
-try{
-
-const response =
-await fetch(
-`${API_BASE}/api/transcribe/${encodeURIComponent(currentJobId)}`,
-{
-method:"POST"
-}
-);
-
-const data =
-await response.json();
-
-if(!response.ok){
-
-throw new Error(
-data.error ||
-"Unable to generate transcript."
-);
-
-}
-
-if(!data.text){
-
-throw new Error(
-"No speech/text was detected in this audio."
-);
-
-}
-
-currentTranscript =
-data.text.trim();
-
-scriptText.value =
-currentTranscript;
-
-
-/* LANGUAGE */
-
-const language =
-data.language ||
-"unknown";
-
-const languageNames = {
-en:"English",
-ur:"Urdu",
-hi:"Hindi",
-ar:"Arabic",
-es:"Spanish",
-fr:"French",
-de:"German",
-pt:"Portuguese",
-tr:"Turkish",
-ru:"Russian",
-id:"Indonesian",
-bn:"Bengali",
-pa:"Punjabi",
-fa:"Persian"
-};
-
-const readableLanguage =
-languageNames[language] ||
-language.toUpperCase();
-
-languageInfo.textContent =
-`Detected language: ${readableLanguage}`;
-
-languageInfo.style.display="block";
-
-
-transcriptResult.style.display="block";
-
-showScriptStatus(
-"Transcript generated successfully."
-);
-
-transcriptResult.scrollIntoView({
-behavior:"smooth",
-block:"start"
-});
-
-}catch(error){
-
-showScriptStatus(
-error.message ||
-"Failed to generate transcript.",
-true
-);
-
-}finally{
-
-transcriptButton.disabled=false;
-
-transcriptButton.textContent="Transcript";
-
-}
-
-}
-);
-
-
-/* =========================================================
-   COPY TRANSCRIPT
-========================================================= */
-
-copyScriptButton.addEventListener(
-"click",
-async ()=>{
-
-const text =
-scriptText.value;
-
-if(!text)
-return;
-
-try{
-
-await navigator.clipboard.writeText(text);
-
-copyScriptButton.textContent="Copied!";
-
-setTimeout(
-()=>{
-copyScriptButton.textContent="Copy Transcript";
-},
-1800
-);
-
-}catch(error){
-
-scriptText.select();
-
-document.execCommand("copy");
-
-copyScriptButton.textContent="Copied!";
-
-setTimeout(
-()=>{
-copyScriptButton.textContent="Copy Transcript";
-},
-1800
-);
-
-}
-
-}
-);
-
-
-/* ======================
-/* =========================================================
-   DOWNLOAD TRANSCRIPT
-========================================================= */
-
-downloadTranscriptButton.addEventListener(
-  "click",
-  () => {
-
-    const text = scriptText.value;
-
-    if (!text) {
-      showScriptStatus(
-        "There is no transcript to download.",
-        true
-      );
-      return;
-    }
-
-    const blob = new Blob(
-      [text],
-      {
-        type: "text/plain;charset=utf-8"
-      }
-    );
-
-    const url =
-      URL.createObjectURL(blob);
-
-    const link =
-      document.createElement("a");
-
-    link.href = url;
-
-    link.download =
-      `${currentTitle || "transcript"}.txt`;
-
-    document.body.appendChild(link);
-
-    link.click();
-
-    link.remove();
-
-    URL.revokeObjectURL(url);
-  }
-);
-
-</script>
-
-</body>
-</html>
+   CONFIG
+==================
