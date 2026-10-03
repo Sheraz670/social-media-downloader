@@ -1,13 +1,16 @@
 const express = require("express");
 const cors = require("cors");
 const { Readable } = require("stream");
+
 const {
   createReadStream,
   unlink,
   mkdtempSync,
   rmSync,
-  existsSync
+  existsSync,
+  readdirSync
 } = require("fs");
+
 const { promisify } = require("util");
 const os = require("os");
 const path = require("path");
@@ -45,7 +48,7 @@ AUDIO JOB STORAGE
 const audioJobs = new Map();
 
 const AUDIO_JOB_LIFETIME =
-  60 * 60 * 1000; // 1 hour
+  60 * 60 * 1000;
 
 function createJobId() {
   return crypto.randomBytes(24).toString("hex");
@@ -57,7 +60,7 @@ function saveAudioJob(jobId, job) {
     createdAt: Date.now()
   });
 
-  setTimeout(async () => {
+  setTimeout(() => {
     const current = audioJobs.get(jobId);
 
     if (!current) {
@@ -416,21 +419,23 @@ function runYtDlpProcess(
 
       let stderr = "";
 
-      subprocess.stderr.on(
-        "data",
-        (data) => {
+      if (subprocess.stderr) {
+        subprocess.stderr.on(
+          "data",
+          (data) => {
 
-          const message =
-            data.toString();
+            const message =
+              data.toString();
 
-          stderr += message;
+            stderr += message;
 
-          console.error(
-            "yt-dlp:",
-            message
-          );
-        }
-      );
+            console.error(
+              "yt-dlp:",
+              message
+            );
+          }
+        );
+      }
 
       subprocess.on(
         "error",
@@ -461,6 +466,37 @@ function runYtDlpProcess(
 
 /*
 ==================================================
+FIND DOWNLOADED AUDIO
+==================================================
+*/
+
+function findDownloadedFile(
+  directory,
+  prefix
+) {
+  const files =
+    readdirSync(directory);
+
+  const match =
+    files.find(
+      (file) =>
+        file.startsWith(prefix)
+    );
+
+  if (!match) {
+    throw new Error(
+      "yt-dlp did not create the expected audio file."
+    );
+  }
+
+  return path.join(
+    directory,
+    match
+  );
+}
+
+/*
+==================================================
 RUN FFMPEG
 ==================================================
 */
@@ -481,15 +517,12 @@ function runFfmpeg(
             "-i",
             inputFile,
 
-            // Mono audio
             "-ac",
             "1",
 
-            // 16 kHz is enough for speech
             "-ar",
             "16000",
 
-            // Lightweight MP3
             "-b:a",
             "64k",
 
@@ -673,10 +706,13 @@ app.post(
           )
         );
 
-      const originalAudio =
+      const audioPrefix =
+        "source-audio";
+
+      const audioTemplate =
         path.join(
           tempDir,
-          "original-audio"
+          `${audioPrefix}.%(ext)s`
         );
 
       const finalAudio =
@@ -686,20 +722,20 @@ app.post(
         );
 
       console.log(
-        "Preparing audio..."
+        "Preparing audio from:",
+        url
       );
 
       /*
-        First extract audio.
-        We intentionally do NOT download
-        the full video.
+        Only bestaudio is downloaded.
+        Full video is NOT downloaded.
       */
 
       await runYtDlpProcess(
         url,
         {
           output:
-            originalAudio,
+            audioTemplate,
 
           format:
             "bestaudio/best",
@@ -710,19 +746,20 @@ app.post(
         }
       );
 
+      const originalAudio =
+        findDownloadedFile(
+          tempDir,
+          audioPrefix
+        );
+
       console.log(
-        "Audio extracted. Optimizing for speech..."
+        "Audio extracted:",
+        originalAudio
       );
 
-      /*
-        Convert to:
-        mono
-        16 kHz
-        64 kbps MP3
-
-        This makes the audio much lighter
-        before Whisper processing.
-      */
+      console.log(
+        "Converting audio for Whisper..."
+      );
 
       await runFfmpeg(
         originalAudio,
@@ -741,8 +778,21 @@ app.post(
         }
       } catch {}
 
+      if (
+        !existsSync(finalAudio)
+      ) {
+        throw new Error(
+          "FFmpeg did not create the final audio file."
+        );
+      }
+
       const jobId =
         createJobId();
+
+      /*
+        Get title separately.
+        If metadata fails, audio still remains usable.
+      */
 
       const info =
         await extractSocialMedia(
@@ -768,9 +818,8 @@ app.post(
       );
 
       /*
-        IMPORTANT:
-        We don't delete tempDir here.
-        It is needed for Transcript.
+        Keep tempDir alive because
+        Whisper needs the audio later.
       */
 
       tempDir = null;
@@ -808,6 +857,7 @@ app.post(
     } finally {
 
       if (tempDir) {
+
         try {
           rmSync(
             tempDir,
@@ -817,6 +867,7 @@ app.post(
             }
           );
         } catch {}
+
       }
 
     }
@@ -849,7 +900,7 @@ app.get(
 
       res.setHeader(
         "Content-Disposition",
-        `inline; filename="socialtoolhub-audio.mp3"`
+        'inline; filename="socialtoolhub-audio.mp3"'
       );
 
       return createReadStream(
@@ -901,6 +952,14 @@ app.post(
           __dirname,
           "transcribe.py"
         );
+
+      if (
+        !existsSync(pythonFile)
+      ) {
+        throw new Error(
+          "transcribe.py was not found on the server."
+        );
+      }
 
       const pythonProcess =
         spawn(
@@ -986,6 +1045,12 @@ app.post(
         );
       }
 
+      if (!result.text) {
+        throw new Error(
+          "No speech was detected in this audio."
+        );
+      }
+
       return res.json({
 
         success: true,
@@ -995,8 +1060,7 @@ app.post(
           "unknown",
 
         text:
-          result.text ||
-          "",
+          result.text,
 
         title:
           job.title
@@ -1023,40 +1087,6 @@ app.post(
 
 /*
 ==================================================
-DOWNLOAD TRANSCRIPT AS TXT
-==================================================
-*/
-
-app.get(
-  "/api/transcript/:jobId.txt",
-  async (req, res) => {
-
-    try {
-
-      const job =
-        getAudioJob(
-          req.params.jobId
-        );
-
-      return res.status(400).json({
-        error:
-          "Generate the transcript first, then download the text from the frontend."
-      });
-
-    } catch (error) {
-
-      return res.status(404).json({
-        error:
-          error.message
-      });
-
-    }
-
-  }
-);
-
-/*
-==================================================
 DOWNLOAD
 ==================================================
 */
@@ -1065,7 +1095,7 @@ app.get(
   "/api/download",
   async (req, res) => {
 
-    let tempFile = null;
+    let tempDir = null;
 
     try {
 
@@ -1073,6 +1103,10 @@ app.get(
         req.query.url;
 
       validateUrl(url);
+
+      /*
+        First check if this is a direct media URL.
+      */
 
       const directResponse =
         await fetch(
@@ -1116,10 +1150,7 @@ app.get(
 
         res.setHeader(
           "Content-Type",
-          directResponse.headers.get(
-            "content-type"
-          ) ||
-            "application/octet-stream"
+          directType
         );
 
         res.setHeader(
@@ -1150,60 +1181,41 @@ app.get(
 
       }
 
+      /*
+        Download social media video.
+      */
+
+      tempDir =
+        mkdtempSync(
+          path.join(
+            os.tmpdir(),
+            "socialtoolhub-download-"
+          )
+        );
+
+      const outputTemplate =
+        path.join(
+          tempDir,
+          "video.%(ext)s"
+        );
+
       const platform =
         getPlatform(url);
 
-      /*
-        Facebook
-      */
+      await runYtDlpProcess(
+        url,
+        {
+          output:
+            outputTemplate,
 
-      if (
-        platform === "facebook"
-      ) {
+          ...getYtDlpOptions(
+            url,
+            true
+          )
+        }
+      );
 
-        const randomName =
-          `socialtoolhub-${crypto.randomUUID()}`;
+      const files =
+        readdirSync(tempDir);
 
-        const outputTemplate =
-          path.join(
-            os.tmpdir(),
-            `${randomName}.%(ext)s`
-          );
-
-        tempFile =
-          path.join(
-            os.tmpdir(),
-            `${randomName}.mp4`
-          );
-
-        await runYtDlpProcess(
-          url,
-          {
-            output:
-              outputTemplate,
-
-            ...getYtDlpOptions(
-              url,
-              true
-            )
-          }
-        );
-
-        res.setHeader(
-          "Content-Type",
-          "video/mp4"
-        );
-
-        res.setHeader(
-          "Content-Disposition",
-          `attachment; filename="socialtoolhub-facebook-video.mp4"`
-        );
-
-        const readStream =
-          createReadStream(
-            tempFile
-          );
-
-        readStream.on(
-          "error",
-          async (error
+      const downloadedFile 
