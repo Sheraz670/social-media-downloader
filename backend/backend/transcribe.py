@@ -16,12 +16,14 @@ audio_file = sys.argv[1]
 try:
 
     print(
-        "Loading Whisper model...",
+        "Loading Whisper tiny model...",
         file=sys.stderr
     )
 
-    model = whisper.load_model("tiny")
-
+    model = whisper.load_model(
+        "tiny",
+        device="cpu"
+    )
 
     print(
         "Detecting language and transcribing...",
@@ -31,10 +33,11 @@ try:
     result = model.transcribe(
         audio_file,
         task="transcribe",
+        language=None,
         fp16=False,
+        temperature=0,
         verbose=False
     )
-
 
     text = (
         result.get("text", "")
@@ -46,7 +49,6 @@ try:
         or "unknown"
     )
 
-
     print(json.dumps({
         "text": text,
         "language": language
@@ -57,6 +59,6 @@ except Exception as e:
 
     print(json.dumps({
         "error": str(e)
-    }))
+    }, ensure_ascii=False))
 
     sys.exit(1)
