@@ -3,16 +3,15 @@ import json
 import os
 import subprocess
 
-from faster_whisper import WhisperModel
-
-
 # Keep CPU/RAM usage low on Render Free
 os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["MKL_NUM_THREADS"] = "1"
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
 
+from faster_whisper import WhisperModel
 
-MAX_DURATION = 10 * 60  # 10 minutes
+
+MAX_DURATION = 10 * 60
 
 
 def get_duration(audio_file):
@@ -36,13 +35,31 @@ def get_duration(audio_file):
             "Unable to read audio duration."
         )
 
-    return float(result.stdout.strip())
+    output = result.stdout.strip()
+
+    if not output:
+        raise Exception(
+            "Audio duration could not be detected."
+        )
+
+    return float(output)
+
+
+def send_result(data):
+    # IMPORTANT:
+    # Only final JSON goes to stdout.
+    print(
+        json.dumps(
+            data,
+            ensure_ascii=False
+        )
+    )
 
 
 if len(sys.argv) < 2:
-    print(json.dumps({
+    send_result({
         "error": "Audio file is required."
-    }))
+    })
     sys.exit(1)
 
 
@@ -51,21 +68,31 @@ audio_file = sys.argv[1]
 
 try:
 
-    # Check audio duration first
-    duration = get_duration(audio_file)
+    # Check that audio exists
+    if not os.path.exists(audio_file):
+        raise Exception(
+            "Audio file was not found."
+        )
+
+
+    # Check duration
+    duration = get_duration(
+        audio_file
+    )
 
     print(
         f"Audio duration: {duration:.1f} seconds",
         file=sys.stderr
     )
 
+
     if duration > MAX_DURATION:
 
-        print(json.dumps({
+        send_result({
             "error":
                 "This audio is longer than 10 minutes. "
                 "Maximum allowed duration is 10 minutes."
-        }))
+        })
 
         sys.exit(1)
 
@@ -103,15 +130,22 @@ try:
 
     text_parts = []
 
+
     for segment in segments:
 
-        text = segment.text.strip()
+        segment_text = (
+            segment.text.strip()
+        )
 
-        if text:
-            text_parts.append(text)
+        if segment_text:
+            text_parts.append(
+                segment_text
+            )
 
 
-    text = " ".join(text_parts).strip()
+    text = " ".join(
+        text_parts
+    ).strip()
 
 
     language = (
@@ -123,26 +157,31 @@ try:
 
     if not text:
 
-        print(json.dumps({
+        send_result({
             "error":
                 "No speech was detected in this audio."
-        }))
+        })
 
         sys.exit(1)
 
 
-    print(json.dumps({
+    # IMPORTANT:
+    # Only final result goes to stdout.
+    send_result({
         "text": text,
         "language": language
-    }, ensure_ascii=False))
+    })
 
 
 except Exception as e:
 
     print(
-        json.dumps({
-            "error": str(e)
-        }, ensure_ascii=False)
+        f"TRANSCRIPTION PYTHON ERROR: {e}",
+        file=sys.stderr
     )
+
+    send_result({
+        "error": str(e)
+    })
 
     sys.exit(1)
