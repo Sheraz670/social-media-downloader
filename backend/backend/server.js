@@ -1,7 +1,14 @@
 const express = require("express");
 const cors = require("cors");
 const { Readable } = require("stream");
+const { createReadStream, unlink } = require("fs");
+const { promisify } = require("util");
+const os = require("os");
+const path = require("path");
+const crypto = require("crypto");
 const youtubedl = require("youtube-dl-exec");
+
+const unlinkAsync = promisify(unlink);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -25,7 +32,11 @@ const ALLOWED_DIRECT_TYPES = [
 function isValidHttpUrl(value) {
   try {
     const u = new URL(value);
-    return u.protocol === "http:" || u.protocol === "https:";
+
+    return (
+      u.protocol === "http:" ||
+      u.protocol === "https:"
+    );
   } catch {
     return false;
   }
@@ -89,12 +100,24 @@ function getPlatform(url) {
     return "youtube";
   }
 
-  if (host.includes("tiktok.com")) {
+  if (
+    host.includes("tiktok.com") ||
+    host === "vm.tiktok.com" ||
+    host === "vt.tiktok.com"
+  ) {
     return "tiktok";
   }
 
   if (host.includes("instagram.com")) {
     return "instagram";
+  }
+
+  if (
+    host.includes("facebook.com") ||
+    host === "fb.watch" ||
+    host.endsWith(".facebook.com")
+  ) {
+    return "facebook";
   }
 
   return "other";
@@ -106,7 +129,8 @@ function isSocialMediaUrl(url) {
   return (
     platform === "youtube" ||
     platform === "instagram" ||
-    platform === "tiktok"
+    platform === "tiktok" ||
+    platform === "facebook"
   );
 }
 
@@ -163,17 +187,6 @@ async function getDirectMediaInfo(url) {
   };
 }
 
-/*
-  yt-dlp options.
-
-  YouTube:
-  - Uses Node as the JavaScript runtime.
-  - Allows yt-dlp to obtain its EJS challenge scripts.
-  
-  TikTok/Instagram:
-  - Uses the normal yt-dlp extractor.
-  - No watermark removal or access-control bypass.
-*/
 function getYtDlpOptions(url, forDownload = false) {
   const platform = getPlatform(url);
 
@@ -189,7 +202,15 @@ function getYtDlpOptions(url, forDownload = false) {
   }
 
   if (forDownload) {
-    options.format = "best[ext=mp4]/best";
+    if (platform === "facebook") {
+      options.format =
+        "bestvideo+bestaudio/best";
+
+      options.mergeOutputFormat = "mp4";
+    } else {
+      options.format =
+        "best[ext=mp4]/best";
+    }
   }
 
   return options;
@@ -209,6 +230,57 @@ async function extractSocialMedia(url) {
   }
 
   return result;
+}
+
+function runYtDlpProcess(url, options) {
+  return new Promise((resolve, reject) => {
+    const subprocess =
+      youtubedl.exec(
+        url,
+        options,
+        {
+          maxBuffer:
+            1024 * 1024 * 50
+        }
+      );
+
+    let stderr = "";
+
+    subprocess.stderr.on(
+      "data",
+      (data) => {
+        const message = data.toString();
+
+        stderr += message;
+
+        console.error(
+          "yt-dlp:",
+          message
+        );
+      }
+    );
+
+    subprocess.on(
+      "error",
+      reject
+    );
+
+    subprocess.on(
+      "close",
+      (code) => {
+        if (code === 0) {
+          resolve();
+        } else {
+          reject(
+            new Error(
+              stderr.trim() ||
+              `yt-dlp exited with code ${code}.`
+            )
+          );
+        }
+      }
+    );
+  });
 }
 
 app.get("/", (req, res) => {
@@ -277,6 +349,8 @@ app.get("/api/media", async (req, res) => {
 });
 
 app.get("/api/download", async (req, res) => {
+  let tempFile = null;
+
   try {
     const url = req.query.url;
 
@@ -341,6 +415,89 @@ app.get("/api/download", async (req, res) => {
 
     const platform = getPlatform(url);
 
+    /*
+      Facebook:
+      Download video + audio separately,
+      merge them into one MP4,
+      then send the MP4 to the user.
+    */
+    if (platform === "facebook") {
+      const randomName =
+        `socialtoolhub-${crypto.randomUUID()}`;
+
+      const outputTemplate =
+        path.join(
+          os.tmpdir(),
+          `${randomName}.%(ext)s`
+        );
+
+      tempFile =
+        path.join(
+          os.tmpdir(),
+          `${randomName}.mp4`
+        );
+
+      await runYtDlpProcess(
+        url,
+        {
+          output: outputTemplate,
+
+          ...getYtDlpOptions(
+            url,
+            true
+          )
+        }
+      );
+
+      res.setHeader(
+        "Content-Type",
+        "video/mp4"
+      );
+
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="socialtoolhub-facebook-video.mp4"`
+      );
+
+      const readStream =
+        createReadStream(tempFile);
+
+      readStream.on(
+        "error",
+        async (error) => {
+          console.error(
+            "FILE STREAM ERROR:",
+            error
+          );
+
+          try {
+            await unlinkAsync(tempFile);
+          } catch {}
+
+          if (!res.headersSent) {
+            res.status(500).json({
+              error:
+                "Unable to send downloaded video."
+            });
+          }
+        }
+      );
+
+      readStream.on(
+        "close",
+        async () => {
+          try {
+            await unlinkAsync(tempFile);
+          } catch {}
+        }
+      );
+
+      return readStream.pipe(res);
+    }
+
+    /*
+      Existing TikTok / Instagram / YouTube flow.
+    */
     const subprocess =
       youtubedl.exec(
         url,
@@ -402,13 +559,21 @@ app.get("/api/download", async (req, res) => {
       error
     );
 
+    if (tempFile) {
+      try {
+        await unlinkAsync(tempFile);
+      } catch {}
+    }
+
     if (!res.headersSent) {
-      res.status(500).json({
+      return res.status(500).json({
         error:
           error.message ||
           "Download failed."
       });
     }
+
+    res.end();
   }
 });
 
