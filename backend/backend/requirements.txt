@@ -1,4 +1,5 @@
 curl-cffi
+yt-dlp
 yt-dlp-ejs
 faster-whisper
 av<19
