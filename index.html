@@ -1,675 +1,666 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>SocialToolHub — Media Downloader & Script Generator</title>
-  <meta name="description" content="SocialToolHub is a simple media downloader and script generator for publicly accessible and authorized media URLs.">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SocialToolHub — Media Downloader & Script Generator</title>
+<meta name="description" content="SocialToolHub is a simple media downloader and script generator for publicly accessible and authorized media URLs.">
 
-  <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    html{scroll-behavior:smooth}
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
 
-    body{
-      font-family:Arial,sans-serif;
-      min-height:100vh;
-      background:#09090b;
-      color:#fff
-    }
+body{
+  font-family:Arial,sans-serif;
+  min-height:100vh;
+  background:#09090b;
+  color:#fff;
+}
 
-    header{
-      border-bottom:1px solid #27272a;
-      padding:18px 20px
-    }
+header{
+  border-bottom:1px solid #27272a;
+  padding:18px 20px;
+}
 
-    .nav{
-      max-width:1100px;
-      margin:auto;
-      display:flex;
-      justify-content:space-between;
-      align-items:center
-    }
+.nav{
+  max-width:1100px;
+  margin:auto;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
 
-    .logo{
-      font-size:22px;
-      font-weight:800
-    }
+.logo{
+  font-size:22px;
+  font-weight:800;
+}
 
-    .logo span{
-      color:#6366f1
-    }
+.logo span{
+  color:#6366f1;
+}
 
-    .badge{
-      font-size:12px;
-      color:#a1a1aa
-    }
+.badge{
+  font-size:12px;
+  color:#a1a1aa;
+}
 
-    main{
-      max-width:900px;
-      margin:auto;
-      padding:70px 20px
-    }
+main{
+  max-width:900px;
+  margin:auto;
+  padding:70px 20px;
+}
 
-    .hero{
-      text-align:center
-    }
+.hero{
+  text-align:center;
+}
 
-    .hero h1{
-      font-size:clamp(36px,7vw,64px);
-      line-height:1.05;
-      margin-bottom:20px
-    }
+.hero h1{
+  font-size:clamp(36px,7vw,64px);
+  line-height:1.05;
+  margin-bottom:20px;
+}
 
-    .gradient{
-      background:linear-gradient(90deg,#818cf8,#c084fc,#f472b6);
-      -webkit-background-clip:text;
-      color:transparent
-    }
+.gradient{
+  background:linear-gradient(90deg,#818cf8,#c084fc,#f472b6);
+  -webkit-background-clip:text;
+  color:transparent;
+}
 
-    .hero p{
-      color:#a1a1aa;
-      max-width:650px;
-      margin:auto;
-      line-height:1.7
-    }
+.hero p{
+  color:#a1a1aa;
+  max-width:650px;
+  margin:auto;
+  line-height:1.7;
+}
 
-    .card{
-      margin-top:40px;
-      background:#18181b;
-      border:1px solid #27272a;
-      border-radius:20px;
-      padding:20px
-    }
+.tools{
+  margin-top:40px;
+  display:grid;
+  gap:25px;
+}
 
-    .input-row{
-      display:flex;
-      gap:10px
-    }
+.card{
+  background:#18181b;
+  border:1px solid #27272a;
+  border-radius:20px;
+  padding:20px;
+  text-align:left;
+}
 
-    input{
-      flex:1;
-      min-width:0;
-      padding:16px;
-      border-radius:12px;
-      border:1px solid #3f3f46;
-      background:#09090b;
-      color:white;
-      outline:none;
-      font-size:15px
-    }
+.card h2{
+  font-size:22px;
+  margin-bottom:8px;
+}
 
-    input:focus{
-      border-color:#6366f1
-    }
+.card-description{
+  color:#a1a1aa;
+  font-size:14px;
+  line-height:1.6;
+  margin-bottom:18px;
+}
 
-    button{
-      border:0;
-      border-radius:12px;
-      padding:0 22px;
-      background:#4f46e5;
-      color:white;
-      font-weight:700;
-      cursor:pointer
-    }
+.input-row{
+  display:flex;
+  gap:10px;
+}
 
-    button:hover{
-      background:#6366f1
-    }
+input{
+  width:100%;
+  min-width:0;
+  padding:16px;
+  border-radius:12px;
+  border:1px solid #3f3f46;
+  background:#09090b;
+  color:white;
+  outline:none;
+  font-size:15px;
+}
 
-    button:disabled{
-      opacity:.6;
-      cursor:not-allowed
-    }
+input:focus{
+  border-color:#6366f1;
+}
 
-    .action-row{
-      display:flex;
-      gap:10px;
-      margin-top:12px
-    }
+button{
+  border:0;
+  border-radius:12px;
+  padding:0 22px;
+  min-height:50px;
+  background:#4f46e5;
+  color:white;
+  font-weight:700;
+  cursor:pointer;
+}
 
-    .action-row button{
-      flex:1;
-      height:50px
-    }
+button:hover{
+  background:#6366f1;
+}
 
-    .script-button{
-      background:#7c3aed
-    }
+button:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+}
 
-    .script-button:hover{
-      background:#8b5cf6
-    }
+.script-button{
+  background:#7c3aed;
+}
 
-    #status{
-      margin-top:18px;
-      color:#a1a1aa;
-      display:none;
-      line-height:1.6
-    }
+.script-button:hover{
+  background:#8b5cf6;
+}
 
-    #result{
-      margin-top:25px;
-      display:none
-    }
+#mediaStatus,
+#scriptStatus{
+  margin-top:18px;
+  color:#a1a1aa;
+  display:none;
+  line-height:1.6;
+}
 
-    .media-card{
-      background:#09090b;
-      border:1px solid #27272a;
-      border-radius:16px;
-      padding:18px
-    }
+.error{
+  color:#f87171!important;
+}
 
-    .media-title{
-      font-size:18px;
-      font-weight:700;
-      margin-bottom:8px
-    }
+.result{
+  margin-top:25px;
+  display:none;
+}
 
-    .media-info{
-      color:#a1a1aa;
-      font-size:14px;
-      margin-bottom:18px
-    }
+.media-card,
+.script-card{
+  background:#09090b;
+  border:1px solid #27272a;
+  border-radius:16px;
+  padding:18px;
+}
 
-    .download{
-      display:inline-block;
-      text-decoration:none;
-      background:#16a34a;
-      color:white;
-      padding:12px 18px;
-      border-radius:10px;
-      font-weight:700
-    }
+.media-title,
+.script-title{
+  font-size:18px;
+  font-weight:700;
+  margin-bottom:10px;
+}
 
-    .download:hover{
-      background:#22c55e
-    }
+.media-info{
+  color:#a1a1aa;
+  font-size:14px;
+  margin-bottom:18px;
+}
 
-    .another{
-      display:inline-block;
-      margin-top:12px;
-      background:#4f46e5;
-      color:white;
-      padding:12px 18px;
-      border-radius:10px;
-      font-weight:700;
-      cursor:pointer;
-      border:0
-    }
+.download{
+  display:inline-block;
+  text-decoration:none;
+  background:#16a34a;
+  color:white;
+  padding:12px 18px;
+  border-radius:10px;
+  font-weight:700;
+}
 
-    .another:hover{
-      background:#6366f1
-    }
+.download:hover{
+  background:#22c55e;
+}
 
-    .error{
-      color:#f87171!important
-    }
+#scriptText{
+  width:100%;
+  min-height:260px;
+  resize:vertical;
+  padding:16px;
+  border-radius:12px;
+  border:1px solid #3f3f46;
+  background:#18181b;
+  color:#fff;
+  outline:none;
+  font-family:Arial,sans-serif;
+  font-size:15px;
+  line-height:1.7;
+}
 
-    .notice{
-      margin-top:25px;
-      padding:15px;
-      border-radius:12px;
-      background:#18181b;
-      color:#a1a1aa;
-      font-size:13px;
-      line-height:1.6
-    }
+#copyScriptButton{
+  margin-top:12px;
+  min-height:45px;
+}
 
-    /* SCRIPT BOX */
+.another{
+  display:none;
+  margin-top:12px;
+  background:#4f46e5;
+}
 
-    #scriptResult{
-      margin-top:25px;
-      display:none
-    }
+.notice{
+  margin-top:25px;
+  padding:15px;
+  border-radius:12px;
+  background:#18181b;
+  color:#a1a1aa;
+  font-size:13px;
+  line-height:1.6;
+  text-align:left;
+}
 
-    .script-card{
-      background:#09090b;
-      border:1px solid #27272a;
-      border-radius:16px;
-      padding:18px
-    }
+.content-section{
+  margin-top:70px;
+  padding:30px 20px;
+  background:#111113;
+  border:1px solid #27272a;
+  border-radius:18px;
+  scroll-margin-top:30px;
+}
 
-    .script-title{
-      font-size:18px;
-      font-weight:700;
-      margin-bottom:12px
-    }
+.content-section h2{
+  font-size:28px;
+  margin-bottom:15px;
+}
 
-    #scriptText{
-      width:100%;
-      min-height:260px;
-      resize:vertical;
-      padding:16px;
-      border-radius:12px;
-      border:1px solid #3f3f46;
-      background:#18181b;
-      color:#fff;
-      outline:none;
-      font-family:Arial,sans-serif;
-      font-size:15px;
-      line-height:1.7
-    }
+.content-section h3{
+  font-size:19px;
+  margin-top:22px;
+  margin-bottom:8px;
+}
 
-    #copyScriptButton{
-      margin-top:12px;
-      height:45px;
-      padding:0 18px
-    }
+.content-section p,
+.content-section li{
+  color:#a1a1aa;
+  line-height:1.8;
+  font-size:15px;
+}
 
-    .content-section{
-      margin-top:70px;
-      padding:30px 20px;
-      background:#111113;
-      border:1px solid #27272a;
-      border-radius:18px;
-      scroll-margin-top:30px
-    }
+.content-section ul{
+  padding-left:20px;
+}
 
-    .content-section h2{
-      font-size:28px;
-      margin-bottom:15px
-    }
+footer{
+  border-top:1px solid #27272a;
+  margin-top:70px;
+  padding:35px 20px;
+}
 
-    .content-section h3{
-      font-size:19px;
-      margin-top:22px;
-      margin-bottom:8px
-    }
+.footer-inner{
+  max-width:1100px;
+  margin:auto;
+  text-align:center;
+}
 
-    .content-section p,
-    .content-section li{
-      color:#a1a1aa;
-      line-height:1.8;
-      font-size:15px
-    }
+.footer-links{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:18px;
+  margin-bottom:18px;
+}
 
-    .content-section ul{
-      padding-left:20px
-    }
+.footer-links a{
+  color:#a1a1aa;
+  text-decoration:none;
+  font-size:14px;
+}
 
-    footer{
-      border-top:1px solid #27272a;
-      margin-top:70px;
-      padding:35px 20px
-    }
+.footer-links a:hover{
+  color:#fff;
+}
 
-    .footer-inner{
-      max-width:1100px;
-      margin:auto;
-      text-align:center
-    }
+.copyright{
+  color:#71717a;
+  font-size:13px;
+  line-height:1.6;
+}
 
-    .footer-links{
-      display:flex;
-      justify-content:center;
-      flex-wrap:wrap;
-      gap:18px;
-      margin-bottom:18px
-    }
+@media(max-width:650px){
 
-    .footer-links a{
-      color:#a1a1aa;
-      text-decoration:none;
-      font-size:14px
-    }
+  .input-row{
+    flex-direction:column;
+  }
 
-    .footer-links a:hover{
-      color:#fff
-    }
+  .input-row button{
+    width:100%;
+  }
 
-    .copyright{
-      color:#71717a;
-      font-size:13px;
-      line-height:1.6
-    }
-
-    @media(max-width:650px){
-
-      .input-row{
-        flex-direction:column
-      }
-
-      .input-row button{
-        height:50px
-      }
-
-      .action-row{
-        flex-direction:column
-      }
-
-      .content-section{
-        padding:24px 18px
-      }
-    }
-  </style>
+  .content-section{
+    padding:24px 18px;
+  }
+}
+</style>
 </head>
 
 <body>
 
 <header>
-  <div class="nav">
-    <div class="logo">SocialTool<span>Hub</span></div>
-    <div class="badge">Media Downloader</div>
-  </div>
+<div class="nav">
+  <div class="logo">SocialTool<span>Hub</span></div>
+  <div class="badge">Media Downloader</div>
+</div>
 </header>
 
 <main>
 
-  <section class="hero" id="home">
+<section class="hero" id="home">
 
-    <h1>
-      Download Your <span class="gradient">Media</span>
-    </h1>
+<h1>
+Download Your <span class="gradient">Media</span>
+</h1>
 
-    <p>
-      Paste a publicly accessible media URL to download available media
-      or generate a text script from the video's audio.
-    </p>
+<p>
+Paste a publicly accessible media URL to download available media
+or generate a text script from the video's audio.
+</p>
 
-    <div class="card">
+<div class="tools">
 
-      <form id="downloadForm">
+<!-- ================= MEDIA DOWNLOADER ================= -->
 
-        <div class="input-row">
+<div class="card">
 
-          <input
-            id="urlInput"
-            type="url"
-            placeholder="Paste YouTube, TikTok, Facebook or Instagram URL..."
-            autocomplete="off"
-            required
-          >
+<h2>Media Downloader</h2>
 
-        </div>
+<div class="card-description">
+Download available media from a publicly accessible YouTube,
+TikTok, Facebook or Instagram URL.
+</div>
 
-        <div class="action-row">
+<div class="input-row">
 
-          <button id="submitButton" type="submit">
-            Get Media
-          </button>
+<input
+id="mediaUrlInput"
+type="url"
+placeholder="Paste video URL for download..."
+autocomplete="off"
+>
 
-          <button
-            id="scriptButton"
-            class="script-button"
-            type="button"
-          >
-            Get Script
-          </button>
+<button id="mediaButton" type="button">
+Get Media
+</button>
 
-        </div>
+</div>
 
-      </form>
+<div id="mediaStatus"></div>
 
+<div id="mediaResult" class="result">
 
-      <div id="status"></div>
+<div class="media-card">
 
+<div id="mediaTitle" class="media-title"></div>
 
-      <!-- MEDIA RESULT -->
+<div id="mediaInfo" class="media-info"></div>
 
-      <div id="result">
+<a
+id="downloadButton"
+class="download"
+href="#"
+target="_blank"
+rel="noopener"
+>
+Download
+</a>
 
-        <div class="media-card">
+</div>
 
-          <div id="mediaTitle" class="media-title"></div>
+</div>
 
-          <div id="mediaInfo" class="media-info"></div>
+</div>
 
-          <a
-            id="downloadButton"
-            class="download"
-            href="#"
-            target="_blank"
-            rel="noopener"
-          >
-            Download
-          </a>
 
-        </div>
+<!-- ================= SCRIPT GENERATOR ================= -->
 
-      </div>
+<div class="card">
 
+<h2>Script Generator</h2>
 
-      <!-- SCRIPT RESULT -->
+<div class="card-description">
+Generate a text transcription from the audio of a publicly
+accessible video.
+</div>
 
-      <div id="scriptResult">
+<div class="input-row">
 
-        <div class="script-card">
+<input
+id="scriptUrlInput"
+type="url"
+placeholder="Paste video URL for script..."
+autocomplete="off"
+>
 
-          <div class="script-title">
-            Generated Script
-          </div>
+<button
+id="scriptButton"
+class="script-button"
+type="button"
+>
+Get Script
+</button>
 
-          <textarea
-            id="scriptText"
-            readonly
-            placeholder="Your generated script will appear here..."
-          ></textarea>
+</div>
 
-          <button
-            id="copyScriptButton"
-            type="button"
-          >
-            Copy Script
-          </button>
+<div id="scriptStatus"></div>
 
-        </div>
+<div id="scriptResult" class="result">
 
-      </div>
+<div class="script-card">
 
+<div class="script-title">
+Generated Script
+</div>
 
-      <button
-        id="anotherButton"
-        class="another"
-        type="button"
-        style="display:none"
-      >
-        Download Another Video
-      </button>
+<textarea
+id="scriptText"
+readonly
+placeholder="Your generated script will appear here..."
+></textarea>
 
+<button
+id="copyScriptButton"
+type="button"
+>
+Copy Script
+</button>
 
-      <div class="notice">
-        Only download or transcribe content that you own or have permission
-        to use. This service does not bypass private content, DRM, login
-        restrictions, or other access controls.
-      </div>
+</div>
 
-    </div>
+</div>
 
-  </section>
+</div>
 
+</div>
 
-  <section class="content-section" id="about">
 
-    <h2>About Us</h2>
+<div class="notice">
+Only download or transcribe content that you own or have permission
+to use. This service does not bypass private content, DRM, login
+restrictions, or other access controls.
+</div>
 
-    <p>
-      SocialToolHub is a simple online media utility designed to help users
-      access and process publicly accessible media when they have the
-      necessary rights or permission to do so.
-    </p>
+</section>
 
-    <p style="margin-top:12px">
-      Our goal is to provide a straightforward and easy-to-use interface
-      without requiring users to install additional software.
-    </p>
 
-  </section>
+<section class="content-section" id="about">
 
+<h2>About Us</h2>
 
-  <section class="content-section" id="how">
+<p>
+SocialToolHub is a simple online media utility designed to help users
+access and process publicly accessible media when they have the
+necessary rights or permission to do so.
+</p>
 
-    <h2>How It Works</h2>
+<p style="margin-top:12px">
+Our goal is to provide a straightforward and easy-to-use interface
+without requiring users to install additional software.
+</p>
 
-    <h3>1. Paste a URL</h3>
+</section>
 
-    <p>
-      Enter the URL of publicly accessible media into the input box.
-    </p>
 
-    <h3>2. Choose an Action</h3>
+<section class="content-section" id="how">
 
-    <p>
-      Choose "Get Media" to download available media or "Get Script" to
-      generate a text transcription from the video's audio.
-    </p>
+<h2>How It Works</h2>
 
-    <h3>3. Download or Copy</h3>
+<h3>1. Media Downloader</h3>
 
-    <p>
-      If media is available, a download option will be displayed.
-      Generated scripts can be copied directly from the script box.
-    </p>
+<p>
+Paste a public media URL into the Media Downloader box and select
+Get Media. If the media is supported, a download option will appear.
+</p>
 
-  </section>
+<h3>2. Script Generator</h3>
 
+<p>
+Paste a video URL into the separate Script Generator box and select
+Get Script. The video's audio will be processed to generate text.
+</p>
 
-  <section class="content-section" id="privacy">
+<h3>3. Copy Your Script</h3>
 
-    <h2>Privacy Policy</h2>
+<p>
+Generated scripts can be copied directly using the Copy Script button.
+</p>
 
-    <p>
-      SocialToolHub respects your privacy. We do not ask users to provide
-      unnecessary personal information simply to use the media tool.
-    </p>
+</section>
 
-    <h3>Information We Process</h3>
 
-    <p>
-      When you submit a media URL, the URL is sent to our backend service
-      for processing. Technical information such as browser or server
-      information may also be processed as part of normal website operation.
-    </p>
+<section class="content-section" id="privacy">
 
-    <h3>Cookies and Advertising</h3>
+<h2>Privacy Policy</h2>
 
-    <p>
-      If advertising services are used on this website in the future,
-      third-party advertising providers may use cookies or similar
-      technologies according to their own policies.
-    </p>
+<p>
+SocialToolHub respects your privacy. We do not ask users to provide
+unnecessary personal information simply to use the media tool.
+</p>
 
-    <h3>Third-Party Services</h3>
+<h3>Information We Process</h3>
 
-    <p>
-      This website may interact with third-party platforms or services.
-      Their own privacy policies and terms may apply when their services
-      are involved.
-    </p>
+<p>
+When you submit a media URL, the URL is sent to our backend service
+for processing. Technical information such as browser or server
+information may also be processed as part of normal website operation.
+</p>
 
-  </section>
+<h3>Cookies and Advertising</h3>
 
+<p>
+If advertising services are used on this website in the future,
+third-party advertising providers may use cookies or similar
+technologies according to their own policies.
+</p>
 
-  <section class="content-section" id="terms">
+<h3>Third-Party Services</h3>
 
-    <h2>Terms of Service</h2>
+<p>
+This website may interact with third-party platforms or services.
+Their own privacy policies and terms may apply when their services
+are involved.
+</p>
 
-    <p>
-      By using SocialToolHub, you agree to use the website only for lawful
-      purposes and in accordance with applicable laws and the rights of
-      content owners.
-    </p>
+</section>
 
-    <h3>Acceptable Use</h3>
 
-    <ul>
-      <li>Use the service only for lawful purposes.</li>
-      <li>Download content only when you have the necessary rights or permission.</li>
-      <li>Do not attempt to bypass DRM, private access, login restrictions, or security controls.</li>
-      <li>Do not use the service to infringe copyright or other intellectual property rights.</li>
-    </ul>
+<section class="content-section" id="terms">
 
-    <h3>Service Availability</h3>
+<h2>Terms of Service</h2>
 
-    <p>
-      We do not guarantee that every URL or media platform will always be
-      supported. Availability may change because of technical or third-party
-      service changes.
-    </p>
+<p>
+By using SocialToolHub, you agree to use the website only for lawful
+purposes and in accordance with applicable laws and the rights of
+content owners.
+</p>
 
-  </section>
+<h3>Acceptable Use</h3>
 
+<ul>
+<li>Use the service only for lawful purposes.</li>
+<li>Download content only when you have the necessary rights or permission.</li>
+<li>Do not attempt to bypass DRM, private access, login restrictions, or security controls.</li>
+<li>Do not use the service to infringe copyright or other intellectual property rights.</li>
+</ul>
 
-  <section class="content-section" id="disclaimer">
+<h3>Service Availability</h3>
 
-    <h2>Disclaimer</h2>
+<p>
+We do not guarantee that every URL or media platform will always be
+supported. Availability may change because of technical or third-party
+service changes.
+</p>
 
-    <p>
-      SocialToolHub is a media utility. Users are responsible for ensuring
-      that they have the legal right or permission to download or transcribe
-      any content they submit to the service.
-    </p>
+</section>
 
-    <p style="margin-top:12px">
-      SocialToolHub does not encourage copyright infringement, unauthorized
-      downloading, or circumvention of access controls.
-    </p>
 
-  </section>
+<section class="content-section" id="disclaimer">
 
+<h2>Disclaimer</h2>
 
-  <section class="content-section" id="copyright">
+<p>
+SocialToolHub is a media utility. Users are responsible for ensuring
+that they have the legal right or permission to download or transcribe
+any content they submit to the service.
+</p>
 
-    <h2>Copyright & DMCA</h2>
+<p style="margin-top:12px">
+SocialToolHub does not encourage copyright infringement, unauthorized
+downloading, or circumvention of access controls.
+</p>
 
-    <p>
-      SocialToolHub respects the intellectual property rights of content
-      creators and copyright owners.
-    </p>
+</section>
 
-    <p style="margin-top:12px">
-      If you believe that content or functionality associated with this
-      website infringes your rights, please contact us with sufficient
-      information to identify the issue.
-    </p>
 
-  </section>
+<section class="content-section" id="copyright">
 
+<h2>Copyright & DMCA</h2>
 
-  <section class="content-section" id="contact">
+<p>
+SocialToolHub respects the intellectual property rights of content
+creators and copyright owners.
+</p>
 
-    <h2>Contact Us</h2>
+<p style="margin-top:12px">
+If you believe that content or functionality associated with this
+website infringes your rights, please contact us with sufficient
+information to identify the issue.
+</p>
 
-    <p>
-      If you have questions, copyright concerns, technical issues, or other
-      website-related inquiries, you can contact the SocialToolHub team.
-    </p>
+</section>
 
-    <p style="margin-top:12px">
-      Email: <strong>support@socialtoolhub.com</strong>
-    </p>
 
-    <p style="margin-top:12px;font-size:13px">
-      Replace this email address with your real support email before
-      publishing the website.
-    </p>
+<section class="content-section" id="contact">
 
-  </section>
+<h2>Contact Us</h2>
+
+<p>
+If you have questions, copyright concerns, technical issues, or other
+website-related inquiries, you can contact the SocialToolHub team.
+</p>
+
+<p style="margin-top:12px">
+Email: <strong>support@socialtoolhub.com</strong>
+</p>
+
+<p style="margin-top:12px;font-size:13px">
+Replace this email address with your real support email before
+publishing the website.
+</p>
+
+</section>
 
 </main>
 
 
 <footer>
 
-  <div class="footer-inner">
+<div class="footer-inner">
 
-    <div class="footer-links">
+<div class="footer-links">
 
-      <a href="#home">Home</a>
-      <a href="#about">About Us</a>
-      <a href="#how">How It Works</a>
-      <a href="#privacy">Privacy Policy</a>
-      <a href="#terms">Terms</a>
-      <a href="#disclaimer">Disclaimer</a>
-      <a href="#copyright">Copyright / DMCA</a>
-      <a href="#contact">Contact</a>
+<a href="#home">Home</a>
+<a href="#about">About Us</a>
+<a href="#how">How It Works</a>
+<a href="#privacy">Privacy Policy</a>
+<a href="#terms">Terms</a>
+<a href="#disclaimer">Disclaimer</a>
+<a href="#copyright">Copyright / DMCA</a>
+<a href="#contact">Contact</a>
 
-    </div>
+</div>
 
-    <div class="copyright">
-      © 2026 SocialToolHub. All rights reserved.
-    </div>
+<div class="copyright">
+© 2026 SocialToolHub. All rights reserved.
+</div>
 
-  </div>
+</div>
 
 </footer>
 
@@ -677,383 +668,312 @@
 <script>
 
 const API_BASE =
-  "https://social-media-downloader-f8pv.onrender.com";
+"https://social-media-downloader-f8pv.onrender.com";
 
 
-const form =
-  document.getElementById("downloadForm");
+/* ================= MEDIA DOWNLOADER ================= */
 
-const input =
-  document.getElementById("urlInput");
+const mediaUrlInput =
+document.getElementById("mediaUrlInput");
 
-const button =
-  document.getElementById("submitButton");
+const mediaButton =
+document.getElementById("mediaButton");
 
-const scriptButton =
-  document.getElementById("scriptButton");
+const mediaStatus =
+document.getElementById("mediaStatus");
 
-const statusBox =
-  document.getElementById("status");
-
-const resultBox =
-  document.getElementById("result");
+const mediaResult =
+document.getElementById("mediaResult");
 
 const mediaTitle =
-  document.getElementById("mediaTitle");
+document.getElementById("mediaTitle");
 
 const mediaInfo =
-  document.getElementById("mediaInfo");
+document.getElementById("mediaInfo");
 
 const downloadButton =
-  document.getElementById("downloadButton");
-
-const scriptResult =
-  document.getElementById("scriptResult");
-
-const scriptText =
-  document.getElementById("scriptText");
-
-const copyScriptButton =
-  document.getElementById("copyScriptButton");
-
-const anotherButton =
-  document.getElementById("anotherButton");
+document.getElementById("downloadButton");
 
 
-function showStatus(message,error=false){
+function showMediaStatus(message,error=false){
 
-  statusBox.style.display="block";
+mediaStatus.style.display="block";
 
-  statusBox.textContent=message;
+mediaStatus.textContent=message;
 
-  statusBox.classList.toggle(
-    "error",
-    error
-  );
+mediaStatus.classList.toggle(
+"error",
+error
+);
 
 }
 
 
-/* GET MEDIA */
+mediaButton.addEventListener(
+"click",
+async ()=>{
 
-form.addEventListener(
-  "submit",
-  async e=>{
+const url =
+mediaUrlInput.value.trim();
 
-    e.preventDefault();
+mediaResult.style.display="none";
 
-    const url =
-      input.value.trim();
+if(!url){
 
-    resultBox.style.display="none";
+showMediaStatus(
+"Please enter a video URL.",
+true
+);
 
-    scriptResult.style.display="none";
+return;
+}
 
-    anotherButton.style.display="none";
+mediaButton.disabled=true;
 
-    if(!url){
+mediaButton.textContent="Processing...";
 
-      showStatus(
-        "Please enter a URL.",
-        true
-      );
+showMediaStatus(
+"Checking the media URL..."
+);
 
-      return;
-    }
+try{
 
+const response =
+await fetch(
+`${API_BASE}/api/media?url=${encodeURIComponent(url)}`
+);
 
-    button.disabled=true;
+const data =
+await response.json();
 
-    scriptButton.disabled=true;
+if(!response.ok){
 
-    button.textContent="Processing...";
+throw new Error(
+data.error ||
+"Unable to process this URL."
+);
 
-    showStatus(
-      "Checking the media URL..."
-    );
+}
 
+mediaTitle.textContent =
+data.title ||
+"Media file";
 
-    try{
+mediaInfo.textContent =
+`Type: ${
+data.contentType ||
+"Unknown"
+} • Size: ${
+data.size ||
+"Unknown"
+}`;
 
-      const response =
-        await fetch(
-          `${API_BASE}/api/media?url=${encodeURIComponent(url)}`
-        );
+downloadButton.href =
+`${API_BASE}/api/download?url=${encodeURIComponent(url)}`;
 
+mediaResult.style.display="block";
 
-      const data =
-        await response.json();
+showMediaStatus(
+"Media is ready."
+);
 
+}catch(error){
 
-      if(!response.ok){
+showMediaStatus(
+error.message ||
+"Failed to fetch media.",
+true
+);
 
-        throw new Error(
-          data.error ||
-          "Unable to process this URL."
-        );
+}finally{
 
-      }
+mediaButton.disabled=false;
 
+mediaButton.textContent="Get Media";
 
-      mediaTitle.textContent =
-        data.title ||
-        "Media file";
+}
 
-
-      mediaInfo.textContent =
-        `Type: ${
-          data.contentType ||
-          "Unknown"
-        } • Size: ${
-          data.size ||
-          "Unknown"
-        }`;
-
-
-      downloadButton.href =
-        `${API_BASE}/api/download?url=${encodeURIComponent(url)}`;
-
-
-      resultBox.style.display="block";
-
-      anotherButton.style.display="inline-block";
-
-      showStatus(
-        "Media is ready."
-      );
-
-
-    }catch(error){
-
-      showStatus(
-        error.message ||
-        "Something went wrong.",
-        true
-      );
-
-    }finally{
-
-      button.disabled=false;
-
-      scriptButton.disabled=false;
-
-      button.textContent="Get Media";
-
-    }
-
-  }
+}
 );
 
 
-/* GET SCRIPT */
+/* ================= SCRIPT GENERATOR ================= */
+
+const scriptUrlInput =
+document.getElementById("scriptUrlInput");
+
+const scriptButton =
+document.getElementById("scriptButton");
+
+const scriptStatus =
+document.getElementById("scriptStatus");
+
+const scriptResult =
+document.getElementById("scriptResult");
+
+const scriptText =
+document.getElementById("scriptText");
+
+const copyScriptButton =
+document.getElementById("copyScriptButton");
+
+
+function showScriptStatus(message,error=false){
+
+scriptStatus.style.display="block";
+
+scriptStatus.textContent=message;
+
+scriptStatus.classList.toggle(
+"error",
+error
+);
+
+}
+
 
 scriptButton.addEventListener(
-  "click",
-  async ()=>{
+"click",
+async ()=>{
 
-    const url =
-      input.value.trim();
+const url =
+scriptUrlInput.value.trim();
 
+scriptResult.style.display="none";
 
-    resultBox.style.display="none";
+if(!url){
 
-    scriptResult.style.display="none";
+showScriptStatus(
+"Please enter a video URL.",
+true
+);
 
-    anotherButton.style.display="none";
+return;
+}
 
+scriptButton.disabled=true;
 
-    if(!url){
+scriptButton.textContent="Generating...";
 
-      showStatus(
-        "Please enter a URL first.",
-        true
-      );
+showScriptStatus(
+"Downloading audio and generating your script. Please wait..."
+);
 
-      return;
-    }
+try{
 
+const response =
+await fetch(
+`${API_BASE}/api/transcribe`,
+{
+method:"POST",
 
-    scriptButton.disabled=true;
+headers:{
+"Content-Type":"application/json"
+},
 
-    button.disabled=true;
+body:JSON.stringify({
+url:url
+})
+}
+);
 
-    scriptButton.textContent="Generating...";
+const data =
+await response.json();
 
+if(!response.ok){
 
-    showStatus(
-      "Downloading audio and generating your script. Please wait..."
-    );
+throw new Error(
+data.error ||
+"Unable to generate the script."
+);
 
+}
 
-    try{
+if(!data.text){
 
-      const response =
-        await fetch(
-          `${API_BASE}/api/transcribe`,
-          {
-            method:"POST",
+throw new Error(
+"No speech/text was detected in this video."
+);
 
-            headers:{
-              "Content-Type":
-                "application/json"
-            },
+}
 
-            body:JSON.stringify({
-              url:url
-            })
-          }
-        );
+scriptText.value =
+data.text;
 
+scriptResult.style.display="block";
 
-      const data =
-        await response.json();
+showScriptStatus(
+"Script generated successfully."
+);
 
+scriptResult.scrollIntoView({
+behavior:"smooth",
+block:"start"
+});
 
-      if(!response.ok){
+}catch(error){
 
-        throw new Error(
-          data.error ||
-          "Unable to generate the script."
-        );
+showScriptStatus(
+error.message ||
+"Failed to generate script.",
+true
+);
 
-      }
+}finally{
 
+scriptButton.disabled=false;
 
-      if(!data.text){
+scriptButton.textContent="Get Script";
 
-        throw new Error(
-          "No speech/text was detected in this video."
-        );
+}
 
-      }
-
-
-      scriptText.value =
-        data.text;
-
-
-      scriptResult.style.display="block";
-
-      anotherButton.style.display="inline-block";
-
-
-      showStatus(
-        "Script generated successfully."
-      );
-
-
-      scriptResult.scrollIntoView({
-        behavior:"smooth",
-        block:"start"
-      });
-
-
-    }catch(error){
-
-      showStatus(
-        error.message ||
-        "Something went wrong while generating the script.",
-        true
-      );
-
-    }finally{
-
-      scriptButton.disabled=false;
-
-      button.disabled=false;
-
-      scriptButton.textContent="Get Script";
-
-    }
-
-  }
+}
 );
 
 
-/* COPY SCRIPT */
+/* ================= COPY SCRIPT ================= */
 
 copyScriptButton.addEventListener(
-  "click",
-  async ()=>{
+"click",
+async ()=>{
 
-    const text =
-      scriptText.value;
+const text =
+scriptText.value;
 
+if(!text)
+return;
 
-    if(!text)
-      return;
+try{
 
+await navigator.clipboard.writeText(text);
 
-    try{
+copyScriptButton.textContent="Copied!";
 
-      await navigator.clipboard.writeText(
-        text
-      );
-
-      copyScriptButton.textContent =
-        "Copied!";
-
-
-      setTimeout(
-        ()=>{
-          copyScriptButton.textContent =
-            "Copy Script";
-        },
-        1800
-      );
-
-
-    }catch(error){
-
-      scriptText.select();
-
-      document.execCommand("copy");
-
-      copyScriptButton.textContent =
-        "Copied!";
-
-
-      setTimeout(
-        ()=>{
-          copyScriptButton.textContent =
-            "Copy Script";
-        },
-        1800
-      );
-
-    }
-
-  }
+setTimeout(
+()=>{
+copyScriptButton.textContent="Copy Script";
+},
+1800
 );
 
+}catch(error){
 
-/* ANOTHER VIDEO */
+scriptText.select();
 
-anotherButton.addEventListener(
-  "click",
-  ()=>{
+document.execCommand("copy");
 
-    resultBox.style.display="none";
+copyScriptButton.textContent="Copied!";
 
-    scriptResult.style.display="none";
+setTimeout(
+()=>{
+copyScriptButton.textContent="Copy Script";
+},
+1800
+);
 
-    anotherButton.style.display="none";
+}
 
-    statusBox.style.display="none";
-
-    input.value="";
-
-    input.focus();
-
-
-    window.scrollTo({
-      top:
-        document.getElementById("home").offsetTop-20,
-
-      behavior:"smooth"
-    });
-
-  }
+}
 );
 
 </script>
