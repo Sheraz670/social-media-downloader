@@ -1877,5 +1877,462 @@ async function prepareAudio() {
     if (!response.ok) {
 
       throw new Error(
+             data?.error ||
+     "Unable to extract audio."
+      );
+    }
+
+    if (!data) {
+
+      throw new Error(
+        "The server returned an empty response."
+      );
+    }
+
+    currentJobId =
+      data.jobId;
+
+    $("audioTitle").textContent =
+      data.title ||
+      "Audio extracted successfully.";
+
+    const audioPlayer =
+      $("audioPlayer");
+
+    if (audioPlayer) {
+
+      audioPlayer.src =
+        API_BASE +
+        "/api/audio/" +
+        encodeURIComponent(
+          currentJobId
+        );
+
+      audioPlayer.load();
+    }
+
+    showElement(
+      audioResult
+    );
+
+    showStatus(
+      status,
+      "Audio is ready. Click Transcript.",
+      "success"
+    );
+
+  } catch (error) {
+
+    console.error(
+      "PREPARE AUDIO ERROR:",
+      error
+    );
+
+    showStatus(
+      status,
+      error.message ||
+      "Unable to extract audio.",
+      "error"
+    );
+
+  } finally {
+
+    button.disabled = false;
+  }
+}
+
+
+/* =========================================================
+   TRANSCRIBE AUDIO
+========================================================= */
+
+async function generateTranscript() {
+
+  const button =
+    $("transcriptButton");
+
+  const status =
+    $("scriptStatus");
+
+  const transcriptResult =
+    $("transcriptResult");
+
+  const languageInfo =
+    $("languageInfo");
+
+  const scriptText =
+    $("scriptText");
+
+  if (!button) return;
+
+  if (!currentJobId) {
+
+    showStatus(
+      status,
+      "Please extract the audio first.",
+      "error"
+    );
+
+    return;
+  }
+
+  button.disabled = true;
+
+  hideElement(
+    transcriptResult
+  );
+
+  hideElement(
+    languageInfo
+  );
+
+  showStatus(
+    status,
+    "Transcribing audio. Please wait..."
+  );
+
+  try {
+
+    const response =
+      await fetch(
+        API_BASE +
+        "/api/transcribe/" +
+        encodeURIComponent(
+          currentJobId
+        ),
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json"
+          }
+        }
+      );
+
+    let data = null;
+
+    try {
+      data =
+        await response.json();
+    } catch {
+      data = null;
+    }
+
+    if (!response.ok) {
+
+      throw new Error(
         data?.error ||
+        "Transcription failed."
+      );
+    }
+
+    if (!data) {
+
+      throw new Error(
+        "The server returned an empty response."
+      );
+    }
+
+    scriptText.value =
+      data.transcript ||
+      "";
+
+    if (data.language) {
+
+      languageInfo.textContent =
+        "Detected language: " +
+        data.language;
+
+      showElement(
+        languageInfo
+      );
+    }
+
+    showElement(
+      transcriptResult
+    );
+
+    showStatus(
+      status,
+      "Transcript generated successfully.",
+      "success"
+    );
+
+  } catch (error) {
+
+    console.error(
+      "TRANSCRIPTION ERROR:",
+      error
+    );
+
+    showStatus(
+      status,
+      error.message ||
+      "Unable to generate transcript.",
+      "error"
+    );
+
+  } finally {
+
+    button.disabled = false;
+  }
+}
+
+
+/* =========================================================
+   COPY TRANSCRIPT
+========================================================= */
+
+async function copyTranscript() {
+
+  const text =
+    $("scriptText");
+
+  const status =
+    $("scriptStatus");
+
+  if (!text) return;
+
+  const value =
+    text.value.trim();
+
+  if (!value) {
+
+    showStatus(
+      status,
+      "There is no transcript to copy.",
+      "error"
+    );
+
+    return;
+  }
+
+  try {
+
+    await navigator.clipboard.writeText(
+      value
+    );
+
+    showStatus(
+      status,
+      "Transcript copied.",
+      "success"
+    );
+
+  } catch (error) {
+
+    text.select();
+
+    document.execCommand(
+      "copy"
+    );
+
+    showStatus(
+      status,
+      "Transcript copied.",
+      "success"
+    );
+  }
+}
+
+
+/* =========================================================
+   DOWNLOAD TRANSCRIPT
+========================================================= */
+
+function downloadTranscript() {
+
+  const text =
+    $("scriptText");
+
+  if (!text) return;
+
+  const value =
+    text.value.trim();
+
+  if (!value) {
+
+    showStatus(
+      $("scriptStatus"),
+      "There is no transcript to download.",
+      "error"
+    );
+
+    return;
+  }
+
+  const blob =
+    new Blob(
+      [value],
+      {
+        type:
+          "text/plain;charset=utf-8"
+      }
+    );
+
+  const url =
+    URL.createObjectURL(
+      blob
+    );
+
+  const link =
+    document.createElement(
+      "a"
+    );
+
+  link.href =
+    url;
+
+  link.download =
+    "socialtoolhub-transcript.txt";
+
+  document.body.appendChild(
+    link
+  );
+
+  link.click();
+
+  link.remove();
+
+  URL.revokeObjectURL(
+    url
+  );
+}
+
+
+/* =========================================================
+   ENTER KEY SUPPORT
+========================================================= */
+
+function setupEnterKeys() {
+
+  const mediaInput =
+    $("mediaUrlInput");
+
+  const scriptInput =
+    $("scriptUrlInput");
+
+  if (mediaInput) {
+
+    mediaInput.addEventListener(
+      "keydown",
+      (event) => {
+
+        if (
+          event.key === "Enter"
+        ) {
+
+          event.preventDefault();
+
+          downloadMedia();
+        }
+      }
+    );
+  }
+
+  if (scriptInput) {
+
+    scriptInput.addEventListener(
+      "keydown",
+      (event) => {
+
+        if (
+          event.key === "Enter"
+        ) {
+
+          event.preventDefault();
+
+          prepareAudio();
+        }
+      }
+    );
+  }
+}
+
+
+/* =========================================================
+   BUTTON EVENTS
+========================================================= */
+
+function setupButtons() {
+
+  const mediaButton =
+    $("mediaButton");
+
+  const prepareButton =
+    $("prepareAudioButton");
+
+  const transcriptButton =
+    $("transcriptButton");
+
+  const copyButton =
+    $("copyScriptButton");
+
+  const downloadButton =
+    $("downloadTranscriptButton");
+
+  if (mediaButton) {
+
+    mediaButton.addEventListener(
+      "click",
+      downloadMedia
+    );
+  }
+
+  if (prepareButton) {
+
+    prepareButton.addEventListener(
+      "click",
+      prepareAudio
+    );
+  }
+
+  if (transcriptButton) {
+
+    transcriptButton.addEventListener(
+      "click",
+      generateTranscript
+    );
+  }
+
+  if (copyButton) {
+
+    copyButton.addEventListener(
+      "click",
+      copyTranscript
+    );
+  }
+
+  if (downloadButton) {
+
+    downloadButton.addEventListener(
+      "click",
+      downloadTranscript
+    );
+  }
+}
+
+
+/* =========================================================
+   START APP
+========================================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
+
+    setupPage();
+
+    setupButtons();
+
+    setupEnterKeys();
+
+  }
+);
+
+</script>
+
+</body>
+</html>
+        
     
