@@ -2383,4 +2383,78 @@ function setupEnterKeys() {
   );
 
 
-  $("scr
+$("scriptUrlInput")?.addEventListener(
+  "keydown",
+  function(event) {
+
+    if (event.key === "Enter") {
+
+      event.preventDefault();
+
+      prepareAudio();
+    }
+
+  }
+  );
+}
+
+
+/* =========================================================
+   BUTTON EVENTS
+========================================================= */
+
+function setupButtons() {
+
+  $("mediaButton")?.addEventListener(
+    "click",
+    downloadMedia
+  );
+
+  $("prepareAudioButton")?.addEventListener(
+    "click",
+    prepareAudio
+  );
+
+  $("transcriptButton")?.addEventListener(
+    "click",
+    generateTranscript
+  );
+
+  $("copyScriptButton")?.addEventListener(
+    "click",
+    copyTranscript
+  );
+
+  $("downloadTranscriptButton")?.addEventListener(
+    "click",
+    downloadTranscript
+  );
+}
+
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function() {
+
+    setupPage();
+
+    setupButtons();
+
+    setupEnterKeys();
+
+  }
+);
+
+
+/* =========================================================
+   END
+========================================================= */
+
+</script>
+
+</body>
+</html>
