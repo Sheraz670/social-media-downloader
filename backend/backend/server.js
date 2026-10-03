@@ -1219,3 +1219,147 @@ app.get(
         readdirSync(tempDir);
 
       const downloadedFile = files.find((file) => file.startsWith("video."));
+      if (!downloadedFile) {
+  throw new Error(
+    "Downloaded video file was not found."
+  );
+}
+
+const downloadedPath = path.join(
+  tempDir,
+  downloadedFile
+);
+
+const extension = path.extname(
+  downloadedPath
+).toLowerCase();
+
+let contentType = "video/mp4";
+
+if (extension === ".webm") {
+  contentType = "video/webm";
+}
+
+if (extension === ".mov") {
+  contentType = "video/quicktime";
+}
+
+const safeName =
+  platform === "facebook"
+    ? "socialtoolhub-facebook-video"
+    : `socialtoolhub-${platform}-video`;
+
+res.setHeader(
+  "Content-Type",
+  contentType
+);
+
+res.setHeader(
+  "Content-Disposition",
+  `attachment; filename="${safeName}${extension}"`
+);
+
+const readStream =
+  createReadStream(downloadedPath);
+
+readStream.on(
+  "error",
+  (error) => {
+    console.error(
+      "DOWNLOAD STREAM ERROR:",
+      error
+    );
+
+    if (!res.headersSent) {
+      res.status(500).json({
+        error:
+          "Unable to stream downloaded media."
+      });
+    } else {
+      res.destroy(error);
+    }
+  }
+);
+
+readStream.on(
+  "close",
+  () => {
+    try {
+      if (tempDir) {
+        rmSync(
+          tempDir,
+          {
+            recursive: true,
+            force: true
+          }
+        );
+
+        tempDir = null;
+      }
+    } catch {}
+  }
+);
+
+return readStream.pipe(res);
+
+} catch (error) {
+  console.error(
+    "DOWNLOAD ERROR:",
+    error
+  );
+
+  if (tempDir) {
+    try {
+      rmSync(
+        tempDir,
+        {
+          recursive: true,
+          force: true
+        }
+      );
+    } catch {}
+  }
+
+  if (!res.headersSent) {
+    return res.status(500).json({
+      error:
+        error.message ||
+        "Unable to download this media."
+    });
+  }
+}
+});
+
+app.use(
+  (
+    error,
+    req,
+    res,
+    next
+  ) => {
+    console.error(
+      "GLOBAL ERROR:",
+      error
+    );
+
+    if (res.headersSent) {
+      return next(error);
+    }
+
+    return res.status(500).json({
+      error:
+        error.message ||
+        "Internal server error."
+    });
+  }
+);
+
+app.listen(
+  PORT,
+  "0.0.0.0",
+  () => {
+    console.log(
+      `SocialToolHub API running on port ${PORT}`
+    );
+  }
+);
