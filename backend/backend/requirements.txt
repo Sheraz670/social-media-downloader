@@ -1,2 +1,3 @@
 curl-cffi
 yt-dlp-ejs
+openai-whisper
