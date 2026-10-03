@@ -1670,7 +1670,164 @@ function getCurrentPath() {
 
   return "/";
 }
+/* =========================================================
+   MEDIA DOWNLOADER
+========================================================= */
 
+async function downloadMedia() {
+
+  const input =
+    $("mediaUrlInput");
+
+  const button =
+    $("mediaButton");
+
+  const status =
+    $("mediaStatus");
+
+  const result =
+    $("mediaResult");
+
+  const downloadButton =
+    $("downloadButton");
+
+  const title =
+    $("mediaTitle");
+
+  const info =
+    $("mediaInfo");
+
+  if (!input || !button) return;
+
+  const url =
+    input.value.trim();
+
+  if (!url) {
+
+    showStatus(
+      status,
+      "Please paste a video URL.",
+      "error"
+    );
+
+    return;
+  }
+
+  hideElement(result);
+
+  button.disabled = true;
+
+  showStatus(
+    status,
+    "Processing URL. Please wait..."
+  );
+
+  try {
+
+    const response =
+      await fetch(
+        API_BASE + "/api/media",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+            url: url
+          })
+        }
+      );
+
+    let data = null;
+
+    try {
+      data = await response.json();
+    } catch {
+      data = null;
+    }
+
+    if (!response.ok) {
+
+      throw new Error(
+        data?.error ||
+        "The media request failed."
+      );
+    }
+
+    if (!data) {
+
+      throw new Error(
+        "The server returned an empty response."
+      );
+    }
+
+    title.textContent =
+      data.title ||
+      "Media ready";
+
+    const platform =
+      data.platform ||
+      "Supported platform";
+
+    const duration =
+      data.duration
+        ? `Duration: ${data.duration}`
+        : "";
+
+    info.textContent =
+      [platform, duration]
+        .filter(Boolean)
+        .join(" • ");
+
+    let downloadUrl =
+      data.downloadUrl ||
+      data.url ||
+      data.download_url;
+
+    if (!downloadUrl) {
+
+      throw new Error(
+        "The server did not return a download URL."
+      );
+    }
+
+    if (
+      downloadUrl.startsWith("/")
+    ) {
+      downloadUrl =
+        API_BASE + downloadUrl;
+    }
+
+    downloadButton.href =
+      downloadUrl;
+
+    showElement(result);
+
+    showStatus(
+      status,
+      "Media is ready.",
+      "success"
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
+    showStatus(
+      status,
+      error.message ||
+      "Unable to process this URL.",
+      "error"
+    );
+
+  } finally {
+
+    button.disabled = false;
+  }
+}
 
 /* =========================================================
    PAGE SETUP
