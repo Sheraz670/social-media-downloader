@@ -349,311 +349,426 @@ audio{
 .transcript-button:hover{
   background:#8b5cf6;
 }
-    align-items:center;
-  justify-content:center;
-  z-index:2;
-  -webkit-tap-highlight-color:transparent;
+
+#languageInfo{
+  margin-top:15px;
+  padding:10px 12px;
+  border-radius:10px;
+  background:#18181b;
+  color:#a1a1aa;
+  font-size:14px;
+  display:none;
 }
-.url-clear-button.show{display:flex}
-.url-clear-button:hover{
-  background:#27272a;
+
+#scriptText{
+  width:100%;
+  min-height:260px;
+  resize:vertical;
+  padding:16px;
+  border-radius:12px;
+  border:1px solid #3f3f46;
+  background:#18181b;
+  color:#fff;
+  outline:none;
+  font-family:Arial,sans-serif;
+  font-size:15px;
+  line-height:1.7;
+  margin-top:15px;
+}
+
+.script-download{
+  background:#16a34a;
+}
+
+.script-download:hover{
+  background:#22c55e;
+}
+
+#copyScriptButton{
+  min-height:45px;
+}
+
+.notice{
+  margin-top:25px;
+  padding:15px;
+  border-radius:12px;
+  background:#18181b;
+  color:#a1a1aa;
+  font-size:13px;
+  line-height:1.6;
+  text-align:left;
+}
+
+.content-section{
+  margin-top:50px;
+  padding:30px 20px;
+  background:#111113;
+  border:1px solid #27272a;
+  border-radius:18px;
+  scroll-margin-top:30px;
+}
+
+.content-section h2{
+  font-size:28px;
+  margin-bottom:15px;
+}
+
+.content-section h3{
+  font-size:19px;
+  margin-top:22px;
+  margin-bottom:8px;
+}
+
+.content-section p,
+.content-section li{
+  color:#a1a1aa;
+  line-height:1.8;
+  font-size:15px;
+}
+
+.content-section ul{
+  padding-left:20px;
+}
+
+.faq-item{
+  border-top:1px solid #27272a;
+  padding:16px 0;
+}
+
+.faq-item:first-child{
+  border-top:0;
+}
+
+.faq-item summary{
+  cursor:pointer;
+  font-weight:700;
   color:#fff;
 }
-.url-clear-button:focus-visible{
-  outline:2px solid #4f46e5;
-  outline-offset:2px;
+
+.faq-answer{
+  margin-top:10px;
 }
-@media(max-width:650px){
-  .url-input-wrap #mediaUrlInput{padding-right:42px}
-  .url-clear-button{
-    right:8px;
-    width:25px;
-    height:25px;
-    font-size:18px;
-    line-height:25px;
+
+.platform-links{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+  margin-top:20px;
+}
+
+.platform-links a{
+  display:block;
+  padding:14px;
+  border:1px solid #27272a;
+  border-radius:12px;
+  background:#09090b;
+  color:#c4b5fd;
+  text-decoration:none;
+}
+
+.platform-links a:hover{
+  border-color:#4f46e5;
+  color:#fff;
+}
+
+footer{
+  border-top:1px solid #27272a;
+  margin-top:70px;
+  padding:35px 20px;
+}
+
+.footer-inner{
+  max-width:1100px;
+  margin:auto;
+  text-align:center;
+}
+
+.footer-links{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:18px;
+  margin-bottom:18px;
+}
+
+.footer-links a{
+  color:#a1a1aa;
+  text-decoration:none;
+  font-size:14px;
+}
+
+.footer-links a:hover{
+  color:#fff;
+}
+
+.copyright{
+  color:#71717a;
+  font-size:13px;
+  line-height:1.6;
+}
+
+.small-note{
+  margin-top:10px;
+  color:#71717a;
+  font-size:12px;
+  line-height:1.6;
+}
+
+@media(max-width:750px){
+
+  .nav{
+    flex-direction:column;
+    align-items:flex-start;
   }
+
+  .nav-links{
+    display:none;
+  }
+
+  .input-row{
+    flex-direction:column;
+  }
+
+  .input-row button{
+    width:100%;
+  }
+
+  .transcript-actions{
+    flex-direction:column;
+  }
+
+  .transcript-actions button{
+    width:100%;
+  }
+
+  .platform-links{
+    grid-template-columns:1fr;
+  }
+
+  .content-section{
+    padding:24px 18px;
+  }
+
+  .hero h1{
+    font-size:40px;
+  }
+
+  main{
+    padding:45px 15px;
+  }
+
+  header{
+    padding:15px;
+  }
+
+  .card{
+    padding:16px;
+  }
+
 }
+
 </style>
 </head>
 
 <body>
 
 <header>
+  <div class="nav">
 
-<div class="nav">
+    <a class="logo" href="/">
+      SocialTool<span>Hub</span>
+    </a>
 
-<a class="logo" href="/">
-SocialTool<span>Hub</span>
-</a>
+    <div class="badge">
+      Media Downloader & Video to Script
+    </div>
 
-<div class="header-actions">
+    <nav class="nav-links">
 
-<button id="menuButton" class="menu-button" type="button"
-        aria-label="Open menu" aria-expanded="false">⋮</button>
+      <a href="/">Home</a>
 
-<div id="menuPanel" class="menu-panel">
-  <a href="/">Home</a>
-  <a href="/about">About Us</a>
-  <a href="/how">How It Works</a>
-  <a href="/privacy">Privacy</a>
-  <a href="/terms">Terms</a>
-  <a href="/disclaimer">Disclaimer</a>
-  <a href="/copyright">Copyright / DMCA</a>
-  <a href="/contact">Contact Us</a>
-  <a href="/faq">FAQ</a>
-</div>
+      <a href="/about">About Us</a>
 
-<div class="badge">Media Tools</div>
+      <a href="/how">How It Works</a>
 
-</div>
+      <a href="/privacy">Privacy</a>
 
-</div>
+      <a href="/terms">Terms</a>
 
+      <a href="/disclaimer">Disclaimer</a>
+
+      <a href="/copyright">Copyright / DMCA</a>
+
+      <a href="/contact">Contact Us</a>
+
+      <a href="/faq">FAQ</a>
+
+    </nav>
+
+  </div>
 </header>
-
 
 <main>
 
-<section class="hero" id="home">
+<section class="hero">
 
-<button id="backButton" class="back-button" type="button">← Back to Tools</button>
-
-<h1 id="pageHeading">
-Download Your <span class="gradient">Media</span>
+<h1>
+  Download Media &<br>
+  <span class="gradient">Convert Video to Script</span>
 </h1>
 
-<p id="pageIntro">
-Paste a publicly accessible media URL to download available media
-or extract audio and generate a text transcript.
+<p>
+  Simple online tools for publicly accessible media URLs.
+  Download supported media files or generate text transcripts
+  from supported video URLs.
 </p>
-
 
 <div class="quick-links">
 
 <a href="/tiktok-video-downloader">
-TikTok Video Downloader
+  TikTok Video Downloader
 </a>
 
 <a href="/instagram-video-downloader">
-Instagram Video Downloader
+  Instagram Video Downloader
 </a>
 
 <a href="/facebook-video-downloader">
-Facebook Video Downloader
+  Facebook Video Downloader
 </a>
 
 <a href="/youtube-video-downloader">
-YouTube Video Downloader
+  YouTube Video Downloader
 </a>
 
 <a href="/video-to-script">
-Video to Script Generator
+  Video to Script
 </a>
 
 </div>
 
+</section>
 
-<div class="tools">
+<section class="tools">
 
+<div class="card" id="mediaTool">
 
-<!-- MEDIA DOWNLOADER -->
+<h2>Media Downloader</h2>
 
-<div class="card" id="mediaCard">
-
-<h2 id="mediaHeading">
-Media Downloader
-</h2>
-
-<div
-id="mediaDescription"
-class="card-description"
->
-Download available media from a publicly accessible
-YouTube, TikTok, Facebook or Instagram URL.
-</div>
+<p class="card-description">
+  Enter a publicly accessible direct media URL to fetch
+  supported video, audio, or image files.
+</p>
 
 <div class="input-row">
 
-<div class="url-input-wrap">
 <input
-id="mediaUrlInput"
-type="url"
-placeholder="Paste video URL for download..."
-autocomplete="off"
+  id="mediaUrl"
+  type="url"
+  placeholder="https://example.com/video.mp4"
+  autocomplete="off"
 >
-<button id="urlClearButton" class="url-clear-button" type="button"
-        aria-label="Clear video URL" title="Clear URL">×</button>
-</div>
 
-<button
-id="mediaButton"
-type="button"
->
-Get Media
+<button id="downloadButton">
+  Download
 </button>
 
 </div>
 
 <div id="mediaStatus"></div>
 
-
 <div id="mediaResult" class="result">
 
 <div class="media-card">
 
-<img id="mediaThumbnail" class="media-thumb" alt="Video thumbnail" loading="lazy">
+<div id="mediaTitle" class="media-title">
+  Media Ready
+</div>
 
-<div
-id="mediaTitle"
-class="media-title"
-></div>
-
-<div
-id="mediaInfo"
-class="media-info"
-></div>
-
-<div id="mediaMeta" class="platform-meta"></div>
+<div id="mediaInfo" class="media-info"></div>
 
 <a
-id="downloadButton"
-class="download"
-href="#"
-target="_blank"
-rel="noopener"
+  id="mediaDownload"
+  class="download"
+  href="#"
 >
-Download
+  Download File
 </a>
 
-<div id="downloadProgress" class="download-progress" aria-live="polite">
-  <div class="progress-row">
-    <span id="downloadProgressText">Preparing download...</span>
-    <span id="downloadProgressPercent">0%</span>
-  </div>
-  <div class="progress-track">
-    <div id="downloadProgressBar" class="progress-bar"></div>
-  </div>
 </div>
 
 </div>
 
 </div>
 
-</div>
+<div class="card" id="scriptTool">
 
+<h2>Video to Script</h2>
 
-<!-- VIDEO TO SCRIPT -->
-
-<div class="card" id="scriptCard">
-
-<h2 id="scriptHeading">
-Video to Script Generator
-</h2>
-
-<div class="card-description">
-Extract audio from a publicly accessible video, then generate
-a transcript in the original spoken language.
-</div>
+<p class="card-description">
+  Enter a supported publicly accessible video URL
+  to prepare audio and generate a transcript.
+</p>
 
 <div class="input-row">
 
 <input
-id="scriptUrlInput"
-type="url"
-placeholder="Paste video URL..."
-autocomplete="off"
+  id="scriptUrl"
+  type="url"
+  placeholder="https://example.com/video.mp4"
+  autocomplete="off"
 >
 
-<button
-id="prepareAudioButton"
-class="script-button"
-type="button"
->
-Get Audio
+<button id="scriptButton" class="script-button">
+  Generate Script
 </button>
 
 </div>
 
 <div id="scriptStatus"></div>
 
-
-<div id="audioResult" class="result">
+<div id="scriptResult" class="result">
 
 <div class="script-card">
 
 <div class="script-title">
-Audio Ready
-</div>
-
-<div
-id="audioTitle"
-class="media-info"
-></div>
-
-<div class="audio-box">
-
-<div class="audio-title">
-Extracted Audio
-</div>
-
-<audio
-id="audioPlayer"
-controls
-preload="metadata"
->
-Your browser does not support the audio player.
-</audio>
-
-</div>
-
-<div class="transcript-actions">
-
-<button
-id="transcriptButton"
-class="transcript-button"
-type="button"
->
-Transcript
-</button>
-
+  Video Script
 </div>
 
 <div id="languageInfo"></div>
 
+<div class="audio-box">
 
-<div
-id="transcriptResult"
-style="display:none"
->
+<div class="audio-title">
+  Prepared Audio
+</div>
 
-<div
-class="script-title"
-style="margin-top:20px"
->
-Generated Transcript
+<audio
+  id="audioPlayer"
+  controls
+></audio>
+
 </div>
 
 <textarea
-id="scriptText"
-readonly
-placeholder="Your transcript will appear here..."
+  id="scriptText"
+  placeholder="Your generated script will appear here..."
 ></textarea>
 
 <div class="transcript-actions">
 
 <button
-id="copyScriptButton"
-type="button"
+  id="copyScriptButton"
+  class="transcript-button"
 >
-Copy Transcript
+  Copy Script
 </button>
 
 <button
-id="downloadScriptButton"
-class="script-download"
-type="button"
+  id="downloadScriptButton"
+  class="script-download"
 >
-Download Script
+  Download Script
 </button>
 
 </div>
@@ -664,40 +779,383 @@ Download Script
 
 </div>
 
+</section>
+
+<div class="notice">
+  SocialToolHub works with publicly accessible media URLs only.
+  It does not bypass private accounts, authentication, paywalls,
+  or access restrictions. Users are responsible for having the
+  necessary rights and permissions for any content they process.
 </div>
+
+<section class="content-section" id="seoContent">
+
+<h2>Social Media Video Downloader</h2>
+
 <p>
-SocialToolHub provides simple tools for working with publicly
-accessible media URLs and generating transcripts from supported
-videos.
+  SocialToolHub provides simple online tools for downloading
+  publicly accessible media and converting supported videos
+  into text scripts. The service is designed to be easy to use
+  on mobile phones, tablets, and desktop devices.
 </p>
+
+<h3>Supported Media</h3>
+
+<p>
+  The downloader can process supported publicly accessible
+  video, audio, and image media URLs. Availability depends on
+  the source URL and the response provided by the remote server.
+</p>
+
+<div class="platform-links">
+
+<a href="/tiktok-video-downloader">
+  TikTok Video Downloader
+</a>
+
+<a href="/instagram-video-downloader">
+  Instagram Video Downloader
+</a>
+
+<a href="/facebook-video-downloader">
+  Facebook Video Downloader
+</a>
+
+<a href="/youtube-video-downloader">
+  YouTube Video Downloader
+</a>
+
+<a href="/video-to-script">
+  Video to Script
+</a>
 
 </div>
 
 </section>
 
+<section
+  class="content-section"
+  id="about"
+>
+
+<h2>About Us</h2>
+
+<p>
+  SocialToolHub is a simple online media utility platform
+  created to provide convenient tools for processing publicly
+  accessible media URLs.
+</p>
+
+<p>
+  Our tools are designed with simplicity, speed, and ease of
+  use in mind. Users can enter a supported media URL and use
+  the available tool for downloading media or preparing a
+  video for script generation.
+</p>
+
+</section>
+
+<section
+  class="content-section"
+  id="how"
+>
+
+<h2>How It Works</h2>
+
+<h3>1. Copy a Media URL</h3>
+
+<p>
+  Copy the URL of publicly accessible media that you are
+  authorized to process.
+</p>
+
+<h3>2. Paste the URL</h3>
+
+<p>
+  Paste the URL into the appropriate SocialToolHub tool.
+</p>
+
+<h3>3. Start Processing</h3>
+
+<p>
+  Select the available action and wait while the service
+  processes the URL.
+</p>
+
+<h3>4. Download or View the Result</h3>
+
+<p>
+  If the requested media or transcript can be processed,
+  the result will be displayed on the page.
+</p>
+
+</section>
+
+<section
+  class="content-section"
+  id="privacy"
+>
+
+<h2>Privacy Policy</h2>
+
+<p>
+  SocialToolHub is designed to process the URLs submitted by
+  users for the purpose of providing the requested tool
+  functionality.
+</p>
+
+<p>
+  We do not ask users to provide passwords for social media
+  accounts. Users should not submit private credentials,
+  authentication tokens, or other sensitive information.
+</p>
+
+<h3>Information You Submit</h3>
+
+<p>
+  When you use a tool, the URL you enter may be transmitted
+  to the service responsible for processing your request.
+</p>
+
+<h3>Third-Party Services</h3>
+
+<p>
+  Processing may involve third-party infrastructure or remote
+  servers required to retrieve publicly accessible resources.
+</p>
+
+<h3>Security</h3>
+
+<p>
+  Users should only submit URLs and content they are authorized
+  to access and process.
+</p>
+
+</section>
+
+<section
+  class="content-section"
+  id="terms"
+>
+
+<h2>Terms of Use</h2>
+
+<p>
+  By using SocialToolHub, you agree to use the service only
+  for lawful purposes and in accordance with applicable laws.
+</p>
+
+<p>
+  You are responsible for ensuring that you have the necessary
+  rights and permissions to access, download, reproduce, or
+  otherwise process any media submitted to the service.
+</p>
+
+<p>
+  SocialToolHub does not guarantee that every URL or media
+  source will be supported or available.
+</p>
+
+</section>
+
+<section
+  class="content-section"
+  id="disclaimer"
+>
+
+<h2>Disclaimer</h2>
+
+<p>
+  SocialToolHub is provided as an online utility service.
+  Availability, compatibility, processing speed, and results
+  may vary depending on the source URL and remote server.
+</p>
+
+<p>
+  SocialToolHub is not affiliated with TikTok, Instagram,
+  Facebook, YouTube, or other third-party platforms mentioned
+  on this website.
+</p>
+
+</section>
+
+<section
+  class="content-section"
+  id="copyright"
+>
+
+<h2>Copyright / DMCA</h2>
+
+<p>
+  SocialToolHub respects copyright and intellectual property
+  rights. Users are responsible for ensuring that their use
+  of downloaded or processed media complies with applicable
+  copyright laws.
+</p>
+
+<p>
+  If you believe content or functionality on this website
+  infringes your rights, please contact us with sufficient
+  information to identify the relevant material and your
+  rights in that material.
+</p>
+
+</section>
+
+<section
+  class="content-section"
+  id="contact"
+>
+
+<h2>Contact Us</h2>
+
+<p>
+  For questions, copyright concerns, technical issues, or
+  other inquiries related to SocialToolHub, please contact
+  the website owner through the available contact method.
+</p>
+
+</section>
+
+<section
+  class="content-section"
+  id="faq"
+>
+
+<h2>Frequently Asked Questions</h2>
+
+<div class="faq-item">
+
+<details>
+
+<summary>
+  What is SocialToolHub?
+</summary>
+
+<p class="faq-answer">
+  SocialToolHub is an online utility website that provides
+  tools for processing publicly accessible media URLs and
+  generating video transcripts.
+</p>
+
+</details>
+
+</div>
+
+<div class="faq-item">
+
+<details>
+
+<summary>
+  Can I download any social media video?
+</summary>
+
+<p class="faq-answer">
+  The service only supports publicly accessible URLs that
+  can be processed by the available system. Private or
+  restricted content is not supported.
+</p>
+
+</details>
+
+</div>
+
+<div class="faq-item">
+
+<details>
+
+<summary>
+  Do I need to provide my social media password?
+</summary>
+
+<p class="faq-answer">
+  No. You should never provide your social media password
+  or other private login credentials to SocialToolHub.
+</p>
+
+</details>
+
+</div>
+
+<div class="faq-item">
+
+<details>
+
+<summary>
+  Why does a URL sometimes fail?
+</summary>
+
+<p class="faq-answer">
+  A URL may fail because the remote server blocks access,
+  the media is unavailable, the format is unsupported, or
+  the source requires authentication.
+</p>
+
+</details>
+
+</div>
+
+</section>
+
+<footer>
+
+<div class="footer-inner">
+
+<nav class="footer-links">
+
+<a href="/">Home</a>
+
+<a href="/about">About Us</a>
+
+<a href="/privacy">Privacy</a>
+
+<a href="/terms">Terms</a>
+
+<a href="/disclaimer">Disclaimer</a>
+
+<a href="/copyright">Copyright / DMCA</a>
+
+<a href="/contact">Contact Us</a>
+
+<a href="/faq">FAQ</a>
+
+</nav>
+
+<p class="copyright">
+  © 2026 SocialToolHub. All rights reserved.
+</p>
+
+<p class="small-note">
+  SocialToolHub is an independent utility website and is not
+  affiliated with third-party social media platforms.
+</p>
+
+</div>
+
+</footer>
+
+</main>
+
+<script>
+  <!-- PART 2 CONTINUES -->
 
 <section
 class="content-section"
-id="aboutSection"
+id="about"
 >
 
-<h2>
-About SocialToolHub
-</h2>
+<h2>About SocialToolHub</h2>
 
 <p>
-SocialToolHub is a simple online media tool website designed
-to help users work with publicly accessible media URLs.
+SocialToolHub is an independent online utility platform
+designed to provide simple tools for working with publicly
+accessible media URLs.
 </p>
 
 <p>
-The website provides tools for supported media downloads,
-audio extraction and video transcript generation.
-</p>
-
-<p>
-Our goal is to provide a simple and easy-to-use experience
-without requiring users to install additional software.
+The website provides media downloading and video-to-script
+functionality through an easy-to-use interface designed for
+mobile and desktop users.
 </p>
 
 </section>
@@ -705,26 +1163,37 @@ without requiring users to install additional software.
 
 <section
 class="content-section"
-id="howSection"
+id="how"
 >
 
-<h2>
-How It Works
-</h2>
+<h2>How SocialToolHub Works</h2>
+
+<h3>Step 1: Copy the Media URL</h3>
 
 <p>
-Using SocialToolHub is simple. Paste a publicly accessible
-media URL into the appropriate tool and start the process.
+Copy the URL of the publicly accessible video or media that
+you are authorized to access and process.
 </p>
 
-<p>
-For media downloads, the available media information is
-retrieved and the user can download the supported media.
-</p>
+<h3>Step 2: Paste the URL</h3>
 
 <p>
-For video-to-script processing, the audio is extracted first.
-The transcript can then be generated from the available audio.
+Paste the URL into the appropriate SocialToolHub tool.
+</p>
+
+<h3>Step 3: Process the URL</h3>
+
+<p>
+Click the available button to request the media or prepare
+audio for transcription.
+</p>
+
+<h3>Step 4: Download or Generate a Transcript</h3>
+
+<p>
+When processing is successful, the available media can be
+downloaded or the extracted audio can be used to generate
+a text transcript.
 </p>
 
 </section>
@@ -732,26 +1201,57 @@ The transcript can then be generated from the available audio.
 
 <section
 class="content-section"
-id="privacySection"
+id="privacy"
 >
 
-<h2>
-Privacy Policy
-</h2>
+<h2>Privacy Policy</h2>
 
 <p>
 SocialToolHub respects user privacy. The website is designed
-to process publicly accessible media URLs submitted by users.
+to process publicly accessible URLs submitted by users for
+the purpose of providing the requested functionality.
+</p>
+
+<h3>Information We Process</h3>
+
+<p>
+When you use SocialToolHub, the URL you submit may be sent
+to the service responsible for processing the request.
+</p>
+
+<h3>Personal Information</h3>
+
+<p>
+SocialToolHub does not require users to provide passwords or
+private login credentials for social media accounts.
 </p>
 
 <p>
-We do not request passwords or login credentials for social
-media accounts and we do not provide access to private content.
+Users should never submit passwords, authentication tokens,
+or other sensitive account information.
 </p>
 
+<h3>Third-Party Services</h3>
+
 <p>
-Users should avoid submitting private, confidential or sensitive
-information through the website.
+The processing of a submitted URL may involve third-party
+servers or infrastructure required to retrieve publicly
+accessible media.
+</p>
+
+<h3>Cookies</h3>
+
+<p>
+SocialToolHub may use standard browser technologies or
+third-party services that use cookies or similar technologies.
+</p>
+
+<h3>Security</h3>
+
+<p>
+No online service can guarantee complete security. Users
+should only submit URLs and content they are authorized
+to access and process.
 </p>
 
 </section>
@@ -759,27 +1259,47 @@ information through the website.
 
 <section
 class="content-section"
-id="termsSection"
+id="terms"
 >
 
-<h2>
-Terms of Use
-</h2>
+<h2>Terms of Use</h2>
 
 <p>
-By using SocialToolHub, you agree to use the website only for
-lawful purposes and in accordance with applicable laws.
+By accessing or using SocialToolHub, you agree to use the
+website only for lawful purposes and in accordance with
+these terms.
 </p>
 
-<p>
-Users are responsible for ensuring that they have the necessary
-rights or permission to download, process or transcribe content.
-</p>
+<h3>Permitted Use</h3>
 
 <p>
-SocialToolHub does not provide access to private content,
-DRM-protected content, login-restricted content or other
-protected resources.
+You may use SocialToolHub to process publicly accessible
+media that you are legally authorized to access, download,
+or otherwise use.
+</p>
+
+<h3>User Responsibility</h3>
+
+<p>
+You are solely responsible for the URLs and content that
+you submit to the service and for ensuring that your use
+of any processed media complies with applicable laws and
+the rights of content owners.
+</p>
+
+<h3>Service Availability</h3>
+
+<p>
+SocialToolHub does not guarantee that every URL, website,
+media format, or source will be supported or available
+at all times.
+</p>
+
+<h3>Prohibited Use</h3>
+
+<p>
+You must not use SocialToolHub to bypass authentication,
+privacy controls, DRM, paywalls, or other access restrictions.
 </p>
 
 </section>
@@ -787,22 +1307,26 @@ protected resources.
 
 <section
 class="content-section"
-id="disclaimerSection"
+id="disclaimer"
 >
 
-<h2>
-Disclaimer
-</h2>
+<h2>Disclaimer</h2>
 
 <p>
 SocialToolHub is provided as an online utility service.
-Availability and results may vary depending on the source URL,
-media platform and publicly accessible content.
+Results may vary depending on the source URL, media format,
+remote server, network conditions, and other technical factors.
 </p>
 
 <p>
-We do not guarantee that every URL or media source will be
-supported or available at all times.
+SocialToolHub does not guarantee uninterrupted availability
+or successful processing of every submitted URL.
+</p>
+
+<p>
+SocialToolHub is an independent service and is not affiliated
+with or endorsed by TikTok, Instagram, Facebook, YouTube,
+or any other third-party platform.
 </p>
 
 </section>
@@ -810,26 +1334,27 @@ supported or available at all times.
 
 <section
 class="content-section"
-id="copyrightSection"
+id="copyright"
 >
 
-<h2>
-Copyright / DMCA
-</h2>
+<h2>Copyright / DMCA</h2>
 
 <p>
-Users are responsible for respecting copyright and other
-intellectual property rights when using SocialToolHub.
+SocialToolHub respects copyright and intellectual property
+rights.
 </p>
 
 <p>
-Only content that you own or have permission to use should
-be downloaded, processed or transcribed.
+Users are responsible for ensuring that their use of any
+downloaded, processed, or transcribed content complies with
+applicable copyright laws and the rights of the content owner.
 </p>
 
 <p>
-SocialToolHub does not intend to facilitate unauthorized
-copying or distribution of copyrighted material.
+If you believe that material or functionality associated with
+SocialToolHub infringes your copyright, you may contact the
+website owner with sufficient information to identify the
+material and explain your rights.
 </p>
 
 </section>
@@ -837,17 +1362,15 @@ copying or distribution of copyrighted material.
 
 <section
 class="content-section"
-id="contactSection"
+id="contact"
 >
 
-<h2>
-Contact Us
-</h2>
+<h2>Contact Us</h2>
 
 <p>
-If you have questions, concerns or requests regarding
-SocialToolHub, you can contact the website operator using
-the available contact method provided on the website.
+If you have questions, technical concerns, copyright concerns,
+or other inquiries about SocialToolHub, please contact the
+website owner through the available contact channel.
 </p>
 
 </section>
@@ -855,93 +1378,150 @@ the available contact method provided on the website.
 
 <section
 class="content-section"
-id="faqSection"
+id="faq"
 >
 
-<h2>
-Frequently Asked Questions
-</h2>
+<h2>Frequently Asked Questions</h2>
 
 
 <div class="faq-item">
 
-<h3>
+<details>
+
+<summary>
 What is SocialToolHub?
-</h3>
+</summary>
 
-<p>
-SocialToolHub is an online media utility website for working
-with publicly accessible media URLs.
+<p class="faq-answer">
+SocialToolHub is an online utility website that provides
+tools for processing publicly accessible media URLs and
+generating transcripts from supported videos.
 </p>
+
+</details>
 
 </div>
 
 
 <div class="faq-item">
 
-<h3>
-Can I download private videos?
-</h3>
+<details>
 
-<p>
+<summary>
+What media can SocialToolHub process?
+</summary>
+
+<p class="faq-answer">
+The service can process supported publicly accessible media
+depending on the URL, media format, and response provided
+by the remote server.
+</p>
+
+</details>
+
+</div>
+
+
+<div class="faq-item">
+
+<details>
+
+<summary>
+Can I use SocialToolHub with private videos?
+</summary>
+
+<p class="faq-answer">
 No. SocialToolHub does not bypass private content, login
-restrictions, DRM or other access controls.
+requirements, DRM, paywalls, or other access restrictions.
 </p>
+
+</details>
 
 </div>
 
 
 <div class="faq-item">
 
-<h3>
-Can I use SocialToolHub for video transcripts?
-</h3>
+<details>
 
-<p>
-Yes. Supported publicly accessible videos can be processed
-to extract audio and generate a transcript.
+<summary>
+Do I need to provide my social media password?
+</summary>
+
+<p class="faq-answer">
+No. You should never provide your social media password,
+authentication token, or other private account credentials.
 </p>
+
+</details>
 
 </div>
 
 
 <div class="faq-item">
 
-<h3>
-Do I need to install software?
-</h3>
+<details>
 
-<p>
-No. SocialToolHub is designed to work through your web browser.
+<summary>
+Why can a video URL fail?
+</summary>
+
+<p class="faq-answer">
+A URL may fail because the media is private, unavailable,
+unsupported, blocked by the remote server, requires
+authentication, or uses a format that cannot be processed.
 </p>
+
+</details>
 
 </div>
 
 
 <div class="faq-item">
 
-<h3>
-Is every media URL supported?
-</h3>
+<details>
 
-<p>
-No. Support depends on the source URL and whether the media
-is publicly accessible and compatible with the available tools.
+<summary>
+Is SocialToolHub affiliated with social media platforms?
+</summary>
+
+<p class="faq-answer">
+No. SocialToolHub is an independent website and is not
+affiliated with or endorsed by TikTok, Instagram, Facebook,
+YouTube, or other third-party platforms.
 </p>
 
+</details>
+
 </div>
+
+
+<div class="faq-item">
+
+<details>
+
+<summary>
+Can I use the website on a mobile phone?
+</summary>
+
+<p class="faq-answer">
+Yes. The website interface is designed to work on mobile
+phones, tablets, and desktop devices.
+</p>
+
+</details>
+
+</div>
+
 
 </section>
-
-
-</main>
 
 
 <footer>
 
 <div class="footer-inner">
 
-<div class="footer-links">
+<nav class="footer-links">
 
 <a href="/">
 Home
@@ -949,6 +1529,10 @@ Home
 
 <a href="/about">
 About Us
+</a>
+
+<a href="/how">
+How It Works
 </a>
 
 <a href="/privacy">
@@ -968,58 +1552,64 @@ Copyright / DMCA
 </a>
 
 <a href="/contact">
-Contact
+Contact Us
 </a>
 
 <a href="/faq">
 FAQ
 </a>
 
-</div>
+</nav>
 
-
-<div class="copyright">
+<p class="copyright">
 © 2026 SocialToolHub. All rights reserved.
-</div>
+</p>
 
-
-<div class="small-note">
-Use only with publicly accessible content that you have
-permission to download or process.
-</div>
+<p class="small-note">
+SocialToolHub is an independent utility website and is not
+affiliated with third-party social media platforms.
+</p>
 
 </div>
 
 </footer>
 
 
+<!-- CONFIRM DOWNLOAD -->
+
 <div
-id="confirmModal"
-class="confirm-modal"
-style="display:none"
+id="confirmBackdrop"
+class="confirm-backdrop"
 >
 
-<div class="confirm-box">
+<div
+class="confirm-box"
+role="dialog"
+aria-modal="true"
+aria-labelledby="confirmTitle"
+>
 
-<h3>
-Confirm Action
+<h3 id="confirmTitle">
+Download Media?
 </h3>
 
 <p id="confirmMessage">
-Are you sure?
+You are about to download the processed media file.
 </p>
 
 <div class="confirm-actions">
 
 <button
 id="confirmCancel"
+class="confirm-cancel"
 type="button"
 >
 Cancel
 </button>
 
 <button
-id="confirmOk"
+id="confirmDownload"
+class="confirm-download"
 type="button"
 >
 Continue
@@ -1034,253 +1624,554 @@ Continue
 
 <script>
 
-const API_BASE =
-"https://social-media-downloader-f8pv.onrender.com";
+/* ================================
+   BASIC HELPERS
+================================ */
 
+const $ = (id) => document.getElementById(id);
+
+function showElement(el){
+  if(el){
+    el.style.display = "";
+  }
+}
+
+function hideElement(el){
+  if(el){
+    el.style.display = "none";
+  }
+}
+
+function setStatus(el,message,type=""){
+  if(!el) return;
+
+  el.textContent = message || "";
+  el.className = type;
+
+  if(message){
+    el.style.display = "block";
+  }else{
+    el.style.display = "none";
+  }
+}
+
+function safeText(value){
+  return String(value ?? "");
+}
+
+function isValidHttpUrl(value){
+
+  try{
+
+    const url = new URL(value);
+
+    return (
+      url.protocol === "http:" ||
+      url.protocol === "https:"
+    );
+
+  }catch{
+
+    return false;
+
+  }
+
+}
+
+
+/* ================================
+   API CONFIG
+================================ */
+
+const API_BASE =
+  "https://social-media-downloader-f8pv.onrender.com";
+
+
+/* ================================
+   PAGE DATA
+================================ */
 
 const pages = {
 
-"/": {
+  "/":{
+    title:
+      "SocialToolHub — Media Downloader & Video to Script",
 
-title:
-"SocialToolHub — Media Downloader & Video to Script",
+    description:
+      "Download supported media from publicly accessible URLs and generate video transcripts with SocialToolHub.",
 
-description:
-"Download publicly accessible videos and generate video transcripts with SocialToolHub.",
+    heading:
+      "Download Your Media",
 
-heading:
-'Download Your <span class="gradient">Media</span>',
+    intro:
+      "Paste a publicly accessible media URL to download available media or extract audio and generate a text transcript.",
 
-intro:
-"Paste a publicly accessible media URL to download available media or extract audio and generate a text transcript.",
+    seoTitle:
+      "Online Media Tools",
 
-mediaHeading:
-"Media Downloader",
+    seoContent:
+      `
+      <p>
+      SocialToolHub provides simple tools for working with
+      publicly accessible media URLs and generating transcripts
+      from supported videos.
+      </p>
+      `
+  },
 
-mediaDescription:
-"Download available media from a publicly accessible YouTube, TikTok, Facebook or Instagram URL.",
+  "/tiktok-video-downloader":{
 
-placeholder:
-"Paste video URL for download...",
+    title:
+      "TikTok Video Downloader — SocialToolHub",
 
-button:
-"Get Media",
+    description:
+      "Use SocialToolHub to process publicly accessible TikTok video URLs and download supported media.",
 
-seoTitle:
-"Online Media Tools",
+    heading:
+      "TikTok Video Downloader",
 
-seoContent:
-"SocialToolHub provides simple tools for working with publicly accessible media URLs and generating transcripts from supported videos."
+    intro:
+      "Paste a publicly accessible TikTok video URL to process supported media.",
 
-},
+    seoTitle:
+      "TikTok Video Downloader",
 
+    seoContent:
+      `
+      <p>
+      SocialToolHub provides a simple TikTok video downloader
+      tool for publicly accessible TikTok media URLs.
+      Enter a supported public URL to check whether the media
+      can be processed.
+      </p>
 
-"/tiktok-video-downloader": {
+      <h3>How to Use the TikTok Video Downloader</h3>
 
-title:
-"TikTok Video Downloader — SocialToolHub",
+      <p>
+      Copy a publicly accessible TikTok video URL, paste it
+      into the downloader, and select Get Media.
+      </p>
+      `
+  },
 
-description:
-"Download publicly accessible TikTok videos with SocialToolHub.",
+  "/instagram-video-downloader":{
 
-heading:
-"TikTok Video Downloader",
+    title:
+      "Instagram Video Downloader — SocialToolHub",
 
-intro:
-"Use SocialToolHub to process a publicly accessible TikTok video URL.",
+    description:
+      "Process publicly accessible Instagram video URLs with the SocialToolHub video downloader.",
 
-mediaHeading:
-"TikTok Video Downloader",
+    heading:
+      "Instagram Video Downloader",
 
-mediaDescription:
-"Paste a publicly accessible TikTok video URL to retrieve available media.",
+    intro:
+      "Paste a publicly accessible Instagram video URL to process supported media.",
 
-placeholder:
-"Paste TikTok video URL...",
+    seoTitle:
+      "Instagram Video Downloader",
 
-button:
-"Get Media",
+    seoContent:
+      `
+      <p>
+      SocialToolHub provides a simple Instagram video downloader
+      tool for supported publicly accessible Instagram media URLs.
+      </p>
 
-seoTitle:
-"TikTok Video Downloader",
+      <h3>How to Use the Instagram Video Downloader</h3>
 
-seoContent:
-"<p>SocialToolHub provides a simple TikTok video downloader for publicly accessible video URLs.</p><p>Paste a supported TikTok URL into the downloader to check available media.</p>"
+      <p>
+      Copy the public Instagram media URL, paste it into the
+      downloader, and select Get Media.
+      </p>
+      `
+  },
 
-},
+  "/facebook-video-downloader":{
 
+    title:
+      "Facebook Video Downloader — SocialToolHub",
 
-"/instagram-video-downloader": {
+    description:
+      "Process publicly accessible Facebook video URLs with the SocialToolHub video downloader.",
 
-title:
-"Instagram Video Downloader — SocialToolHub",
+    heading:
+      "Facebook Video Downloader",
 
-description:
-"Download publicly accessible Instagram videos with SocialToolHub.",
+    intro:
+      "Paste a publicly accessible Facebook video URL to process supported media.",
 
-heading:
-"Instagram Video Downloader",
+    seoTitle:
+      "Facebook Video Downloader",
 
-intro:
-"Use SocialToolHub to process a publicly accessible Instagram video URL.",
+    seoContent:
+      `
+      <p>
+      SocialToolHub provides a Facebook video downloader
+      for supported publicly accessible media URLs.
+      </p>
 
-mediaHeading:
-"Instagram Video Downloader",
+      <h3>How to Use the Facebook Video Downloader</h3>
 
-mediaDescription:
-"Paste a publicly accessible Instagram video URL to retrieve available media.",
+      <p>
+      Copy a public Facebook video URL, paste it into the
+      downloader, and select Get Media.
+      </p>
+      `
+  },
 
-placeholder:
-"Paste Instagram video URL...",
+  "/youtube-video-downloader":{
 
-button:
-"Get Media",
+    title:
+      "YouTube Video Downloader — SocialToolHub",
 
-seoTitle:
-"Instagram Video Downloader",
+    description:
+      "Process publicly accessible YouTube video URLs with the SocialToolHub video downloader.",
 
-seoContent:
-"<p>SocialToolHub provides a simple Instagram video downloader for publicly accessible video URLs.</p><p>Paste a supported Instagram URL into the downloader to check available media.</p>"
+    heading:
+      "YouTube Video Downloader",
 
-},
+    intro:
+      "Paste a publicly accessible YouTube video URL to process supported media.",
 
+    seoTitle:
+      "YouTube Video Downloader",
 
-"/facebook-video-downloader": {
+    seoContent:
+      `
+      <p>
+      SocialToolHub provides a YouTube video downloader
+      for supported publicly accessible media URLs.
+      </p>
 
-title:
-"Facebook Video Downloader — SocialToolHub",
+      <h3>How to Use the YouTube Video Downloader</h3>
 
-description:
-"Download publicly accessible Facebook videos with SocialToolHub.",
+      <p>
+      Copy a publicly accessible YouTube video URL, paste
+      it into the downloader, and select Get Media.
+      </p>
+      `
+  },
 
-heading:
-"Facebook Video Downloader",
+  "/video-to-script":{
 
-intro:
-"Use SocialToolHub to process a publicly accessible Facebook video URL.",
+    title:
+      "Video to Script Generator — SocialToolHub",
 
-mediaHeading:
-"Facebook Video Downloader",
+    description:
+      "Extract audio from supported publicly accessible videos and generate a text transcript with SocialToolHub.",
 
-mediaDescription:
-"Paste a publicly accessible Facebook video URL to retrieve available media.",
+    heading:
+      "Video to Script Generator",
 
-placeholder:
-"Paste Facebook video URL...",
+    intro:
+      "Paste a publicly accessible video URL to extract audio and generate a text transcript.",
 
-button:
-"Get Media",
+    seoTitle:
+      "Video to Script Generator",
 
-seoTitle:
-"Facebook Video Downloader",
+    seoContent:
+      `
+      <p>
+      SocialToolHub provides a video-to-script tool that can
+      extract audio from supported publicly accessible videos
+      and generate a text transcript.
+      </p>
 
-seoContent:
-"<p>SocialToolHub provides a simple Facebook video downloader for publicly accessible video URLs.</p><p>Paste a supported Facebook URL into the downloader to check available media.</p>"
+      <h3>How to Use Video to Script</h3>
 
-},
-
-
-"/youtube-video-downloader": {
-
-title:
-"YouTube Video Downloader — SocialToolHub",
-
-description:
-"Download publicly accessible YouTube videos with SocialToolHub.",
-
-heading:
-"YouTube Video Downloader",
-
-intro:
-"Use SocialToolHub to process a publicly accessible YouTube video URL.",
-
-mediaHeading:
-"YouTube Video Downloader",
-
-mediaDescription:
-"Paste a publicly accessible YouTube video URL to retrieve available media.",
-
-placeholder:
-"Paste YouTube video URL...",
-
-button:
-"Get Media",
-
-seoTitle:
-"YouTube Video Downloader",
-
-seoContent:
-"<p>SocialToolHub provides a simple YouTube video downloader for publicly accessible video URLs.</p><p>Paste a supported YouTube URL into the downloader to check available media.</p>"
-
-},
-
-
-"/video-to-script": {
-
-title:
-"Video to Script Generator — SocialToolHub",
-
-description:
-"Extract audio from publicly accessible videos and generate text transcripts with SocialToolHub.",
-
-heading:
-"Video to Script Generator",
-
-intro:
-"Extract audio from a publicly accessible video and generate a text transcript.",
-
-mediaHeading:
-"Video to Script Generator",
-
-mediaDescription:
-"Extract audio from a publicly accessible video and generate a transcript.",
-
-placeholder:
-"Paste video URL...",
-
-button:
-"Get Audio",
-
-seoTitle:
-"Video to Script Generator",
-
-seoContent:
-"<p>SocialToolHub provides a video to script tool for extracting audio and generating transcripts from supported publicly accessible videos.</p><p>Paste a supported video URL to begin.</p>"
-
-}
+      <p>
+      Paste a supported public video URL and select Get Audio.
+      When the audio is ready, select Transcript to generate
+      the available text transcript.
+      </p>
+      `
+  }
 
 };
 
 
-function $(id) {
-return document.getElementById(id);
+/* ================================
+   PAGE ROUTING
+================================ */
+
+function getCurrentPath(){
+
+  const path =
+    window.location.pathname.replace(/\/+$/, "") || "/";
+
+  if(pages[path]){
+    return path;
+  }
+
+  const hashPath =
+    window.location.hash.replace(/^#/, "") || "/";
+
+  if(pages[hashPath]){
+    return hashPath;
+  }
+
+  return "/";
+
 }
 
 
-function getCurrentPath() {
+function navigateTo(path){
 
-const path =
-window.location.pathname.replace(/\/+$/, "") || "/";
+  if(!pages[path]){
+    path = "/";
+  }
 
-if (pages[path]) {
-return path;
+  window.history.pushState({}, "", path);
+
+  window.location.hash = "";
+
+  setupPage();
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+
 }
 
-const hashPath =
-window.location.hash.replace(/^#/, "") || "/";
 
-if (pages[hashPath]) {
-return hashPath;
-}
+/* ================================
+   PAGE SETUP
+================================ */
 
-return "/";
-}
+function setupPage(){
+
+  const path = getCurrentPath();
+
+  const page = pages[path] || pages["/"];
+
+  const title =
+    $("pageTitle");
+
+  const description =
+    $("metaDescription");
+
+  const canonical =
+    $("canonical");
+
+  const ogTitle =
+    $("ogTitle");
+
+  const ogDescription =
+    $("ogDescription");
+
+  const ogUrl =
+    $("ogUrl");
+
+  const twitterTitle =
+    $("twitterTitle");
+
+  const twitterDescription =
+    $("twitterDescription");
 
 
-function navigateTo(path) {
+  if(title){
 
-if (!pages[path]) {
-path = "/";
-}
+    title.textContent =
+      page.title;
 
-window.history.pushState(
+  }
+
+
+  if(description){
+
+    description.setAttribute(
+      "content",
+      page.description
+    );
+
+  }
+
+
+  if(canonical){
+
+    const canonicalUrl =
+      window.location.origin +
+      (path === "/" ? "/" : path);
+
+    canonical.setAttribute(
+      "href",
+      canonicalUrl
+    );
+
+  }
+
+
+  if(ogTitle){
+
+    ogTitle.setAttribute(
+      "content",
+      page.title
+    );
+
+  }
+
+
+  if(ogDescription){
+
+    ogDescription.setAttribute(
+      "content",
+      page.description
+    );
+
+  }
+
+
+  if(ogUrl){
+
+    const canonicalUrl =
+      window.location.origin +
+      (path === "/" ? "/" : path);
+
+    ogUrl.setAttribute(
+      "content",
+      canonicalUrl
+    );
+
+  }
+
+
+  if(twitterTitle){
+
+    twitterTitle.setAttribute(
+      "content",
+      page.title
+    );
+
+  }
+
+
+  if(twitterDescription){
+
+    twitterDescription.setAttribute(
+      "content",
+      page.description
+    );
+
+  }
+
+
+  const heading =
+    $("pageHeading");
+
+  const intro =
+    $("pageIntro");
+
+  const seoTitle =
+    $("seoTitle");
+
+  const seoContent =
+    $("seoContent");
+
+
+  if(heading){
+
+    heading.innerHTML =
+      page.heading;
+
+  }
+
+
+  if(intro){
+
+    intro.textContent =
+      page.intro;
+
+  }
+
+
+  if(seoTitle){
+
+    seoTitle.textContent =
+      page.seoTitle;
+
+  }
+
+
+  if(seoContent){
+
+    seoContent.innerHTML =
+      page.seoContent;
+
+  }
+
+
+  const home =
+    path === "/";
+
+  const mediaCard =
+    $("mediaCard");
+
+  const scriptCard =
+    $("scriptCard");
+
+  const platforms =
+    $("platforms");
+
+  const backButton =
+    $("backButton");
+
+
+  if(mediaCard){
+
+    mediaCard.style.display =
+      path === "/video-to-script"
+        ? "none"
+        : "";
+
+  }
+
+
+  if(scriptCard){
+
+    scriptCard.style.display =
+      path === "/video-to-script"
+        ? ""
+        : "";
+
+  }
+
+
+  if(platforms){
+
+    platforms.style.display =
+      home ? "" : "none";
+
+  }
+
+
+  if(backButton){
+
+    backButton.classList.toggle(
+      "show",
+      !home
+    );
+
+  }
+
+
+  const quickLinks =
+    document.querySelector(".quick-links");
+
+  if(quickLinks){
+
+    quickLinks.style.display =
+      home ? "flex" : "none";
+
+  }
+
+
+  $("menuPanel")?.classList.remove("open");
+
+  $("menuButton")?.setAttribute(
+    "aria-expanded",
+    "false"
+  );
+
+  }
