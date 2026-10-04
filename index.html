@@ -1686,4 +1686,712 @@ const pages = {
     description:
       "Process publicly accessible Facebook video URLs with the SocialToolHub Facebook Video Downloader.",
   
+      heading:
+      'Facebook Video <span class="gradient">Downloader</span>',
+    intro:
+      "Paste a publicly accessible Facebook video URL to process available media.",
+    mediaHeading:
+      "Facebook Video Downloader",
+    mediaDescription:
+      "Enter a public Facebook video URL and SocialToolHub will request available media information.",
+    placeholder:
+      "Paste Facebook video URL...",
+    button:
+      "Get Facebook Video",
+    seoTitle:
+      "Facebook Video Downloader",
+    seo: `
+      <p>
+        SocialToolHub provides a simple Facebook video downloader
+        interface for publicly accessible Facebook video URLs.
+      </p>
+
+      <h3>How to use the Facebook downloader</h3>
+
+      <p>
+        Copy a publicly accessible Facebook video URL, paste it
+        above, and select the processing button.
+      </p>
+
+      <h3>Public URLs</h3>
+
+      <p>
+        Private, login-protected or otherwise restricted content
+        is not supported.
+      </p>
+    `
+  },
+
+  "/youtube-video-downloader": {
+    title:
+      "YouTube Video Downloader — SocialToolHub",
+    description:
+      "Process publicly accessible YouTube video URLs with the SocialToolHub YouTube Video Downloader.",
+    heading:
+      'YouTube Video <span class="gradient">Downloader</span>',
+    intro:
+      "Paste a publicly accessible YouTube video URL to process available media.",
+    mediaHeading:
+      "YouTube Video Downloader",
+    mediaDescription:
+      "Enter a public YouTube video URL and SocialToolHub will request available media information.",
+    placeholder:
+      "Paste YouTube video URL...",
+    button:
+      "Get YouTube Video",
+    seoTitle:
+      "YouTube Video Downloader",
+    seo: `
+      <p>
+        SocialToolHub provides a simple YouTube video downloader
+        interface for publicly accessible YouTube URLs.
+      </p>
+
+      <h3>How to use the YouTube downloader</h3>
+
+      <p>
+        Copy a publicly accessible YouTube video URL, paste it
+        into the downloader, and select the processing button.
+      </p>
+
+      <h3>Availability</h3>
+
+      <p>
+        YouTube may apply technical restrictions or verification
+        requirements that can affect whether a particular URL
+        can be processed.
+      </p>
+    `
+  },
+
+  "/video-to-script": {
+    title:
+      "Video to Script Generator — SocialToolHub",
+    description:
+      "Extract audio from a publicly accessible video and generate a transcript in the detected spoken language.",
+    heading:
+      'Video to <span class="gradient">Script</span>',
+    intro:
+      "Extract audio from a publicly accessible video and generate a transcript in the original spoken language.",
+    mediaHeading:
+      "Video Downloader",
+    mediaDescription:
+      "You can also use the media downloader below to process a supported public video URL.",
+    placeholder:
+      "Paste video URL...",
+    button:
+      "Get Audio",
+    seoTitle:
+      "Video to Script Generator",
+    seo: `
+      <p>
+        SocialToolHub Video to Script converts the spoken audio
+        from a supported publicly accessible video into text.
+      </p>
+
+      <h3>How Video to Script works</h3>
+
+      <p>
+        Paste a public video URL, select Get Audio, wait for the
+        audio extraction to finish, then select Transcript.
+      </p>
+
+      <h3>Language detection</h3>
+
+      <p>
+        The transcription service detects the spoken language and
+        keeps the generated transcript in that language rather
+        than automatically translating it.
+      </p>
+
+      <h3>Audio transcription</h3>
+
+      <p>
+        The service uses speech recognition to convert the extracted
+        audio into text.
+      </p>
+    `
+  }
+
+};
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function $(id) {
+  return document.getElementById(id);
+}
+
+
+function showStatus(element, message, type = "") {
+
+  if (!element) return;
+
+  element.style.display = "block";
+
+  element.className = "";
+
+  if (type) {
+    element.classList.add(type);
+  }
+
+  element.textContent = message;
+}
+
+
+function hideElement(element) {
+
+  if (!element) return;
+
+  element.style.display = "none";
+}
+
+
+function showElement(element) {
+
+  if (!element) return;
+
+  element.style.display = "block";
+}
+
+
+function getCurrentPath() {
+
+  const hashPath =
+    window.location.hash.replace(/^#/, "") || "/";
+
+  if (pages[hashPath]) {
+    return hashPath;
+  }
+
+  const path =
+    window.location.pathname;
+
+  if (pages[path]) {
+    return path;
+  }
+
+  return "/";
+}
+/* =========================================================
+   MEDIA DOWNLOADER
+========================================================= */
+
+/* =========================================================
+   PAGE SETUP
+========================================================= */
+
+function setupPage() {
+
+  const path = getCurrentPath();
+
+  const page = pages[path];
+
+  document.title = page.title;
+
+  if ($("metaDescription")) {
+    $("metaDescription").setAttribute(
+      "content",
+      page.description
+    );
+  }
+
+  if ($("pageTitle")) {
+    $("pageTitle").textContent = page.title;
+  }
+
+  if ($("pageHeading")) {
+    $("pageHeading").innerHTML =
+      page.heading;
+  }
+
+  if ($("pageIntro")) {
+    $("pageIntro").textContent =
+      page.intro;
+  }
+
+  if ($("mediaHeading")) {
+    $("mediaHeading").textContent =
+      page.mediaHeading;
+  }
+
+  if ($("mediaDescription")) {
+    $("mediaDescription").textContent =
+      page.mediaDescription;
+  }
+
+  if ($("mediaUrlInput")) {
+    $("mediaUrlInput").placeholder =
+      page.placeholder;
+  }
+
+  if ($("mediaButton")) {
+    $("mediaButton").textContent =
+      page.button;
+  }
+
+  if ($("seoTitle")) {
+    $("seoTitle").textContent =
+      page.seoTitle;
+  }
+
+  if ($("seoContent")) {
+    $("seoContent").innerHTML =
+      page.seo;
+  }
+
+  const canonicalUrl =
+    window.location.origin +
+    (path === "/" ? "/" : path);
+
+  if ($("canonical")) {
+    $("canonical").href =
+      canonicalUrl;
+  }
+
+  if ($("ogTitle")) {
+    $("ogTitle").content =
+      page.title;
+  }
+
+  if ($("ogDescription")) {
+    $("ogDescription").content =
+      page.description;
+  }
+
+  if ($("ogUrl")) {
+    $("ogUrl").content =
+      canonicalUrl;
+  }
+
+  if ($("twitterTitle")) {
+    $("twitterTitle").content =
+      page.title;
+  }
+
+  if ($("twitterDescription")) {
+    $("twitterDescription").content =
+      page.description;
+  }
+
+  const isHome = path === "/";
+  const isScriptPage = path === "/video-to-script";
+
+  const menuButton = $("menuButton");
+  const menuPanel = $("menuPanel");
+
+  if (menuButton) {
+    menuButton.style.display =
+      isHome ? "flex" : "none";
+  }
+
+  if (menuPanel && !isHome) {
+    menuPanel.classList.remove("open");
+    menuButton?.setAttribute("aria-expanded", "false");
+  }
+
+  const quickLinks = document.querySelector(".quick-links");
+  const mediaCard = $("mediaCard");
+  const scriptCard = $("scriptCard");
+  const backButton = $("backButton");
+
+  if (quickLinks) {
+    quickLinks.style.display = isHome ? "flex" : "none";
+  }
+
+  if (backButton) {
+    backButton.classList.toggle("show", !isHome);
+  }
+
+  if (mediaCard) {
+    mediaCard.style.display = isScriptPage ? "none" : "block";
+  }
+
+  if (scriptCard) {
+    scriptCard.style.display = isScriptPage ? "block" : "none";
+  }
+
+  /*
+     Video-to-Script page par Script card
+     upar show karna.
+  */
+
+  if (path === "/video-to-script") {
+
+    const tools = document.querySelector(".tools");
+
+    const scriptCard =
+      $("scriptCard");
+
+    if (tools && scriptCard) {
+      tools.prepend(scriptCard);
+    }
+  }
+}
+
+
+/* =========================================================
+   MEDIA DOWNLOADER
+========================================================= */
+async function downloadMedia() {
+
+  const input =
+    $("mediaUrlInput");
+
+  const button =
+    $("mediaButton");
+
+  const status =
+    $("mediaStatus");
+
+  const result =
+    $("mediaResult");
+
+  const downloadButton =
+    $("downloadButton");
+
+  const title =
+    $("mediaTitle");
+
+  const info =
+    $("mediaInfo");
+
+  if (!input || !button) return;
+
+  const url =
+    input.value.trim();
+
+  if (!url) {
+
+    showStatus(
+      status,
+      "Please paste a video URL.",
+      "error"
+    );
+
+    return;
+  }
+
+  hideElement(result);
+
+  button.disabled = true;
+
+  showStatus(
+    status,
+    "Processing URL. Please wait..."
+  );
+
+  try {
+
+    const response =
+      await fetch(
+        API_BASE +
+        "/api/media?url=" +
+        encodeURIComponent(url)
+      );
+
+    let data = null;
+
+    try {
+      data = await response.json();
+    } catch {
+      data = null;
+    }
+
+    if (!response.ok) {
+
+      throw new Error(
+        data?.error ||
+        "The media request failed."
+      );
+    }
+
+    if (!data) {
+
+      throw new Error(
+        "The server returned an empty response."
+      );
+    }
+
+    title.textContent =
+      data.title ||
+      "Media ready";
+
+    const platform =
+      data.platform ||
+      "Supported platform";
+
+        const rawDuration =
+      data.duration_seconds ??
+      data.duration ??
+      data.durationSeconds ??
+      null;
+
+    let duration = "Unknown";
+
+    if (typeof rawDuration === "number" && Number.isFinite(rawDuration)) {
+      const totalSeconds = Math.max(0, Math.round(rawDuration));
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      if (hours > 0) {
+        duration =
+          hours + "h " +
+          String(minutes).padStart(2, "0") + "m " +
+          String(seconds).padStart(2, "0") + "s";
+      } else {
+        duration =
+          minutes + "m " +
+          String(seconds).padStart(2, "0") + "s";
+      }
+    } else if (typeof rawDuration === "string" &&
+               rawDuration.trim() &&
+               rawDuration.toLowerCase() !== "unknown") {
+      duration = rawDuration.trim();
+    }
+    info.textContent =
+      [platform, duration]
+        .filter(Boolean)
+        .join(" • ");
+
+    const thumbnail = $("mediaThumbnail");
+    if (thumbnail) {
+      const thumbnailUrl =
+        data.thumbnail ||
+        data.thumbnailUrl ||
+        data.thumbnail_url ||
+        "";
+
+      if (thumbnailUrl) {
+        thumbnail.src = thumbnailUrl;
+        thumbnail.classList.add("show");
+      } else {
+        thumbnail.removeAttribute("src");
+        thumbnail.classList.remove("show");
+      }
+    }
+
+    const meta = $("mediaMeta");
+    if (meta) {
+      const items = [];
+      const uploadDate =
+        data.uploadDate ||
+        data.upload_date ||
+        data.releaseDate ||
+        data.release_date ||
+        data.timestamp;
+
+      const uploader =
+        data.uploader ||
+        data.channel ||
+        data.author ||
+        data.creator;
+
+      const views =
+        data.viewCount ??
+        data.view_count;
+
+      const likes =
+        data.likeCount ??
+        data.likes ??
+        data.like_count;
+
+      const comments =
+        data.commentCount ??
+        data.comments ??
+        data.comment_count;
+
+      const platformName =
+        data.platform ||
+        pages[path]?.name ||
+        "";
+
+      if (platformName) items.push("Platform: " + platformName);
+      if (uploadDate) items.push("Uploaded: " + uploadDate);
+      if (uploader) items.push("Account: " + uploader);
+      if (views !== undefined && views !== null) {
+        items.push("Views: " + Number(views).toLocaleString());
+      }
+      if (likes !== undefined && likes !== null) {
+        items.push("Likes: " + Number(likes).toLocaleString());
+      }
+      if (comments !== undefined && comments !== null) {
+        items.push("Comments: " + Number(comments).toLocaleString());
+      }
+
+      meta.textContent = items.join(" • ");
+    }
+
+    downloadButton.href = "#";
+    downloadButton.removeAttribute("target");
+    downloadButton.dataset.downloadUrl =
+      API_BASE +
+      "/api/download?url=" +
+      encodeURIComponent(url);
+
+    showElement(result);
+
+    showStatus(
+      status,
+      "Media is ready.",
+      "success"
+    );
+
+  } catch (error) {
+
+    console.error(
+      "MEDIA DOWNLOAD ERROR:",
+      error
+    );
+
+    showStatus(
+      status,
+      error.message ||
+      "Unable to process this URL.",
+      "error"
+    );
+
+  } finally {
+
+    button.disabled = false;
+  }
+}
+
+
+/* =========================================================
+   PREPARE AUDIO
+========================================================= */
+
+let currentJobId = null;
+
+
+async function prepareAudio() {
+
+  const input =
+    $("scriptUrlInput");
+
+  const button =
+    $("prepareAudioButton");
+
+  const status =
+    $("scriptStatus");
+
+  const audioResult =
+    $("audioResult");
+
+  const transcriptResult =
+    $("transcriptResult");
+
+  if (!input || !button) return;
+
+  const url =
+    input.value.trim();
+
+  if (!url) {
+
+    showStatus(
+      status,
+      "Please paste a video URL.",
+      "error"
+    );
+
+    return;
+  }
+
+  hideElement(audioResult);
+
+  hideElement(transcriptResult);
+
+  hideElement($("languageInfo"));
+
+  currentJobId = null;
+
+  button.disabled = true;
+
+  showStatus(
+    status,
+    "Extracting audio. Please wait..."
+  );
+
+  try {
+
+    const response =
+      await fetch(
+        API_BASE +
+        "/api/prepare-audio",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+            url: url
+          })
+        }
+      );
+
+    let data = null;
+
+    try {
+      data = await response.json();
+    } catch {
+      data = null;
+    }
+
+    if (!response.ok) {
+
+      throw new Error(
+        data?.error ||
+        "Audio extraction failed."
+      );
+    }
+
+    if (!data) {
+
+      throw new Error(
+        "The server returned an empty response."
+      );
+    }
+
+    currentJobId =
+      data.jobId ||
+      data.id ||
+      data.job_id;
+
+    if (!currentJobId) {
+
+      throw new Error(
+        "The server did not return a job ID."
+      );
+    }
+
+    const audioUrl =
+      data.audioUrl ||
+      data.audio_url ||
+      (
+        API_BASE +
+        "/api/audio/" +
+        encodeURIComponent(
+          currentJobId
+        )
+      );
+
+    $("audioPlayer").src =
+      audioUrl;
+
+    $("audioTitle").textContent =
+      data.title ||
+      "Audio extracted successfully.";
+
+    showElement(audioResult);
+
+    showStatus(
+      status,
+      "Audio is ready. You can play it or select Transcript.",
   
