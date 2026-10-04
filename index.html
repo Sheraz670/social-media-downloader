@@ -1856,3 +1856,2006 @@ setupEnterKeys();
 
 
 </script>
+        <p>
+        Copy a publicly accessible YouTube video URL, paste it
+        above, and select the processing button.
+      </p>
+
+      <h3>Public URLs</h3>
+
+      <p>
+        Private, login-protected or otherwise restricted content
+        is not supported.
+      </p>
+    `
+  },
+
+  "/video-to-script": {
+    title:
+      "Video to Script Generator — SocialToolHub",
+    description:
+      "Extract audio from publicly accessible videos and generate transcripts with the SocialToolHub Video to Script Generator.",
+    heading:
+      'Video to <span class="gradient">Script</span>',
+    intro:
+      "Extract audio from a publicly accessible video and generate a transcript.",
+    mediaHeading:
+      "Video to Script Generator",
+    mediaDescription:
+      "Extract audio from a publicly accessible video and generate a transcript.",
+    placeholder:
+      "Paste video URL...",
+    button:
+      "Get Audio",
+    seoTitle:
+      "Video to Script Generator",
+    seo: `
+      <p>
+        SocialToolHub provides a Video to Script Generator for
+        extracting audio and generating transcripts from supported
+        publicly accessible videos.
+      </p>
+
+      <h3>How to use Video to Script</h3>
+
+      <p>
+        Paste a publicly accessible video URL into the tool and
+        select Get Audio. After the audio is prepared, select
+        Transcript to generate the spoken text.
+      </p>
+
+      <h3>Detected spoken language</h3>
+
+      <p>
+        The transcription service detects the spoken language and
+        generates the transcript in that language.
+      </p>
+    `
+  }
+
+};
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function $(id) {
+  return document.getElementById(id);
+}
+
+
+function getCurrentPath() {
+
+  const path =
+    window.location.pathname.replace(/\/+$/, "") || "/";
+
+  if (pages[path]) {
+    return path;
+  }
+
+  const hashPath =
+    window.location.hash.replace(/^#/, "") || "/";
+
+  if (pages[hashPath]) {
+    return hashPath;
+  }
+
+  return "/";
+}
+
+
+function navigateTo(path) {
+
+  if (!pages[path]) {
+    path = "/";
+  }
+
+  window.history.pushState({}, "", path);
+
+  window.location.hash = "";
+
+  setupPage();
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+
+}
+
+
+/* =========================================================
+   PAGE SETUP
+========================================================= */
+
+function setupPage() {
+
+  const path = getCurrentPath();
+
+  const page =
+    pages[path] || pages["/"];
+
+
+  document.title =
+    page.title;
+
+
+  const description =
+    document.querySelector(
+      'meta[name="description"]'
+    );
+
+  if (description) {
+
+    description.setAttribute(
+      "content",
+      page.description
+    );
+
+  }
+
+
+  const heading =
+    $("pageHeading");
+
+  if (heading) {
+
+    heading.innerHTML =
+      page.heading;
+
+  }
+
+
+  const intro =
+    $("pageIntro");
+
+  if (intro) {
+
+    intro.textContent =
+      page.intro;
+
+  }
+
+
+  const mediaHeading =
+    $("mediaHeading");
+
+  if (mediaHeading) {
+
+    mediaHeading.textContent =
+      page.mediaHeading;
+
+  }
+
+
+  const mediaDescription =
+    $("mediaDescription");
+
+  if (mediaDescription) {
+
+    mediaDescription.textContent =
+      page.mediaDescription;
+
+  }
+
+
+  const mediaUrlInput =
+    $("mediaUrlInput");
+
+  if (mediaUrlInput) {
+
+    mediaUrlInput.placeholder =
+      page.placeholder;
+
+  }
+
+
+  const mediaButton =
+    $("mediaButton");
+
+  if (mediaButton) {
+
+    mediaButton.textContent =
+      page.button;
+
+  }
+
+
+  const seoTitle =
+    $("seoTitle");
+
+  if (seoTitle) {
+
+    seoTitle.textContent =
+      page.seoTitle;
+
+  }
+
+
+  const seoContent =
+    $("seoContent");
+
+  if (seoContent) {
+
+    seoContent.innerHTML =
+      page.seo;
+
+  }
+
+
+  const canonicalUrl =
+    window.location.origin +
+    (path === "/" ? "/" : path);
+
+
+  let canonical =
+    document.querySelector(
+      'link[rel="canonical"]'
+    );
+
+  if (!canonical) {
+
+    canonical =
+      document.createElement("link");
+
+    canonical.rel =
+      "canonical";
+
+    document.head.appendChild(
+      canonical
+    );
+
+  }
+
+  canonical.href =
+    canonicalUrl;
+
+
+  const ogUrl =
+    document.querySelector(
+      'meta[property="og:url"]'
+    );
+
+  if (ogUrl) {
+
+    ogUrl.setAttribute(
+      "content",
+      canonicalUrl
+    );
+
+  }
+
+
+  const twitterUrl =
+    document.querySelector(
+      'meta[name="twitter:url"]'
+    );
+
+  if (twitterUrl) {
+
+    twitterUrl.setAttribute(
+      "content",
+      canonicalUrl
+    );
+
+  }
+
+
+  const ogTitle =
+    document.querySelector(
+      'meta[property="og:title"]'
+    );
+
+  if (ogTitle) {
+
+    ogTitle.setAttribute(
+      "content",
+      page.title
+    );
+
+  }
+
+
+  const ogDescription =
+    document.querySelector(
+      'meta[property="og:description"]'
+    );
+
+  if (ogDescription) {
+
+    ogDescription.setAttribute(
+      "content",
+      page.description
+    );
+
+  }
+
+
+  const twitterTitle =
+    document.querySelector(
+      'meta[name="twitter:title"]'
+    );
+
+  if (twitterTitle) {
+
+    twitterTitle.setAttribute(
+      "content",
+      page.title
+    );
+
+  }
+
+
+  const twitterDescription =
+    document.querySelector(
+      'meta[name="twitter:description"]'
+    );
+
+  if (twitterDescription) {
+
+    twitterDescription.setAttribute(
+      "content",
+      page.description
+    );
+
+  }
+
+
+  const isHome =
+    path === "/";
+
+  const isScriptPage =
+    path === "/video-to-script";
+
+
+  const menuButton =
+    $("menuButton");
+
+  if (menuButton) {
+
+    menuButton.style.display =
+      isHome ? "" : "none";
+
+  }
+
+
+  const quickLinks =
+    document.querySelector(
+      ".quick-links"
+    );
+
+  if (quickLinks) {
+
+    quickLinks.style.display =
+      isHome ? "" : "none";
+
+  }
+
+
+  const backButton =
+    $("backButton");
+
+  if (backButton) {
+
+    backButton.style.display =
+      isHome ? "none" : "inline-flex";
+
+  }
+
+
+  const mediaCard =
+    $("mediaCard");
+
+  if (mediaCard) {
+
+    mediaCard.style.display =
+      isScriptPage ? "none" : "";
+
+  }
+
+
+  const scriptCard =
+    $("scriptCard");
+
+  if (scriptCard) {
+
+    scriptCard.style.display =
+      isScriptPage ? "" : "none";
+
+  }
+
+
+  const tools =
+    document.querySelector(
+      ".tools"
+    );
+
+  if (
+    tools &&
+    isScriptPage &&
+    scriptCard
+  ) {
+
+    tools.prepend(
+      scriptCard
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+function setupNavigation() {
+
+  document.addEventListener(
+    "click",
+    function(event) {
+
+      const link =
+        event.target.closest(
+          "a[href]"
+        );
+
+      if (!link) return;
+
+
+      const href =
+        link.getAttribute(
+          "href"
+        );
+
+      if (!href) return;
+
+
+      const absolute =
+        new URL(
+          href,
+          window.location.origin
+        );
+
+
+      if (
+        absolute.origin !==
+          window.location.origin ||
+        !pages[absolute.pathname]
+      ) {
+
+        return;
+
+      }
+
+
+      event.preventDefault();
+
+      navigateTo(
+        absolute.pathname
+      );
+
+    }
+  );
+
+
+  window.addEventListener(
+    "popstate",
+    function() {
+
+      setupPage();
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   MENU
+========================================================= */
+
+function setupMenu() {
+
+  const menuButton =
+    $("menuButton");
+
+  const menuPanel =
+    $("menuPanel");
+
+
+  if (
+    !menuButton ||
+    !menuPanel
+  ) {
+
+    return;
+
+  }
+
+
+  menuButton.addEventListener(
+    "click",
+    function() {
+
+      const open =
+        menuPanel.classList.toggle(
+          "open"
+        );
+
+      menuButton.setAttribute(
+        "aria-expanded",
+        open ? "true" : "false"
+      );
+
+    }
+  );
+
+
+  document.addEventListener(
+    "click",
+    function(event) {
+
+      if (
+        !menuPanel.contains(
+          event.target
+        ) &&
+        !menuButton.contains(
+          event.target
+        )
+      ) {
+
+        menuPanel.classList.remove(
+          "open"
+        );
+
+        menuButton.setAttribute(
+          "aria-expanded",
+          "false"
+        );
+
+      }
+
+    }
+  );
+
+}
+      if (!response.ok) {
+
+      throw new Error(
+        "Unable to process this URL."
+      );
+
+    }
+
+
+    const data =
+      await response.json();
+
+
+    if (!data || !data.ok) {
+
+      throw new Error(
+        data?.message ||
+        "No media was found."
+      );
+
+    }
+
+
+    showElement(result);
+
+
+    if (title) {
+
+      title.textContent =
+        data.title ||
+        "Available Media";
+
+    }
+
+
+    if (info) {
+
+      info.textContent =
+        data.info ||
+        "";
+
+    }
+
+
+    if (downloadButton) {
+
+      downloadButton.href =
+        data.downloadUrl ||
+        data.url ||
+        "#";
+
+      downloadButton.style.display =
+        data.downloadUrl ||
+        data.url
+          ? "inline-flex"
+          : "none";
+
+    }
+
+
+    showStatus(
+      status,
+      "Media is ready.",
+      "success"
+    );
+
+
+  } catch (error) {
+
+    showStatus(
+      status,
+      error.message ||
+      "Something went wrong.",
+      "error"
+    );
+
+  } finally {
+
+    button.disabled =
+      false;
+
+  }
+
+}
+
+
+/* =========================================================
+   VIDEO TO SCRIPT
+========================================================= */
+
+async function prepareAudio() {
+
+  const input =
+    $("scriptUrlInput");
+
+  const button =
+    $("prepareAudioButton");
+
+  const status =
+    $("scriptStatus");
+
+  const result =
+    $("audioResult");
+
+  const audioPlayer =
+    $("audioPlayer");
+
+  const audioTitle =
+    $("audioTitle");
+
+
+  if (!input || !button) {
+    return;
+  }
+
+
+  const url =
+    input.value.trim();
+
+
+  if (!url) {
+
+    showStatus(
+      status,
+      "Please paste a video URL.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  hideElement(result);
+
+  button.disabled =
+    true;
+
+
+  showStatus(
+    status,
+    "Preparing audio. Please wait..."
+  );
+
+
+  try {
+
+    const response =
+      await fetch(
+        API_BASE +
+        "/api/audio?url=" +
+        encodeURIComponent(url)
+      );
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        "Unable to prepare audio."
+      );
+
+    }
+
+
+    const data =
+      await response.json();
+
+
+    if (!data || !data.ok) {
+
+      throw new Error(
+        data?.message ||
+        "Audio could not be prepared."
+      );
+
+    }
+
+
+    showElement(result);
+
+
+    if (audioTitle) {
+
+      audioTitle.textContent =
+        data.title ||
+        "Audio Ready";
+
+    }
+
+
+    if (audioPlayer) {
+
+      audioPlayer.src =
+        data.audioUrl ||
+        data.url ||
+        "";
+
+    }
+
+
+    showStatus(
+      status,
+      "Audio is ready. You can now generate the transcript.",
+      "success"
+    );
+
+
+  } catch (error) {
+
+    showStatus(
+      status,
+      error.message ||
+      "Something went wrong.",
+      "error"
+    );
+
+  } finally {
+
+    button.disabled =
+      false;
+
+  }
+
+}
+
+
+/* =========================================================
+   TRANSCRIPT
+========================================================= */
+
+async function generateTranscript() {
+
+  const input =
+    $("scriptUrlInput");
+
+  const button =
+    $("transcriptButton");
+
+  const status =
+    $("scriptStatus");
+
+  const transcriptResult =
+    $("transcriptResult");
+
+  const scriptText =
+    $("scriptText");
+
+  const languageInfo =
+    $("languageInfo");
+
+
+  if (!input || !button) {
+    return;
+  }
+
+
+  const url =
+    input.value.trim();
+
+
+  if (!url) {
+
+    showStatus(
+      status,
+      "Please paste a video URL first.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  button.disabled =
+    true;
+
+
+  showStatus(
+    status,
+    "Generating transcript. Please wait..."
+  );
+
+
+  try {
+
+    const response =
+      await fetch(
+        API_BASE +
+        "/api/transcript?url=" +
+        encodeURIComponent(url)
+      );
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        "Unable to generate transcript."
+      );
+
+    }
+
+
+    const data =
+      await response.json();
+
+
+    if (!data || !data.ok) {
+
+      throw new Error(
+        data?.message ||
+        "Transcript could not be generated."
+      );
+
+    }
+
+
+    if (scriptText) {
+
+      scriptText.value =
+        data.transcript ||
+        data.text ||
+        "";
+
+    }
+
+
+    if (languageInfo) {
+
+      languageInfo.textContent =
+        data.language
+          ? "Detected language: " +
+            data.language
+          : "";
+
+    }
+
+
+    if (transcriptResult) {
+
+      transcriptResult.style.display =
+        "block";
+
+    }
+
+
+    showStatus(
+      status,
+      "Transcript generated successfully.",
+      "success"
+    );
+
+
+  } catch (error) {
+
+    showStatus(
+      status,
+      error.message ||
+      "Something went wrong.",
+      "error"
+    );
+
+  } finally {
+
+    button.disabled =
+      false;
+
+  }
+
+}
+
+
+/* =========================================================
+   COPY TRANSCRIPT
+========================================================= */
+
+async function copyTranscript() {
+
+  const text =
+    $("scriptText");
+
+  const button =
+    $("copyScriptButton");
+
+
+  if (!text) {
+    return;
+  }
+
+
+  const value =
+    text.value.trim();
+
+
+  if (!value) {
+    return;
+  }
+
+
+  try {
+
+    await navigator.clipboard.writeText(
+      value
+    );
+
+
+    if (button) {
+
+      const oldText =
+        button.textContent;
+
+      button.textContent =
+        "Copied!";
+
+      setTimeout(
+        function() {
+
+          button.textContent =
+            oldText;
+
+        },
+        1500
+      );
+
+    }
+
+
+  } catch (error) {
+
+    text.select();
+
+    document.execCommand(
+      "copy"
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   DOWNLOAD TRANSCRIPT
+========================================================= */
+
+function downloadTranscript() {
+
+  const text =
+    $("scriptText");
+
+
+  if (!text) {
+    return;
+  }
+
+
+  const value =
+    text.value.trim();
+
+
+  if (!value) {
+    return;
+  }
+
+
+  const blob =
+    new Blob(
+      [value],
+      {
+        type:
+          "text/plain;charset=utf-8"
+      }
+    );
+
+
+  const url =
+    URL.createObjectURL(
+      blob
+    );
+
+
+  const link =
+    document.createElement(
+      "a"
+    );
+
+
+  link.href =
+    url;
+
+  link.download =
+    "socialtoolhub-transcript.txt";
+
+
+  document.body.appendChild(
+    link
+  );
+
+  link.click();
+
+  link.remove();
+
+
+  URL.revokeObjectURL(
+    url
+  );
+
+}
+
+
+/* =========================================================
+   BUTTON SETUP
+========================================================= */
+
+function setupButtons() {
+
+  const mediaButton =
+    $("mediaButton");
+
+  if (mediaButton) {
+
+    mediaButton.addEventListener(
+      "click",
+      downloadMedia
+    );
+
+  }
+
+
+  const prepareAudioButton =
+    $("prepareAudioButton");
+
+  if (prepareAudioButton) {
+
+    prepareAudioButton.addEventListener(
+      "click",
+      prepareAudio
+    );
+
+  }
+
+
+  const transcriptButton =
+    $("transcriptButton");
+
+  if (transcriptButton) {
+
+    transcriptButton.addEventListener(
+      "click",
+      generateTranscript
+    );
+
+  }
+
+
+  const copyScriptButton =
+    $("copyScriptButton");
+
+  if (copyScriptButton) {
+
+    copyScriptButton.addEventListener(
+      "click",
+      copyTranscript
+    );
+
+  }
+
+
+  const downloadTranscriptButton =
+    $("downloadTranscriptButton");
+
+  if (downloadTranscriptButton) {
+
+    downloadTranscriptButton.addEventListener(
+      "click",
+      downloadTranscript
+    );
+
+  }
+
+
+  const backButton =
+    $("backButton");
+
+  if (backButton) {
+
+    backButton.addEventListener(
+      "click",
+      function() {
+
+        navigateTo("/");
+
+      }
+    );
+
+  }
+
+}
+     TRANSCRIPT
+========================================================= */
+
+async function generateTranscript() {
+
+  const button =
+    $("transcriptButton");
+
+  const status =
+    $("scriptStatus");
+
+  const transcriptResult =
+    $("transcriptResult");
+
+  const scriptText =
+    $("scriptText");
+
+  const languageInfo =
+    $("languageInfo");
+
+
+  if (!button) return;
+
+
+  if (!currentJobId) {
+
+    showStatus(
+      status,
+      "Please prepare the audio first.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  button.disabled = true;
+
+
+  showStatus(
+    status,
+    "Generating transcript. Please wait..."
+  );
+
+
+  try {
+
+    const response =
+      await fetch(
+        API_BASE +
+        "/api/transcript",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+            jobId:
+              currentJobId
+          })
+        }
+      );
+
+
+    let data = null;
+
+    try {
+
+      data =
+        await response.json();
+
+    } catch {
+
+      data = null;
+
+    }
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        data?.error ||
+        "Transcript generation failed."
+      );
+
+    }
+
+
+    if (!data) {
+
+      throw new Error(
+        "The server returned an empty response."
+      );
+
+    }
+
+
+    const transcript =
+      data.transcript ||
+      data.text ||
+      data.result ||
+      "";
+
+
+    if (!transcript) {
+
+      throw new Error(
+        "No transcript was returned."
+      );
+
+    }
+
+
+    scriptText.value =
+      transcript;
+
+
+    const language =
+      data.language ||
+      data.detectedLanguage ||
+      data.detected_language ||
+      "";
+
+
+    if (language) {
+
+      languageInfo.textContent =
+        "Detected language: " +
+        language;
+
+      showElement(
+        languageInfo
+      );
+
+    } else {
+
+      hideElement(
+        languageInfo
+      );
+
+    }
+
+
+    showElement(
+      transcriptResult
+    );
+
+
+    showStatus(
+      status,
+      "Transcript generated successfully.",
+      "success"
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "TRANSCRIPT ERROR:",
+      error
+    );
+
+    showStatus(
+      status,
+      error.message ||
+      "Unable to generate transcript.",
+      "error"
+    );
+
+  } finally {
+
+    button.disabled =
+      false;
+
+  }
+
+}
+
+
+/* =========================================================
+   COPY SCRIPT
+========================================================= */
+
+async function copyTranscript() {
+
+  const text =
+    $("scriptText");
+
+  const button =
+    $("copyScriptButton");
+
+
+  if (!text) return;
+
+
+  const value =
+    text.value.trim();
+
+
+  if (!value) {
+
+    showStatus(
+      $("scriptStatus"),
+      "There is no transcript to copy.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  try {
+
+    await navigator.clipboard.writeText(
+      value
+    );
+
+
+    if (button) {
+
+      const original =
+        button.textContent;
+
+      button.textContent =
+        "Copied!";
+
+      setTimeout(
+        function() {
+
+          button.textContent =
+            original;
+
+        },
+        1500
+      );
+
+    }
+
+
+  } catch (error) {
+
+    text.focus();
+
+    text.select();
+
+    document.execCommand(
+      "copy"
+    );
+
+
+    if (button) {
+
+      button.textContent =
+        "Copied!";
+
+      setTimeout(
+        function() {
+
+          button.textContent =
+            "Copy Transcript";
+
+        },
+        1500
+      );
+
+    }
+
+  }
+
+}
+
+
+/* =========================================================
+   DOWNLOAD SCRIPT
+========================================================= */
+
+function downloadTranscript() {
+
+  const text =
+    $("scriptText");
+
+
+  if (!text) return;
+
+
+  const value =
+    text.value.trim();
+
+
+  if (!value) {
+
+    showStatus(
+      $("scriptStatus"),
+      "There is no transcript to download.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  const blob =
+    new Blob(
+      [value],
+      {
+        type:
+          "text/plain;charset=utf-8"
+      }
+    );
+
+
+  const url =
+    URL.createObjectURL(
+      blob
+    );
+
+
+  const link =
+    document.createElement(
+      "a"
+    );
+
+
+  link.href =
+    url;
+
+  link.download =
+    "socialtoolhub-transcript.txt";
+
+
+  document.body.appendChild(
+    link
+  );
+
+  link.click();
+
+  document.body.removeChild(
+    link
+  );
+
+
+  URL.revokeObjectURL(
+    url
+  );
+
+}
+
+
+/* =========================================================
+   DOWNLOAD BUTTON
+========================================================= */
+
+function setupDownloadButton() {
+
+  const button =
+    $("downloadButton");
+
+
+  if (!button) return;
+
+
+  button.addEventListener(
+    "click",
+    async function(event) {
+
+      event.preventDefault();
+
+
+      const url =
+        button.dataset.downloadUrl;
+
+
+      if (!url) {
+
+        showStatus(
+          $("mediaStatus"),
+          "Download link is not ready.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      button.disabled =
+        true;
+
+
+      const progress =
+        $("downloadProgress");
+
+      const progressBar =
+        $("downloadProgressBar");
+
+      const progressText =
+        $("downloadProgressText");
+
+      const progressPercent =
+        $("downloadProgressPercent");
+
+
+      if (progress) {
+
+        progress.classList.add(
+          "show"
+        );
+
+      }
+
+
+      if (progressBar) {
+
+        progressBar.style.width =
+          "0%";
+
+      }
+
+
+      if (progressPercent) {
+
+        progressPercent.textContent =
+          "0%";
+
+      }
+
+
+      if (progressText) {
+
+        progressText.textContent =
+          "Preparing download...";
+
+      }
+
+
+      try {
+
+        const response =
+          await fetch(url);
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            "Download request failed."
+          );
+
+        }
+
+
+        const contentLength =
+          response.headers.get(
+            "Content-Length"
+          );
+
+
+        const total =
+          contentLength
+            ? Number(contentLength)
+            : 0;
+
+
+        const reader =
+          response.body.getReader();
+
+
+        const chunks = [];
+
+        let received =
+          0;
+
+
+        while (true) {
+
+          const {
+            done,
+            value
+          } =
+            await reader.read();
+
+
+          if (done) break;
+
+
+          chunks.push(value);
+
+          received +=
+            value.length;
+
+
+          if (total > 0) {
+
+            const percent =
+              Math.round(
+                (received / total) *
+                100
+              );
+
+
+            if (progressBar) {
+
+              progressBar.style.width =
+                percent + "%";
+
+            }
+
+
+            if (progressPercent) {
+
+              progressPercent.textContent =
+                percent + "%";
+
+            }
+
+
+            if (progressText) {
+
+              progressText.textContent =
+                "Downloading...";
+
+            }
+
+          }
+
+        }
+
+
+        const blob =
+          new Blob(
+            chunks
+          );
+
+
+        const blobUrl =
+          URL.createObjectURL(
+            blob
+          );
+
+
+        const link =
+          document.createElement(
+            "a"
+          );
+
+
+        link.href =
+          blobUrl;
+
+        link.download =
+          "socialtoolhub-media";
+
+
+        document.body.appendChild(
+          link
+        );
+
+        link.click();
+
+        document.body.removeChild(
+          link
+        );
+
+
+        URL.revokeObjectURL(
+          blobUrl
+        );
+
+
+        if (progressBar) {
+
+          progressBar.style.width =
+            "100%";
+
+        }
+
+
+        if (progressPercent) {
+
+          progressPercent.textContent =
+            "100%";
+
+        }
+
+
+        if (progressText) {
+
+          progressText.textContent =
+            "Download complete.";
+
+        }
+
+
+      } catch (error) {
+
+        console.error(
+          "DOWNLOAD ERROR:",
+          error
+        );
+
+
+        showStatus(
+          $("mediaStatus"),
+          error.message ||
+          "Unable to download media.",
+          "error"
+        );
+
+
+        if (progressText) {
+
+          progressText.textContent =
+            "Download failed.";
+
+        }
+
+      } finally {
+
+        button.disabled =
+          false;
+
+      }
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   ENTER KEY SUPPORT
+========================================================= */
+
+function setupEnterKeys() {
+
+  const mediaInput =
+    $("mediaUrlInput");
+
+  if (mediaInput) {
+
+    mediaInput.addEventListener(
+      "keydown",
+      function(event) {
+
+        if (
+          event.key ===
+          "Enter"
+        ) {
+
+          event.preventDefault();
+
+          $("mediaButton")?.click();
+
+        }
+
+      }
+    );
+
+  }
+
+
+  const scriptInput =
+    $("scriptUrlInput");
+
+  if (scriptInput) {
+
+    scriptInput.addEventListener(
+      "keydown",
+      function(event) {
+
+        if (
+          event.key ===
+          "Enter"
+        ) {
+
+          event.preventDefault();
+
+          $("prepareAudioButton")?.click();
+
+        }
+
+      }
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   URL CLEAR BUTTON
+========================================================= */
+
+function updateUrlClearButton() {
+
+  const input =
+    $("mediaUrlInput");
+
+  const clearButton =
+    $("urlClearButton");
+
+
+  if (
+    !input ||
+    !clearButton
+  ) {
+
+    return;
+
+  }
+
+
+  clearButton.classList.toggle(
+    "show",
+    Boolean(input.value.trim())
+  );
+
+}
+
+
+function setupUrlClearButton() {
+
+  const input =
+    $("mediaUrlInput");
+
+  const clearButton =
+    $("urlClearButton");
+
+
+  if (
+    !input ||
+    !clearButton
+  ) {
+
+    return;
+
+  }
+
+
+  input.addEventListener(
+    "input",
+    updateUrlClearButton
+  );
+
+
+  clearButton.addEventListener(
+    "click",
+    function() {
+
+      input.value =
+        "";
+
+      updateUrlClearButton();
+
+      input.focus();
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   MENU BUTTON
+========================================================= */
+
+function setupMenu() {
+
+  const menuButton =
+    $("menuButton");
+
+  const menuPanel =
+    $("menuPanel");
+
+
+  if (
+    !menuButton ||
+    !menuPanel
+  ) {
+
+    return;
+
+  }
+
+
+  menuButton.addEventListener(
+    "click",
+    function() {
+
+      const open =
+        menuPanel.classList.toggle(
+          "open"
+        );
+
+      menuButton.setAttribute(
+        "aria-expanded",
+        open
+          ? "true"
+          : "false"
+      );
+
+    }
+  );
+
+
+  document.addEventListener(
+    "click",
+    function(event) {
+
+      if (
+        !menuPanel.contains(
+          event.target
+        ) &&
+        !menuButton.contains(
+          event.target
+        )
+      ) {
+
+        menuPanel.classList.remove(
+          "open"
+        );
+
+        menuButton.setAttribute(
+          "aria-expanded",
+          "false"
+        );
+
+      }
+
+    }
+  );
+
+}
