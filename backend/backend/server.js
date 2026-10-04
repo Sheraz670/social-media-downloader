@@ -358,11 +358,17 @@ function getYtDlpOptions(
 
   if (platform === "youtube") {
 
-    // Current yt-dlp requires an external
-    // JavaScript runtime for full YouTube support.
-    // Node 22+ is supported.
-    options.jsRuntimes = "node";
+  // Current yt-dlp requires an external
+  // JavaScript runtime for full YouTube support.
+  // Node 22+ is supported.
+  options.jsRuntimes = "node";
 
+  options.extractorArgs = {
+    youtube: {
+      player_client: ["web_safari"]
+    }
+  };
+  }
     /*
       EJS is installed through requirements.txt:
         yt-dlp-ejs
@@ -371,8 +377,6 @@ function getYtDlpOptions(
         remoteComponents: "ejs:npm"
 
       with Node.
-    */
-  }
 
   /*
   ================================================
