@@ -357,15 +357,14 @@ function getYtDlpOptions(
   */
 
   if (platform === "youtube") {
-
-  // Current yt-dlp requires an external
-  // JavaScript runtime for full YouTube support.
-  // Node 22+ is supported.
   options.jsRuntimes = "node";
 
   options.extractorArgs = {
     youtube: {
       player_client: ["web_safari"]
+    },
+    "youtubepot-bgutilhttp": {
+      base_url: "http://127.0.0.1:4416"
     }
   };
   }
