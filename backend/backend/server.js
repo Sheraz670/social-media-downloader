@@ -358,6 +358,7 @@ function getYtDlpOptions(
 
   if (platform === "youtube") {
   options.jsRuntimes = "node";
+  options.cookies = "/etc/secrets/youtube-cookies.txt";
 
   options.extractorArgs = {
     "youtubepot-bgutilhttp": {
