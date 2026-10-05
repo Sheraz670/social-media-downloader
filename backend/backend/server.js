@@ -361,7 +361,7 @@ function getYtDlpOptions(
 
   options.extractorArgs = {
     youtube: {
-      player_client: ["mweb"],
+      player_client: ["mweb", "default"],
       fetch_pot: "always"
     },
     "youtubepot-bgutilhttp": {
