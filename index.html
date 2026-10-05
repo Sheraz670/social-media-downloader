@@ -895,3 +895,795 @@ Download
 
 <div class="card" id="scriptCard">
   
+<h2 id="scriptHeading">
+Video to Script Generator
+</h2>
+
+<div class="card-description">
+Extract audio from a publicly accessible video, then generate
+a transcript in the original spoken language.
+</div>
+
+<div class="input-row">
+
+<input
+id="scriptUrlInput"
+type="url"
+placeholder="Paste video URL..."
+autocomplete="off"
+>
+
+<button
+id="prepareAudioButton"
+class="script-button"
+type="button"
+>
+Get Audio
+</button>
+
+</div>
+
+<div id="scriptStatus"></div>
+
+
+<div id="audioResult" class="result">
+
+<div class="script-card">
+
+<div class="script-title">
+Audio Ready
+</div>
+
+<div
+id="audioTitle"
+class="media-info"
+></div>
+
+<div class="audio-box">
+
+<div class="audio-title">
+Extracted Audio
+</div>
+
+<audio
+id="audioPlayer"
+controls
+preload="metadata"
+>
+Your browser does not support the audio player.
+</audio>
+
+</div>
+
+<div class="transcript-actions">
+
+<button
+id="transcriptButton"
+class="transcript-button"
+type="button"
+>
+Transcript
+</button>
+
+</div>
+
+<div id="languageInfo"></div>
+
+
+<div
+id="transcriptResult"
+style="display:none"
+>
+
+<div
+class="script-title"
+style="margin-top:20px"
+>
+Generated Transcript
+</div>
+
+<textarea
+id="scriptText"
+readonly
+placeholder="Your transcript will appear here..."
+></textarea>
+
+<div class="transcript-actions">
+
+<button
+id="copyScriptButton"
+type="button"
+>
+Copy Transcript
+</button>
+
+<button
+id="downloadTranscriptButton"
+class="script-download"
+type="button"
+>
+Download TXT
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="notice">
+<strong>Important:</strong>
+Only download or transcribe content that you own or have
+permission to use. SocialToolHub does not bypass private
+content, DRM, login restrictions, or other access controls.
+</div>
+
+</div>
+
+</section>
+
+
+<!-- SEO CONTENT -->
+
+<section
+class="content-section"
+id="seoSection"
+>
+
+<h2 id="seoTitle">
+Online Media Tools
+</h2>
+
+<div id="seoContent">
+
+<p>
+SocialToolHub provides simple tools for working with publicly
+accessible media URLs and generating transcripts from supported
+videos.
+</p>
+
+</div>
+
+</section>
+
+
+<!-- PLATFORM LINKS -->
+
+<section
+class="content-section"
+id="platforms"
+>
+
+<h2>
+Popular SocialToolHub Tools
+</h2>
+
+<p>
+Choose a dedicated tool page for the platform or task you need.
+</p>
+
+<div class="platform-links">
+
+<a href="#/tiktok-video-downloader">
+<strong>TikTok Video Downloader</strong><br>
+Download available media from supported public TikTok URLs.
+</a>
+
+<a href="#/instagram-video-downloader">
+<strong>Instagram Video Downloader</strong><br>
+Process supported publicly accessible Instagram media URLs.
+</a>
+
+<a href="#/facebook-video-downloader">
+<strong>Facebook Video Downloader</strong><br>
+Process supported publicly accessible Facebook media URLs.
+</a>
+
+<a href="#/youtube-video-downloader">
+<strong>YouTube Video Downloader</strong><br>
+Process supported publicly accessible YouTube media URLs.
+</a>
+
+<a href="#/video-to-script">
+<strong>Video to Script Generator</strong><br>
+Extract audio and generate a transcript in the detected spoken language.
+</a>
+
+</div>
+
+</section>
+
+
+<!-- ABOUT -->
+
+<section
+class="content-section"
+id="about"
+>
+
+<h2>
+About Us
+</h2>
+
+<p>
+SocialToolHub is a simple online media utility designed to help
+users process publicly accessible media when they have the
+necessary rights or permission to do so.
+</p>
+
+<p style="margin-top:12px">
+Our goal is to provide a straightforward interface for common
+media-processing tasks without requiring users to install
+additional desktop software.
+</p>
+
+</section>
+
+
+<!-- HOW IT WORKS -->
+
+<section
+class="content-section"
+id="how"
+>
+
+<h2>
+How It Works
+</h2>
+
+<h3>
+1. Choose a Tool
+</h3>
+
+<p>
+Select the downloader for the platform you are using, or choose
+Video to Script when you want to extract spoken content as text.
+</p>
+
+<h3>
+2. Enter the Public URL
+</h3>
+
+<p>
+Paste the supported public media URL into the appropriate input
+field and select the processing button.
+</p>
+
+<h3>
+3. Download Media or Extract Audio
+</h3>
+
+<p>
+For supported media URLs, SocialToolHub can request available
+media information or prepare an audio file for transcription.
+</p>
+
+<h3>
+4. Generate a Transcript
+</h3>
+
+<p>
+After audio preparation is complete, select Transcript. The
+transcription service detects the spoken language and generates
+text in that language.
+</p>
+
+<h3>
+5. Copy or Download the Transcript
+</h3>
+
+<p>
+The generated transcript can be copied to the clipboard or
+downloaded as a TXT file.
+</p>
+
+</section>
+
+
+<!-- PRIVACY -->
+
+<section
+class="content-section"
+id="privacy"
+>
+
+<h2>
+Privacy Policy
+</h2>
+
+<p>
+SocialToolHub is designed to minimize unnecessary collection of
+personal information. The service mainly processes URLs submitted
+by users so that the requested media operation can be performed.
+</p>
+
+<h3>
+Information We Process
+</h3>
+
+<p>
+When you submit a media URL, that URL is sent to the SocialToolHub
+backend for processing. Normal technical information may also be
+processed by the hosting infrastructure as part of operating and
+securing the website.
+</p>
+
+<h3>
+Cookies
+</h3>
+
+<p>
+SocialToolHub itself does not require users to create an account
+to use the basic media tools. If advertising, analytics, or other
+third-party services are added, those services may use cookies or
+similar technologies according to their own policies.
+</p>
+
+<h3>
+Third-Party Platforms
+</h3>
+
+<p>
+Media URLs may point to third-party platforms. Those platforms
+have their own terms, privacy policies, copyright rules, and
+technical restrictions.
+</p>
+
+<h3>
+Data Retention
+</h3>
+
+<p>
+Temporary media-processing data may be stored by the backend while
+a request is being processed. Temporary data should not be treated
+as permanent storage or personal cloud storage.
+</p>
+
+</section>
+
+
+<!-- TERMS -->
+
+<section
+class="content-section"
+id="terms"
+>
+
+<h2>
+Terms of Service
+</h2>
+
+<p>
+By using SocialToolHub, you agree to use the service only for
+lawful purposes and in accordance with applicable laws and the
+rights of content owners.
+</p>
+
+<h3>
+Acceptable Use
+</h3>
+
+<ul>
+
+<li>
+Use the service only for lawful purposes.
+</li>
+
+<li>
+Process or download content only when you have the necessary
+rights or permission.
+</li>
+
+<li>
+Do not attempt to bypass DRM, private access, login restrictions,
+or security controls.
+</li>
+
+<li>
+Do not use the service to infringe copyright or other intellectual
+property rights.
+</li>
+
+<li>
+Do not attempt to interfere with the operation or security of
+SocialToolHub or its infrastructure.
+</li>
+
+</ul>
+
+<h3>
+Service Availability
+</h3>
+
+<p>
+SocialToolHub does not guarantee that every URL, media format,
+website, or platform will always be supported. Third-party
+technical changes can affect availability.
+</p>
+
+</section>
+
+
+<!-- DISCLAIMER -->
+
+<section
+class="content-section"
+id="disclaimer"
+>
+
+<h2>
+Disclaimer
+</h2>
+
+<p>
+SocialToolHub is a media utility. Users are responsible for
+ensuring that they have the legal right or permission to download,
+process, or transcribe content submitted to the service.
+</p>
+
+<p style="margin-top:12px">
+SocialToolHub does not encourage copyright infringement,
+unauthorized downloading, or circumvention of access controls.
+</p>
+
+<p style="margin-top:12px">
+The availability of a technical processing option does not mean
+that a particular use of that option is legally permitted.
+</p>
+
+</section>
+
+
+<!-- COPYRIGHT -->
+
+<section
+class="content-section"
+id="copyright"
+>
+
+<h2>
+Copyright & DMCA
+</h2>
+
+<p>
+SocialToolHub respects intellectual property rights and the rights
+of copyright owners.
+</p>
+
+<h3>
+Copyright Concerns
+</h3>
+
+<p>
+If you believe that content or functionality associated with
+SocialToolHub infringes your rights, please provide sufficient
+information to identify the material and explain the basis of your
+request.
+</p>
+
+<h3>
+Contact Information
+</h3>
+
+<p>
+A real contact email should be added to this page before publishing
+a formal copyright notice process.
+</p>
+
+</section>
+
+
+<!-- CONTACT -->
+
+<section
+class="content-section"
+id="contact"
+>
+
+<h2>
+Contact Us
+</h2>
+
+<p>
+For technical questions, copyright concerns, privacy questions,
+or other website-related inquiries, please use your real support
+email address.
+</p>
+
+<p style="margin-top:12px">
+<strong>Important:</strong>
+Replace the contact information with an email address that you
+actually control before publishing the website.
+</p>
+
+</section>
+
+
+<!-- FAQ -->
+
+<section
+class="content-section"
+id="faq"
+>
+
+<h2>
+Frequently Asked Questions
+</h2>
+
+<div id="faqContent">
+
+<details class="faq-item">
+<summary>
+What URLs can SocialToolHub process?
+</summary>
+
+<p class="faq-answer">
+SocialToolHub is designed for supported publicly accessible
+YouTube, TikTok, Facebook, and Instagram URLs.
+</p>
+
+</details>
+
+
+<details class="faq-item">
+<summary>
+Can I generate a transcript from a video?
+</summary>
+
+<p class="faq-answer">
+Yes. Use Video to Script, prepare the audio, and then select
+Transcript. The transcription service detects the spoken language.
+</p>
+
+</details>
+
+
+<details class="faq-item">
+<summary>
+Does the transcript translate the video?
+</summary>
+
+<p class="faq-answer">
+No. The transcript is generated in the detected spoken language.
+It is not automatically translated into another language.
+</p>
+
+</details>
+
+
+<details class="faq-item">
+<summary>
+Can private or login-protected content be processed?
+</summary>
+
+<p class="faq-answer">
+No. SocialToolHub is intended for publicly accessible content
+and does not bypass private access, login restrictions, or DRM.
+</p>
+
+</details>
+
+</div>
+
+</section>
+
+</main>
+
+
+<footer>
+
+<div class="footer-inner">
+
+<div class="footer-links">
+
+<a href="/">
+Home
+</a>
+
+<a href="#/tiktok-video-downloader">
+TikTok Downloader
+</a>
+
+<a href="#/instagram-video-downloader">
+Instagram Downloader
+</a>
+
+<a href="#/facebook-video-downloader">
+Facebook Downloader
+</a>
+
+<a href="#/youtube-video-downloader">
+YouTube Downloader
+</a>
+
+<a href="#/video-to-script">
+Video to Script
+</a>
+
+<a href="#about">
+About Us
+</a>
+
+<a href="#how">
+How It Works
+</a>
+
+<a href="#privacy">
+Privacy
+</a>
+
+<a href="#terms">
+Terms
+</a>
+
+<a href="#disclaimer">
+Disclaimer
+</a>
+
+<a href="#copyright">
+Copyright / DMCA
+</a>
+
+<a href="#contact">
+Contact
+</a>
+
+</div>
+
+<div class="copyright">
+© 2026 SocialToolHub. All rights reserved.
+</div>
+
+</div>
+
+</footer>
+
+
+<script>
+
+/* =========================================================
+   CONFIG
+========================================================= */
+
+const API_BASE =
+  "https://social-media-downloader-f8pv.onrender.com";
+
+
+/* =========================================================
+   PAGE CONFIG
+========================================================= */
+
+const pages = {
+
+  "/": {
+    title: "SocialToolHub — Media Downloader & Video to Script",
+    description:
+      "SocialToolHub provides simple tools for processing publicly accessible YouTube, TikTok, Facebook and Instagram media URLs and generating video transcripts.",
+    heading:
+      'Download Your <span class="gradient">Media</span>',
+    intro:
+      "Paste a publicly accessible media URL to download available media or extract audio and generate a text transcript.",
+    mediaHeading:
+      "Media Downloader",
+    mediaDescription:
+      "Download available media from a publicly accessible YouTube, TikTok, Facebook or Instagram URL.",
+    placeholder:
+      "Paste video URL for download...",
+    button:
+      "Get Media",
+    seoTitle:
+      "Online Media Tools",
+    seo: `
+      <p>
+        SocialToolHub provides simple online tools for working with
+        publicly accessible media URLs. Supported tools include
+        YouTube, TikTok, Facebook and Instagram media processing,
+        along with video-to-script transcription.
+      </p>
+
+      <h3>Video to Script</h3>
+
+      <p>
+        Use the Video to Script Generator to extract audio from a
+        supported public video and generate a transcript in the
+        detected spoken language.
+      </p>
+    `
+  },
+
+  "/tiktok-video-downloader": {
+    title:
+      "TikTok Video Downloader — SocialToolHub",
+    description:
+      "Use SocialToolHub to process publicly accessible TikTok video URLs and download available media.",
+    heading:
+      'TikTok Video <span class="gradient">Downloader</span>',
+    intro:
+      "Paste a publicly accessible TikTok video URL to process available media.",
+    mediaHeading:
+      "TikTok Video Downloader",
+    mediaDescription:
+      "Enter a public TikTok video URL and SocialToolHub will request available media information.",
+    placeholder:
+      "Paste TikTok video URL...",
+    button:
+      "Get TikTok Video",
+    seoTitle:
+      "TikTok Video Downloader",
+    seo: `
+      <p>
+        SocialToolHub provides a simple TikTok video downloader
+        interface for publicly accessible TikTok URLs.
+      </p>
+
+      <h3>How to use the TikTok downloader</h3>
+
+      <p>
+        Copy the URL of the TikTok video you want to process,
+        paste it into the downloader above, and select the
+        processing button.
+      </p>
+
+      <h3>Public content only</h3>
+
+      <p>
+        The service is intended for publicly accessible content
+        and does not bypass private accounts, login restrictions,
+        DRM or other access controls.
+      </p>
+    `
+  },
+
+  "/instagram-video-downloader": {
+    title:
+      "Instagram Video Downloader — SocialToolHub",
+    description:
+      "Process publicly accessible Instagram video URLs with the SocialToolHub Instagram Video Downloader.",
+    heading:
+      'Instagram Video <span class="gradient">Downloader</span>',
+    intro:
+      "Paste a publicly accessible Instagram video URL to process available media.",
+    mediaHeading:
+      "Instagram Video Downloader",
+    mediaDescription:
+      "Enter a public Instagram video URL and SocialToolHub will request available media information.",
+    placeholder:
+      "Paste Instagram video URL...",
+    button:
+      "Get Instagram Video",
+    seoTitle:
+      "Instagram Video Downloader",
+    seo: `
+      <p>
+        SocialToolHub provides a simple Instagram video downloader
+        interface for publicly accessible Instagram media URLs.
+      </p>
+
+      <h3>How to use the Instagram downloader</h3>
+
+      <p>
+        Copy the Instagram video URL, paste it into the input field,
+        and select the processing button.
+      </p>
+
+      <h3>Supported public media</h3>
+
+      <p>
+        Processing depends on the availability and technical
+        accessibility of the public media URL.
+      </p>
+    `
+  },
+
+  "/facebook-video-downloader": {
+    title:
+      "Facebook Video Downloader — SocialToolHub",
+    description:
+      "Process publicly accessible Facebook video URLs with the SocialToolHub Facebook Video Downloader.",
+  
+  
