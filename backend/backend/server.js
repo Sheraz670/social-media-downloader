@@ -1392,11 +1392,7 @@ app.use(
   }
 );
 
-app.listen(
-  PORT,
-  "0.0.0.0",
-  () => {
-    /*
+/*
 ==================================================
 AI MOVIE EXPLAINER
 ==================================================
@@ -1451,37 +1447,36 @@ app.post(
 
       if (!process.env.GEMINI_API_KEY) {
         return res.status(500).json({
-          error: "Gemini API key is not configured on the server."
+          error:
+            "Gemini API key is not configured on the server."
         });
       }
 
       const prompt = `
-You are a professional YouTube movie-explanation scriptwriter.
+You are a professional YouTube movie explanation scriptwriter.
 
-Create an ORIGINAL movie explanation script.
+Create an ORIGINAL movie explanation script for:
 
-Movie or input:
 ${input}
 
-Required language:
-${language}
+Language: ${language}
+Target duration: approximately ${duration} minutes.
 
-Required duration:
-Approximately ${duration} minutes.
+Requirements:
 
-IMPORTANT:
-- Write the complete narration as a continuous voiceover script.
+- Write a complete voiceover narration.
+- Start with a strong hook.
+- Explain the important story events in chronological order.
+- Keep the narration engaging and easy to understand.
+- Use natural ${language}.
 - Do not use headings.
 - Do not use bullet points.
-- Do not add timestamps.
-- Do not say "here is the explanation".
-- Start with a strong hook.
-- Keep the narration engaging and easy to understand.
-- Cover the important story events in logical order.
-- Do not invent scenes, characters, dialogue, or facts.
-- Do not reproduce the movie's original dialogue.
-- Summarize the story in your own words.
-- Make it suitable for a YouTube movie-explanation channel.
+- Do not use timestamps.
+- Do not reproduce movie dialogue.
+- Do not copy the movie's screenplay.
+- Do not invent characters, scenes, or events.
+- Summarize everything in your own words.
+- Make the script suitable for a YouTube movie explanation video.
 - End naturally.
 `;
 
@@ -1530,7 +1525,9 @@ IMPORTANT:
 
       const script =
         data?.candidates?.[0]?.content?.parts
-          ?.map(part => part.text || "")
+          ?.map(
+            part => part.text || ""
+          )
           .join("")
           .trim();
 
@@ -1570,11 +1567,14 @@ IMPORTANT:
           error.message ||
           "Unable to generate movie explanation."
       });
-
     }
-
   }
 );
+
+app.listen(
+  PORT,
+  "0.0.0.0",
+  () => {
     console.log(
       `SocialToolHub API running on port ${PORT}`
     );
