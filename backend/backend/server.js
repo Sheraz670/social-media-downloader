@@ -358,15 +358,6 @@ function getYtDlpOptions(
 
   if (platform === "youtube") {
   options.jsRuntimes = "node";
-
-  options.extractorArgs = {
-    youtube: {
-      player_client: ["web_safari"]
-    },
-    "youtubepot-bgutilhttp": {
-      base_url: "http://127.0.0.1:4416"
-    }
-  };
   }
     /*
       EJS is installed through requirements.txt:
