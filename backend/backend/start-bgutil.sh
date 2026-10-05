@@ -14,4 +14,4 @@ npm ci
 npm install --include=dev --save-dev typescript
 ./node_modules/.bin/tsc
 
-node build/main.js --host 127.0.0.1 --port 4416 &
+exec node build/main.js --host 127.0.0.1 --port 4416
