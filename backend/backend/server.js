@@ -1445,13 +1445,6 @@ app.post(
         });
       }
 
-      if (!process.env.GEMINI_API_KEY) {
-        return res.status(500).json({
-          error:
-            "Gemini API key is not configured on the server."
-        });
-      }
-
       const prompt = `
 You are a professional YouTube movie explanation scriptwriter.
 
@@ -1480,63 +1473,170 @@ Requirements:
 - End naturally.
 `;
 
-      const response =
-        await fetch(
-          "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
-          {
-            method: "POST",
+      let script = "";
+      let lastError = "";
 
-            headers: {
-              "Content-Type": "application/json",
-              "x-goog-api-key":
-                process.env.GEMINI_API_KEY
-            },
+      /*
+      ================================================
+      TRY 1: GROQ
+      ================================================
+      */
 
-            body: JSON.stringify({
-              contents: [
-                {
-                  parts: [
+      if (process.env.GROQ_API_KEY) {
+
+        try {
+
+          const groqResponse =
+            await fetch(
+              "https://api.groq.com/openai/v1/chat/completions",
+              {
+                method: "POST",
+
+                headers: {
+                  "Content-Type": "application/json",
+                  "Authorization":
+                    `Bearer ${process.env.GROQ_API_KEY}`
+                },
+
+                body: JSON.stringify({
+                  model: "llama-3.3-70b-versatile",
+
+                  messages: [
                     {
-                      text: prompt
+                      role: "user",
+                      content: prompt
+                    }
+                  ],
+
+                  temperature: 0.7
+                })
+              }
+            );
+
+          const groqData =
+            await groqResponse.json();
+
+          if (groqResponse.ok) {
+
+            script =
+              groqData?.choices?.[0]?.message?.content
+                ?.trim() || "";
+
+          } else {
+
+            lastError =
+              groqData?.error?.message ||
+              "Groq API request failed.";
+
+            console.error(
+              "GROQ ERROR:",
+              groqData
+            );
+          }
+
+        } catch (error) {
+
+          lastError = error.message;
+
+          console.error(
+            "GROQ CONNECTION ERROR:",
+            error
+          );
+        }
+      }
+
+
+      /*
+      ================================================
+      TRY 2: GEMINI BACKUP
+      ================================================
+      */
+
+      if (!script && process.env.GEMINI_API_KEY) {
+
+        try {
+
+          const geminiResponse =
+            await fetch(
+              "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
+              {
+                method: "POST",
+
+                headers: {
+                  "Content-Type": "application/json",
+                  "x-goog-api-key":
+                    process.env.GEMINI_API_KEY
+                },
+
+                body: JSON.stringify({
+                  contents: [
+                    {
+                      parts: [
+                        {
+                          text: prompt
+                        }
+                      ]
                     }
                   ]
-                }
-              ]
-            })
+                })
+              }
+            );
+
+          const geminiData =
+            await geminiResponse.json();
+
+          if (geminiResponse.ok) {
+
+            script =
+              geminiData
+                ?.candidates?.[0]
+                ?.content?.parts
+                ?.map(
+                  part => part.text || ""
+                )
+                .join("")
+                .trim() || "";
+
+          } else {
+
+            lastError =
+              geminiData?.error?.message ||
+              "Gemini API request failed.";
+
+            console.error(
+              "GEMINI ERROR:",
+              geminiData
+            );
           }
-        );
 
-      const data =
-        await response.json();
+        } catch (error) {
 
-      if (!response.ok) {
+          lastError = error.message;
 
-        console.error(
-          "GEMINI ERROR:",
-          data
-        );
-
-        return res.status(500).json({
-          error:
-            data?.error?.message ||
-            "Gemini API request failed."
-        });
+          console.error(
+            "GEMINI CONNECTION ERROR:",
+            error
+          );
+        }
       }
 
-      const script =
-        data?.candidates?.[0]?.content?.parts
-          ?.map(
-            part => part.text || ""
-          )
-          .join("")
-          .trim();
+
+      /*
+      ================================================
+      FINAL RESULT
+      ================================================
+      */
 
       if (!script) {
-        return res.status(500).json({
+
+        return res.status(503).json({
           error:
-            "Gemini did not return a script."
+            "Both AI services are currently unavailable. " +
+            (lastError || "Please try again later.")
         });
+
       }
+
 
       return res.json({
 
@@ -1567,9 +1667,12 @@ Requirements:
           error.message ||
           "Unable to generate movie explanation."
       });
+
     }
+
   }
 );
+
 
 app.listen(
   PORT,
