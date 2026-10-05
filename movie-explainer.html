@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Movie Explainer</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 40px 20px;
+      background: #f5f5f5;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    p {
+      text-align: center;
+      color: #666;
+    }
+
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 15px;
+      margin-top: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      margin-top: 15px;
+      border: 0;
+      border-radius: 8px;
+      background: #111;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #status {
+      margin-top: 20px;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <h1>🎬 AI Movie Explainer</h1>
+
+    <p>
+      Create an original movie explanation with AI narration.
+    </p>
+
+    <input
+      type="text"
+      id="movieInput"
+      placeholder="Enter movie name or permitted video URL"
+    >
+
+    <button onclick="generateExplanation()">
+      Generate Explanation
+    </button>
+
+    <div id="status"></div>
+
+  </div>
+
+  <script>
+    function generateExplanation() {
+      const input = document.getElementById("movieInput").value.trim();
+      const status = document.getElementById("status");
+
+      if (!input) {
+        status.textContent = "Please enter a movie name or video URL.";
+        return;
+      }
+
+      status.textContent = "Coming soon...";
+    }
+  </script>
+
+</body>
+</html>
