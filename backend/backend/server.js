@@ -1396,6 +1396,185 @@ app.listen(
   PORT,
   "0.0.0.0",
   () => {
+    /*
+==================================================
+AI MOVIE EXPLAINER
+==================================================
+*/
+
+app.post(
+  "/api/movie-explainer",
+  async (req, res) => {
+
+    try {
+
+      const input =
+        req.body?.input?.trim();
+
+      const duration =
+        Number(req.body?.duration || 10);
+
+      const language =
+        req.body?.language || "English";
+
+      if (!input) {
+        return res.status(400).json({
+          error: "Movie name is required."
+        });
+      }
+
+      const allowedDurations = [
+        5,
+        8,
+        10,
+        12,
+        15
+      ];
+
+      if (!allowedDurations.includes(duration)) {
+        return res.status(400).json({
+          error: "Invalid script duration."
+        });
+      }
+
+      const allowedLanguages = [
+        "English",
+        "Urdu",
+        "Hindi"
+      ];
+
+      if (!allowedLanguages.includes(language)) {
+        return res.status(400).json({
+          error: "Invalid language."
+        });
+      }
+
+      if (!process.env.GEMINI_API_KEY) {
+        return res.status(500).json({
+          error: "Gemini API key is not configured on the server."
+        });
+      }
+
+      const prompt = `
+You are a professional YouTube movie-explanation scriptwriter.
+
+Create an ORIGINAL movie explanation script.
+
+Movie or input:
+${input}
+
+Required language:
+${language}
+
+Required duration:
+Approximately ${duration} minutes.
+
+IMPORTANT:
+- Write the complete narration as a continuous voiceover script.
+- Do not use headings.
+- Do not use bullet points.
+- Do not add timestamps.
+- Do not say "here is the explanation".
+- Start with a strong hook.
+- Keep the narration engaging and easy to understand.
+- Cover the important story events in logical order.
+- Do not invent scenes, characters, dialogue, or facts.
+- Do not reproduce the movie's original dialogue.
+- Summarize the story in your own words.
+- Make it suitable for a YouTube movie-explanation channel.
+- End naturally.
+`;
+
+      const response =
+        await fetch(
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json",
+              "x-goog-api-key":
+                process.env.GEMINI_API_KEY
+            },
+
+            body: JSON.stringify({
+              contents: [
+                {
+                  parts: [
+                    {
+                      text: prompt
+                    }
+                  ]
+                }
+              ]
+            })
+          }
+        );
+
+      const data =
+        await response.json();
+
+      if (!response.ok) {
+
+        console.error(
+          "GEMINI ERROR:",
+          data
+        );
+
+        return res.status(500).json({
+          error:
+            data?.error?.message ||
+            "Gemini API request failed."
+        });
+      }
+
+      const script =
+        data?.candidates?.[0]?.content?.parts
+          ?.map(part => part.text || "")
+          .join("")
+          .trim();
+
+      if (!script) {
+        return res.status(500).json({
+          error:
+            "Gemini did not return a script."
+        });
+      }
+
+      return res.json({
+
+        success: true,
+
+        title: input,
+
+        duration: duration,
+
+        language: language,
+
+        script: script,
+
+        message:
+          "✅ Movie explanation script generated successfully."
+
+      });
+
+    } catch (error) {
+
+      console.error(
+        "MOVIE EXPLAINER ERROR:",
+        error
+      );
+
+      return res.status(500).json({
+        error:
+          error.message ||
+          "Unable to generate movie explanation."
+      });
+
+    }
+
+  }
+);
     console.log(
       `SocialToolHub API running on port ${PORT}`
     );
