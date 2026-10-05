@@ -2393,6 +2393,756 @@ async function prepareAudio() {
     showStatus(
       status,
       "Audio is ready. You can play it or select Transcript.",
+            "success"
+    );
+
+    $("audioPlayer").load();
+
+  } catch (error) {
+
+    console.error(error);
+
+    showStatus(
+      status,
+      error.message ||
+      "Unable to extract audio.",
+      "error"
+    );
+
+  } finally {
+
+    button.disabled = false;
+  }
+}
+
+
+/* =========================================================
+   TRANSCRIPT
+========================================================= */
+
+async function generateTranscript() {
+
+  const button =
+    $("transcriptButton");
+
+  const status =
+    $("scriptStatus");
+
+  const languageInfo =
+    $("languageInfo");
+
+  const transcriptResult =
+    $("transcriptResult");
+
+  const scriptText =
+    $("scriptText");
+
+  if (!currentJobId) {
+
+    showStatus(
+      status,
+      "Please extract the audio first.",
+      "error"
+    );
+
+    return;
+  }
+
+  button.disabled = true;
+
+  hideElement(transcriptResult);
+
+  hideElement(languageInfo);
+
+  showStatus(
+    status,
+    "Generating transcript. This may take some time..."
+  );
+
+  try {
+
+    const response =
+      await fetch(
+        API_BASE +
+        "/api/transcribe/" +
+        encodeURIComponent(
+          currentJobId
+        ),
+        {
+          method: "POST"
+        }
+      );
+
+    let data = null;
+
+    try {
+      data = await response.json();
+    } catch {
+      data = null;
+    }
+
+    if (!response.ok) {
+
+      throw new Error(
+        data?.error ||
+        "Transcription failed."
+      );
+    }
+
+    if (!data) {
+
+      throw new Error(
+        "The transcription server returned an empty response."
+      );
+    }
+
+    const transcript =
+      data.transcript ||
+      data.text ||
+      "";
+
+    if (!transcript.trim()) {
+
+      throw new Error(
+        "No transcript was generated."
+      );
+    }
+
+    scriptText.value =
+      transcript;
+
+    const language =
+      data.language ||
+      data.detectedLanguage ||
+      data.detected_language;
+
+    if (language) {
+
+      languageInfo.textContent =
+        "Detected language: " +
+        language;
+
+      showElement(languageInfo);
+    }
+
+    showElement(transcriptResult);
+
+    showStatus(
+      status,
+      "Transcript generated successfully.",
+      "success"
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
+    showStatus(
+      status,
+      error.message ||
+      "Unable to generate transcript.",
+      "error"
+    );
+
+  } finally {
+
+    button.disabled = false;
+  }
+}
+
+
+/* =========================================================
+   COPY TRANSCRIPT
+========================================================= */
+
+async function copyTranscript() {
+
+  const text =
+    $("scriptText")?.value || "";
+
+  const button =
+    $("copyScriptButton");
+
+  const status =
+    $("scriptStatus");
+
+  if (!text.trim()) {
+
+    showStatus(
+      status,
+      "There is no transcript to copy.",
+      "error"
+    );
+
+    return;
+  }
+
+  try {
+
+    await navigator.clipboard.writeText(
+      text
+    );
+
+    const oldText =
+      button.textContent;
+
+    button.textContent =
+      "Copied!";
+
+    showStatus(
+      status,
+      "Transcript copied to clipboard.",
+      "success"
+    );
+
+    setTimeout(() => {
+
+      button.textContent =
+        oldText;
+
+    }, 1500);
+
+  } catch (error) {
+
+    console.error(error);
+
+    showStatus(
+      status,
+      "Could not copy the transcript.",
+      "error"
+    );
+  }
+}
+
+
+/* =========================================================
+   DOWNLOAD TXT
+========================================================= */
+
+function downloadTranscript() {
+
+  const text =
+    $("scriptText")?.value || "";
+
+  const status =
+    $("scriptStatus");
+
+  if (!text.trim()) {
+
+    showStatus(
+      status,
+      "There is no transcript to download.",
+      "error"
+    );
+
+    return;
+  }
+
+  const blob =
+    new Blob(
+      [text],
+      {
+        type:
+          "text/plain;charset=utf-8"
+      }
+    );
+
+  const url =
+    URL.createObjectURL(blob);
+
+  const link =
+    document.createElement("a");
+
+  link.href = url;
+
+  link.download =
+    "socialtoolhub-transcript.txt";
+
+  document.body.appendChild(link);
+
+  link.click();
+
+  link.remove();
+
+  URL.revokeObjectURL(url);
+
+  showStatus(
+    status,
+    "Transcript TXT file downloaded.",
+    "success"
+  );
+}
+
+
+/* =========================================================
+   ENTER KEY SUPPORT
+========================================================= */
+
+function setupEnterKeys() {
+
+  $("mediaUrlInput")?.addEventListener(
+    "keydown",
+    function(event) {
+
+      if (event.key === "Enter") {
+
+        event.preventDefault();
+
+        downloadMedia();
+      }
+
+    }
+  );
+
+
+$("scriptUrlInput")?.addEventListener(
+  "keydown",
+  function(event) {
+
+    if (event.key === "Enter") {
+
+      event.preventDefault();
+
+      prepareAudio();
+    }
+
+  }
+  );
+}
+
+
+
+/* =========================================================
+   STREAM DOWNLOAD + PROGRESS
+========================================================= */
+
+let pendingDownloadUrl = null;
+let downloadController = null;
+
+function showDownloadProgress() {
+  const box = $("downloadProgress");
+  const bar = $("downloadProgressBar");
+  const text = $("downloadProgressText");
+  const percent = $("downloadProgressPercent");
+
+  if (box) box.classList.add("show");
+  if (bar) {
+    bar.classList.remove("indeterminate");
+    bar.style.width = "0%";
+  }
+  if (text) text.textContent = "Starting download...";
+  if (percent) percent.textContent = "0%";
+}
+
+function hideDownloadProgress() {
+  $("downloadProgress")?.classList.remove("show");
+}
+
+function updateDownloadProgress(loaded, total) {
+  const bar = $("downloadProgressBar");
+  const text = $("downloadProgressText");
+  const percent = $("downloadProgressPercent");
+
+  if (!bar || !text || !percent) return;
+
+  if (total && total > 0) {
+    const value = Math.min(100, Math.round((loaded / total) * 100));
+    bar.classList.remove("indeterminate");
+    bar.style.width = value + "%";
+    percent.textContent = value + "%";
+
+    const loadedMB = (loaded / 1024 / 1024).toFixed(1);
+    const totalMB = (total / 1024 / 1024).toFixed(1);
+
+    text.textContent =
+      "Downloading " + loadedMB + " MB of " + totalMB + " MB";
+  } else {
+    bar.classList.add("indeterminate");
+    percent.textContent = "…";
+    text.textContent = "Downloading video...";
+  }
+}
+
+function showDownloadConfirm(url) {
+  pendingDownloadUrl = url;
+
+  const modal = $("downloadConfirmModal");
+  if (modal) modal.classList.add("show");
+}
+
+function closeDownloadConfirm() {
+  pendingDownloadUrl = null;
+
+  const modal = $("downloadConfirmModal");
+  if (modal) modal.classList.remove("show");
+}
+
+async function startVideoDownload(url) {
+  if (!url) return;
+
+  const confirmButton = $("downloadConfirmButton");
+  const cancelButton = $("downloadCancelButton");
+  const downloadButton = $("downloadButton");
+
+  if (confirmButton) confirmButton.disabled = true;
+  if (cancelButton) cancelButton.disabled = true;
+  if (downloadButton) downloadButton.style.pointerEvents = "none";
+
+  showDownloadProgress();
+
+  downloadController = new AbortController();
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      signal: downloadController.signal
+    });
+
+    if (!response.ok) {
+      let message = "Video download failed.";
+
+      try {
+        const data = await response.json();
+        if (data?.error) message = data.error;
+      } catch {}
+
+      throw new Error(message);
+    }
+
+    const total = Number(
+      response.headers.get("content-length") || 0
+    );
+
+    if (!response.body) {
+      throw new Error("Your browser could not start the download.");
+    }
+
+    const reader = response.body.getReader();
+    const chunks = [];
+    let loaded = 0;
+
+    while (true) {
+      const { done, value } = await reader.read();
+
+      if (done) break;
+
+      chunks.push(value);
+      loaded += value.byteLength;
+      updateDownloadProgress(loaded, total);
+    }
+
+    updateDownloadProgress(
+      total || loaded,
+      total || loaded
+    );
+
+    const blob = new Blob(chunks, {
+      type:
+        response.headers.get("content-type") ||
+        "video/mp4"
+    });
+
+    const objectUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = objectUrl;
+    link.download = "socialtoolhub-video.mp4";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    setTimeout(function() {
+      URL.revokeObjectURL(objectUrl);
+    }, 30000);
+
+    const text = $("downloadProgressText");
+    const percent = $("downloadProgressPercent");
+    const bar = $("downloadProgressBar");
+
+    if (text) text.textContent = "Download ready.";
+    if (percent) percent.textContent = "100%";
+
+    clearVideoUrl();
+    if (bar) {
+      bar.classList.remove("indeterminate");
+      bar.style.width = "100%";
+    }
+
+    setTimeout(hideDownloadProgress, 1800);
+
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      const text = $("downloadProgressText");
+      const percent = $("downloadProgressPercent");
+      if (text) text.textContent = "Download cancelled.";
+      if (percent) percent.textContent = "—";
+      setTimeout(hideDownloadProgress, 1200);
+    } else {
+      console.error("VIDEO DOWNLOAD ERROR:", error);
+
+      showStatus(
+        $("mediaStatus"),
+        error.message || "Unable to download this video.",
+        "error"
+      );
+
+      hideDownloadProgress();
+    }
+  } finally {
+    downloadController = null;
+
+    if (confirmButton) confirmButton.disabled = false;
+    if (cancelButton) cancelButton.disabled = false;
+    if (downloadButton) downloadButton.style.pointerEvents = "";
+  }
+}
+
+function clearVideoUrl() {
+  const input = $("mediaUrlInput");
+  const clearButton = $("urlClearButton");
+
+  if (input) {
+    input.value = "";
+    input.focus();
+  }
+
+  if (clearButton) {
+    clearButton.classList.remove("show");
+  }
+}
+
+function updateUrlClearButton() {
+  const input = $("mediaUrlInput");
+  const clearButton = $("urlClearButton");
+
+  if (!input || !clearButton) return;
+
+  clearButton.classList.toggle(
+    "show",
+    Boolean(input.value.trim())
+  );
+}
+
+/* =========================================================
+   BUTTON EVENTS
+========================================================= */
+
+function setupButtons() {
+
+  $("mediaUrlInput")?.addEventListener(
+    "input",
+    updateUrlClearButton
+  );
+
+  $("urlClearButton")?.addEventListener(
+    "click",
+    clearVideoUrl
+  );
+
+
+  $("menuButton")?.addEventListener(
+    "click",
+    function() {
+      const panel = $("menuPanel");
+      const button = $("menuButton");
+      if (!panel || !button) return;
+
+      const open = panel.classList.toggle("open");
+      button.setAttribute("aria-expanded", String(open));
+    }
+  );
+
+  $("backButton")?.addEventListener(
+    "click",
+    function() {
+      window.location.hash = "/";
+    }
+  );
+
+  $("menuPanel")?.addEventListener(
+    "click",
+    function(event) {
+      if (event.target.matches("a")) {
+        $("menuPanel")?.classList.remove("open");
+        $("menuButton")?.setAttribute("aria-expanded", "false");
+      }
+    }
+  );
+
+
+  window.addEventListener(
+    "scroll",
+    function() {
+      const panel = $("menuPanel");
+      const button = $("menuButton");
+
+      if (panel && panel.classList.contains("open")) {
+        panel.classList.remove("open");
+      }
+
+      if (button) {
+        button.setAttribute("aria-expanded", "false");
+      }
+    },
+    { passive: true }
+  );
+
+  document.addEventListener(
+    "click",
+    function(event) {
+      const panel = $("menuPanel");
+      const button = $("menuButton");
+
+      if (!panel || !button) return;
+
+      if (!panel.contains(event.target) &&
+          !button.contains(event.target)) {
+        panel.classList.remove("open");
+        button.setAttribute("aria-expanded", "false");
+      }
+    }
+  );
+
+  $("mediaButton")?.addEventListener(
+    "click",
+    downloadMedia
+  );
+
+  $("downloadButton")?.addEventListener(
+    "click",
+    function(event) {
+      event.preventDefault();
+
+      const url =
+        $("downloadButton")?.dataset.downloadUrl;
+
+      if (url) {
+        showDownloadConfirm(url);
+      }
+    }
+  );
+
+  $("downloadCancelButton")?.addEventListener(
+    "click",
+    function() {
+      if (downloadController) {
+        downloadController.abort();
+      }
+      closeDownloadConfirm();
+    }
+  );
+
+  $("downloadConfirmButton")?.addEventListener(
+    "click",
+    function() {
+      const url = pendingDownloadUrl;
+      closeDownloadConfirm();
+
+      if (url) {
+        startVideoDownload(url);
+      }
+    }
+  );
+
+  $("downloadConfirmModal")?.addEventListener(
+    "click",
+    function(event) {
+      if (event.target.id === "downloadConfirmModal") {
+        closeDownloadConfirm();
+      }
+    }
+  );
+
+  $("prepareAudioButton")?.addEventListener(
+    "click",
+    prepareAudio
+  );
+
+  $("transcriptButton")?.addEventListener(
+    "click",
+    generateTranscript
+  );
+
+  $("copyScriptButton")?.addEventListener(
+    "click",
+    copyTranscript
+  );
+
+  $("downloadTranscriptButton")?.addEventListener(
+    "click",
+    downloadTranscript
+  );
+}
+
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+window.addEventListener(
+  "hashchange",
+  function() {
+    $("menuPanel")?.classList.remove("open");
+    $("menuButton")?.setAttribute("aria-expanded", "false");
+    setupPage();
+
+    const hash = window.location.hash.replace(/^#/, "");
+
+    if (pages[hash] || hash === "") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    const section = document.getElementById(hash);
+
+    if (section) {
+      setTimeout(function() {
+        section.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+      }, 0);
+    }
+  }
+);
+
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function() {
+
+    setupPage();
+
+    setupButtons();
+updateUrlClearButton();
+
+    setupEnterKeys();
+
+  }
+);
+
+
+/* =========================================================
+   END
+========================================================= */
+
+</script>
+
+
+<div id="downloadConfirmModal" class="confirm-backdrop" role="dialog" aria-modal="true" aria-labelledby="downloadConfirmTitle">
+  <div class="confirm-box">
+    <h3 id="downloadConfirmTitle">Confirm video download</h3>
+    <p>Are you sure you want to download this video?</p>
+    <div class="confirm-actions">
+      <button id="downloadCancelButton" class="confirm-cancel" type="button">Cancel</button>
+      <button id="downloadConfirmButton" class="confirm-download" type="button">Download</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
+
       
   
   
