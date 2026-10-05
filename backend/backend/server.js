@@ -360,10 +360,6 @@ function getYtDlpOptions(
   options.jsRuntimes = "node";
 
   options.extractorArgs = {
-    youtube: {
-      player_client: ["mweb", "default"],
-      fetch_pot: "always"
-    },
     "youtubepot-bgutilhttp": {
       base_url: "http://127.0.0.1:4416"
     }
