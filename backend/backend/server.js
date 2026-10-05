@@ -19,6 +19,15 @@ const { spawn } = require("child_process");
 const youtubedl = require("youtube-dl-exec");
 
 const unlinkAsync = promisify(unlink);
+const YOUTUBE_COOKIES_SOURCE = "/etc/secrets/youtube-cookies.txt";
+const YOUTUBE_COOKIES_RUNTIME = "/tmp/youtube-cookies.txt";
+
+if (existsSync(YOUTUBE_COOKIES_SOURCE)) {
+  require("fs").copyFileSync(
+    YOUTUBE_COOKIES_SOURCE,
+    YOUTUBE_COOKIES_RUNTIME
+  );
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
