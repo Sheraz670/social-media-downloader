@@ -102,6 +102,12 @@
       opacity: 0.92;
     }
 
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.65;
+      transform: none;
+    }
+
     .hidden {
       display: none;
     }
@@ -130,6 +136,137 @@
       border: 1px solid #e5e7eb;
       border-radius: 12px;
     }
+
+    /* LOADING BOX */
+
+    .loading-box {
+      margin-top: 20px;
+      padding: 22px;
+
+      background: #f8fafc;
+
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+
+      text-align: center;
+    }
+
+    .spinner {
+      width: 42px;
+      height: 42px;
+
+      margin: 0 auto 15px;
+
+      border: 4px solid #e5e7eb;
+      border-top: 4px solid #4f46e5;
+
+      border-radius: 50%;
+
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .loading-main {
+      font-size: 17px;
+      font-weight: bold;
+      color: #111827;
+    }
+
+    .loading-sub {
+      margin-top: 8px;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .timer {
+      margin-top: 12px;
+      font-size: 15px;
+      font-weight: bold;
+      color: #4f46e5;
+    }
+
+    .loading-stage {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #555;
+      min-height: 20px;
+    }
+
+    /* SCRIPT BOX */
+
+    .script-box {
+      margin-top: 25px;
+      padding: 20px;
+
+      background: #f8fafc;
+
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+    }
+
+    .script-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: #111827;
+      margin-bottom: 15px;
+    }
+
+    #scriptOutput {
+      width: 100%;
+      min-height: 400px;
+
+      padding: 15px;
+
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+
+      background: white;
+
+      font-family: Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+
+      resize: vertical;
+    }
+
+    .download-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .download-buttons button {
+      margin-top: 0;
+    }
+
+    .copy-button {
+      background: #4f46e5;
+    }
+
+    .txt-button {
+      background: #059669;
+    }
+
+    .doc-button {
+      background: #2563eb;
+    }
+
+    @media (max-width: 600px) {
+
+      .container {
+        padding: 22px;
+      }
+
+      .download-buttons {
+        flex-direction: column;
+      }
+
+    }
   </style>
 </head>
 
@@ -143,7 +280,9 @@
       Create an original movie explanation with AI narration.
     </p>
 
+
     <!-- STEP 1 -->
+
     <div id="movieSection">
 
       <input
@@ -152,7 +291,10 @@
         placeholder="Enter movie name or permitted video URL"
       >
 
-      <button onclick="showOptions()">
+      <button
+        id="continueButton"
+        onclick="showOptions()"
+      >
         Continue
       </button>
 
@@ -160,6 +302,7 @@
 
 
     <!-- STEP 2 -->
+
     <div id="optionsSection" class="hidden">
 
       <div class="duration-box">
@@ -214,7 +357,10 @@
         </select>
 
 
-        <button onclick="generateExplanation()">
+        <button
+          id="generateButton"
+          onclick="generateExplanation()"
+        >
           ✨ Generate Script
         </button>
 
@@ -223,12 +369,100 @@
     </div>
 
 
+    <!-- STATUS -->
+
     <div id="status"></div>
+
+
+    <!-- LOADING -->
+
+    <div
+      id="loadingBox"
+      class="loading-box hidden"
+    >
+
+      <div class="spinner"></div>
+
+      <div class="loading-main">
+        🤖 AI is creating your movie script...
+      </div>
+
+      <div class="loading-sub">
+        ⏳ Usually takes around 30–120 seconds.
+        Please don't close this page.
+      </div>
+
+      <div
+        id="timer"
+        class="timer"
+      >
+        Elapsed time: 0 seconds
+      </div>
+
+      <div
+        id="loadingStage"
+        class="loading-stage"
+      >
+        📝 Writing the movie explanation...
+      </div>
+
+    </div>
+
+
+    <!-- GENERATED SCRIPT -->
+
+    <div
+      id="scriptSection"
+      class="script-box hidden"
+    >
+
+      <div class="script-title">
+        📜 Generated Movie Explanation
+      </div>
+
+      <textarea
+        id="scriptOutput"
+        readonly
+        placeholder="Your generated script will appear here..."
+      ></textarea>
+
+
+      <div class="download-buttons">
+
+        <button
+          class="copy-button"
+          onclick="copyScript()"
+        >
+          📋 Copy Script
+        </button>
+
+        <button
+          class="txt-button"
+          onclick="downloadTXT()"
+        >
+          📄 Download TXT
+        </button>
+
+        <button
+          class="doc-button"
+          onclick="downloadDOC()"
+        >
+          📝 Download DOC
+        </button>
+
+      </div>
+
+    </div>
 
   </div>
 
 
   <script>
+
+    let timerInterval = null;
+
+    let elapsedSeconds = 0;
+
 
     function showOptions() {
 
@@ -259,6 +493,93 @@
     }
 
 
+    function startLoading() {
+
+      const loadingBox =
+        document.getElementById("loadingBox");
+
+      const timer =
+        document.getElementById("timer");
+
+      const stage =
+        document.getElementById("loadingStage");
+
+
+      elapsedSeconds = 0;
+
+      timer.textContent =
+        "Elapsed time: 0 seconds";
+
+
+      stage.textContent =
+        "📝 Writing the movie explanation...";
+
+
+      loadingBox.classList.remove(
+        "hidden"
+      );
+
+
+      timerInterval =
+        setInterval(
+          function() {
+
+            elapsedSeconds++;
+
+            timer.textContent =
+              "Elapsed time: " +
+              elapsedSeconds +
+              " seconds";
+
+
+            if (elapsedSeconds >= 15) {
+
+              stage.textContent =
+                "🧠 Making the story detailed and engaging...";
+
+            }
+
+            if (elapsedSeconds >= 45) {
+
+              stage.textContent =
+                "✨ Finalizing your movie explanation...";
+
+            }
+
+            if (elapsedSeconds >= 90) {
+
+              stage.textContent =
+                "⏳ Almost there — AI is finishing your script...";
+
+            }
+
+          },
+          1000
+        );
+
+    }
+
+
+    function stopLoading() {
+
+      if (timerInterval) {
+
+        clearInterval(
+          timerInterval
+        );
+
+        timerInterval = null;
+
+      }
+
+
+      document.getElementById(
+        "loadingBox"
+      ).classList.add("hidden");
+
+    }
+
+
     async function generateExplanation() {
 
       const input =
@@ -277,6 +598,15 @@
       const status =
         document.getElementById("status");
 
+      const scriptSection =
+        document.getElementById("scriptSection");
+
+      const scriptOutput =
+        document.getElementById("scriptOutput");
+
+      const generateButton =
+        document.getElementById("generateButton");
+
 
       if (!input) {
 
@@ -287,12 +617,22 @@
       }
 
 
-      status.textContent =
-        "🤖 Creating your " +
-        duration +
-        "-minute " +
-        language +
-        " movie explanation... Please wait.";
+      scriptSection.classList.add(
+        "hidden"
+      );
+
+      scriptOutput.value = "";
+
+      status.textContent = "";
+
+
+      generateButton.disabled = true;
+
+      generateButton.textContent =
+        "⏳ Generating...";
+
+
+      startLoading();
 
 
       try {
@@ -335,19 +675,305 @@
         }
 
 
+        if (!data.script) {
+
+          throw new Error(
+            "Script was not returned by the server."
+          );
+
+        }
+
+
+        stopLoading();
+
+
+        scriptOutput.value =
+          data.script;
+
+
+        scriptSection.classList.remove(
+          "hidden"
+        );
+
+
         status.textContent =
-          data.message ||
-          "✅ Script generation started.";
+          "✅ Movie explanation script generated successfully!";
+
+
+        scriptSection.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+
 
       } catch (error) {
 
         console.error(error);
 
+        stopLoading();
+
+
         status.textContent =
           "❌ Error: " +
           error.message;
 
+      } finally {
+
+        generateButton.disabled = false;
+
+        generateButton.textContent =
+          "✨ Generate Script";
+
       }
+
+    }
+
+
+    async function copyScript() {
+
+      const script =
+        document.getElementById("scriptOutput")
+          .value;
+
+
+      if (!script) {
+
+        alert("No script available.");
+
+        return;
+      }
+
+
+      try {
+
+        await navigator.clipboard.writeText(
+          script
+        );
+
+        alert(
+          "✅ Script copied successfully!"
+        );
+
+      } catch (error) {
+
+        const textarea =
+          document.getElementById(
+            "scriptOutput"
+          );
+
+        textarea.select();
+
+        document.execCommand("copy");
+
+        alert(
+          "✅ Script copied successfully!"
+        );
+
+      }
+
+    }
+
+
+    function downloadTXT() {
+
+      const script =
+        document.getElementById("scriptOutput")
+          .value;
+
+
+      if (!script) {
+
+        alert("No script available.");
+
+        return;
+      }
+
+
+      const movie =
+        document.getElementById("movieInput")
+          .value
+          .trim()
+          .replace(/[^a-z0-9]/gi, "_");
+
+
+      const blob =
+        new Blob(
+          [script],
+          {
+            type:
+              "text/plain;charset=utf-8"
+          }
+        );
+
+
+      const url =
+        URL.createObjectURL(blob);
+
+
+      const link =
+        document.createElement("a");
+
+      link.href = url;
+
+      link.download =
+        (movie || "movie-explanation") +
+        "-script.txt";
+
+
+      document.body.appendChild(link);
+
+      link.click();
+
+      document.body.removeChild(link);
+
+      URL.revokeObjectURL(url);
+
+    }
+
+
+    function downloadDOC() {
+
+      const script =
+        document.getElementById("scriptOutput")
+          .value;
+
+
+      if (!script) {
+
+        alert("No script available.");
+
+        return;
+      }
+
+
+      const movieInput =
+        document.getElementById(
+          "movieInput"
+        ).value;
+
+
+      const movie =
+        movieInput
+          .trim()
+          .replace(/[^a-z0-9]/gi, "_");
+
+
+      const htmlContent =
+        `
+        <html>
+
+        <head>
+          <meta charset="UTF-8">
+
+          <title>
+            Movie Explanation Script
+          </title>
+        </head>
+
+        <body>
+
+          <h1>
+            AI Movie Explanation
+          </h1>
+
+          <h2>
+            ${escapeHTML(movieInput)}
+          </h2>
+
+          <p>
+            Duration:
+            ${escapeHTML(
+              document.getElementById(
+                "duration"
+              ).value
+            )}
+            minutes
+          </p>
+
+          <p>
+            Language:
+            ${escapeHTML(
+              document.getElementById(
+                "language"
+              ).value
+            )}
+          </p>
+
+          <hr>
+
+          <p style="white-space: pre-wrap;">
+            ${escapeHTML(script)}
+          </p>
+
+        </body>
+
+        </html>
+        `;
+
+
+      const blob =
+        new Blob(
+          [htmlContent],
+          {
+            type:
+              "application/msword"
+          }
+        );
+
+
+      const url =
+        URL.createObjectURL(blob);
+
+
+      const link =
+        document.createElement("a");
+
+      link.href = url;
+
+      link.download =
+        (movie || "movie-explanation") +
+        "-script.doc";
+
+
+      document.body.appendChild(link);
+
+      link.click();
+
+      document.body.removeChild(link);
+
+      URL.revokeObjectURL(url);
+
+    }
+
+
+    function escapeHTML(text) {
+
+      return String(text)
+
+        .replace(
+          /&/g,
+          "&amp;"
+        )
+
+        .replace(
+          /</g,
+          "&lt;"
+        )
+
+        .replace(
+          />/g,
+          "&gt;"
+        )
+
+        .replace(
+          /"/g,
+          "&quot;"
+        )
+
+        .replace(
+          /'/g,
+          "&#039;"
+        );
 
     }
 
