@@ -85,18 +85,47 @@
   </div>
 
   <script>
-    function generateExplanation() {
-      const input = document.getElementById("movieInput").value.trim();
-      const status = document.getElementById("status");
+  async function generateExplanation() {
+    const input = document.getElementById("movieInput").value.trim();
+    const status = document.getElementById("status");
 
-      if (!input) {
-        status.textContent = "Please enter a movie name or video URL.";
-        return;
+    if (!input) {
+      status.textContent = "Please enter a movie name or video URL.";
+      return;
+    }
+
+    status.textContent = "🤖 Generating movie explanation... Please wait.";
+
+    try {
+      const response = await fetch(
+        "https://social-media-downloader-f8pv.onrender.com/api/movie-explainer",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            input: input
+          })
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Server error");
       }
 
-      status.textContent = "Coming soon...";
-    }
-  </script>
+      status.textContent =
+        data.message || "✅ Explanation generated successfully.";
 
+    } catch (error) {
+      console.error(error);
+
+      status.textContent =
+        "❌ Error: " + error.message;
+    }
+  }
+  </script>
 </body>
 </html>
