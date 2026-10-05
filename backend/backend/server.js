@@ -361,7 +361,8 @@ function getYtDlpOptions(
 
   options.extractorArgs = {
     youtube: {
-      player_client: ["web", "web_embedded"]
+      player_client: ["mweb"],
+      fetch_pot: "always"
     },
     "youtubepot-bgutilhttp": {
       base_url: "http://127.0.0.1:4416"
