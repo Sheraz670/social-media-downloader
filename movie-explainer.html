@@ -1364,73 +1364,111 @@
         "<title>Movie Explanation</title>" +
         "</head>" +
         "<body>" +
-        "<h1>" +
-        escapeHTML(
-          movie ||
-          "Movie Explanation"
-        ) +
-        "</h1>" +
-        "<p>" +
-        safeScript +
-        "</p>" +
-        "</body>" +
-        "</html>";
+
+    /*/*
+==================================================
+DOWNLOAD TXT
+==================================================
+*/
+
+function downloadTXT() {
+
+  const script =
+    document
+      .getElementById("scriptOutput")
+      .value;
+
+  if (!script.trim()) {
+
+    alert("No script available.");
+
+    return;
+
+  }
+
+  const blob =
+    new Blob(
+      [script],
+      {
+        type: "text/plain"
+      }
+    );
+
+  const url =
+    URL.createObjectURL(blob);
+
+  const link =
+    document.createElement("a");
+
+  link.href = url;
+
+  link.download =
+    "movie-explanation.txt";
+
+  document.body.appendChild(link);
+
+  link.click();
+
+  document.body.removeChild(link);
+
+  URL.revokeObjectURL(url);
+
+}
 
 
-      const blob =
-        new Blob(
-          [html],
-          {
-            type:
-              "application/msword"
-          }
-        );
+/*
+==================================================
+DOWNLOAD DOC
+==================================================
+*/
 
+function downloadDOC() {
 
-      const url =
-        URL.createObjectURL(
-          blob
-        );
+  const script =
+    document
+      .getElementById("scriptOutput")
+      .value;
 
+  if (!script.trim()) {
 
-      const link =
-        document.createElement(
-          "a"
-        );
+    alert("No script available.");
 
+    return;
 
-      link.href = url;
+  }
 
+  const blob =
+    new Blob(
+      [
+        "<html><body><pre>" +
+        escapeHTML(script) +
+        "</pre></body></html>"
+      ],
+      {
+        type: "application/msword"
+      }
+    );
 
-      link.download =
-        (
-          movie ||
-          "movie-explanation"
-        ) +
-        "-script.doc";
+  const url =
+    URL.createObjectURL(blob);
 
+  const link =
+    document.createElement("a");
 
-      document.body.appendChild(
-        link
-      );
+  link.href = url;
 
+  link.download =
+    "movie-explanation.doc";
 
-      link.click();
+  document.body.appendChild(link);
 
+  link.click();
 
-      document.body.removeChild(
-        link
-      );
+  document.body.removeChild(link);
 
+  URL.revokeObjectURL(url);
 
-      URL.revokeObjectURL(
-        url
-      );
-
-    }
-
-
-    /*
+}
     ==================================================
     START VOICE LOADING
     ==================================================
