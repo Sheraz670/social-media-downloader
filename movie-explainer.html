@@ -628,6 +628,95 @@
 
   </div>
 
+  <!-- AI MOVIE VIDEO -->
+
+<div
+  id="videoSection"
+  class="box hidden"
+>
+
+  <div class="voice-title">
+    🎬 AI Movie Video
+  </div>
+
+  <div
+    style="
+      margin-top:10px;
+      color:#555;
+      font-size:14px;
+    "
+  >
+    🎙️ Your AI voice will be combined with
+    cinematic visuals and captions.
+  </div>
+
+  <button
+    id="videoButton"
+    type="button"
+    class="generate-button"
+    onclick="generateVideo()"
+  >
+    🎬 Generate Movie Video
+  </button>
+
+  <div
+    id="videoLoading"
+    class="voice-loading hidden"
+  >
+
+    <div class="spinner"></div>
+
+    <div class="loading-main">
+      🎬 Creating your movie video...
+    </div>
+
+    <div class="loading-sub">
+      ⏳ Voice + visuals + video processing...
+    </div>
+
+    <div
+      id="videoTimer"
+      class="timer"
+    >
+      Elapsed time: 0 seconds
+    </div>
+
+  </div>
+
+  <div
+    id="videoResult"
+    class="hidden"
+  >
+
+    <div
+      class="loading-main"
+      style="margin-top:20px;"
+    >
+      ✅ Movie video generated successfully!
+    </div>
+
+    <video
+      id="videoPlayer"
+      controls
+      playsinline
+      style="
+        width:100%;
+        margin-top:15px;
+        border-radius:12px;
+      "
+    ></video>
+
+    <button
+      id="downloadVideoButton"
+      type="button"
+      onclick="downloadVideo()"
+    >
+      ⬇️ Download Video
+    </button>
+
+  </div>
+
+</div>
 
   <script>
 
