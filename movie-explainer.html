@@ -1310,119 +1310,79 @@
 
     /*
     ==================================================
-    DOWNLOAD DOC
-    ==================================================
-    */
+/*
+==================================================
+DOWNLOAD DOC
+==================================================
+*/
 
-    function downloadDOC() {
+function downloadDOC() {
 
-      const script =
-        document.getElementById(
-  "scriptOutput"
-          )
-          .value;
+  const script =
+    document
+      .getElementById("scriptOutput")
+      .value;
 
+  if (!script.trim()) {
 
-      if (!script.trim()) {
+    alert(
+      "No script available."
+    );
 
-        alert(
-          "No script available."
-        );
+    return;
 
-        return;
+  }
 
-      }
-
-
-      const movie =
-        document
-          .getElementById(
-            "movieInput"
-          )
-          .value
-          .trim()
-          .replace(
-            /[^a-z0-9]/gi,
-            "_"
-          );
-
-
-      const safeScript =
-        escapeHTML(
-          script
-        ).replace(
-          /\n/g,
-          "<br>"
-        );
-
-
-      const html =
-        "<!DOCTYPE html>" +
-        "<html>" +
-        "<head>" +
-        "<meta charset='UTF-8'>" +
-        "<title>Movie Explanation</title>" +
-        "</head>" +
-        "<body>" +
-
-
-    ==================================================
-    START VOICE LOADING
-    ==================================================
-    */
-
-    function startVoiceLoading() {
-
-      const loading =
-        document.getElementById(
-          "voiceLoading"
-        );
-
-      const timer =
-        document.getElementById(
-          "voiceTimer"
-        );
-
-
-      voiceElapsedSeconds = 0;
-
-
-      timer.textContent =
-        "Elapsed time: 0 seconds";
-
-
-      loading.classList.remove(
-        "hidden"
+  const safeScript =
+    escapeHTML(script)
+      .replace(
+        /\n/g,
+        "<br>"
       );
 
+  const html =
+    "<!DOCTYPE html>" +
+    "<html>" +
+    "<head>" +
+    "<meta charset='UTF-8'>" +
+    "<title>Movie Explanation</title>" +
+    "</head>" +
+    "<body>" +
+    "<h1>Movie Explanation</h1>" +
+    "<pre>" +
+    safeScript +
+    "</pre>" +
+    "</body>" +
+    "</html>";
 
-      if (voiceTimerInterval) {
-
-        clearInterval(
-          voiceTimerInterval
-        );
-
+  const blob =
+    new Blob(
+      [html],
+      {
+        type:
+          "application/msword"
       }
+    );
 
+  const url =
+    URL.createObjectURL(blob);
 
-      voiceTimerInterval =
-        setInterval(
-          function() {
+  const link =
+    document.createElement("a");
 
-            voiceElapsedSeconds++;
+  link.href = url;
 
+  link.download =
+    "movie-explanation.doc";
 
-            timer.textContent =
-              "Elapsed time: " +
-              voiceElapsedSeconds +
-              " seconds";
+  document.body.appendChild(link);
 
-          },
-          1000
-        );
+  link.click();
 
-    }
+  document.body.removeChild(link);
 
+  URL.revokeObjectURL(url);
+}
 
   </script>
 
