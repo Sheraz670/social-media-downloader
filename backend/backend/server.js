@@ -2507,14 +2507,14 @@ START SERVER
 ==================================================
 */
 
+[AI MOVIE VIDEO route]
+
 app.listen(
   PORT,
   "0.0.0.0",
   () => {
-
     console.log(
       `SocialToolHub API running on port ${PORT}`
     );
-
   }
 );
