@@ -2798,11 +2798,35 @@ app.post(
 );
 
 
+app.get("/api/movie-info", async (req, res) => {
+  try {
+    const movie = String(req.query.movie || "").trim();
+
+    if (!movie) {
+      return res.status(400).json({
+        error: "Movie name is required."
+      });
+    }
+
+    return res.json({
+      title: movie,
+      message: "Movie search system connected."
+    });
+
+  } catch (error) {
+    console.error("MOVIE INFO ERROR:", error);
+
+    return res.status(500).json({
+      error: "Unable to get movie information."
+    });
+  }
+});
 /*
 ==================================================
 START SERVER
 ==================================================
 */
+
 
 app.listen(
   PORT,
