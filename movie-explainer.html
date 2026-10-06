@@ -2185,7 +2185,52 @@
       }
 
     }
+function downloadVideo() {
 
+  if (!videoUrl) {
+
+    alert(
+      "No video available."
+    );
+
+    return;
+  }
+
+  const movie =
+    document
+      .getElementById(
+        "movieInput"
+      )
+      .value
+      .trim() ||
+    "movie-explanation";
+
+  const link =
+    document.createElement(
+      "a"
+    );
+
+  link.href =
+    videoUrl;
+
+  link.download =
+    movie
+      .replace(
+        /[^a-z0-9]/gi,
+        "_"
+      ) +
+    "-movie-video.mp4";
+
+  document.body.appendChild(
+    link
+  );
+
+  link.click();
+
+  document.body.removeChild(
+    link
+  );
+}
 
     /*
     ==================================================
