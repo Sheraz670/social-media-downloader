@@ -2500,6 +2500,303 @@ app.use(
   }
 );
 
+/*
+==================================================
+STEP 6:
+AI MOVIE VIDEO
+==================================================
+*/
+
+app.post(
+  "/api/movie-video",
+  async (req, res) => {
+
+    let tempDir = null;
+
+    try {
+
+      const script =
+        req.body?.script?.trim();
+
+      const movie =
+        req.body?.movie?.trim() ||
+        "movie-explanation";
+
+      const voice =
+        req.body?.voice?.trim() ||
+        "en-US-AriaNeural";
+
+      if (!script) {
+        return res.status(400).json({
+          error: "Script is required."
+        });
+      }
+
+      tempDir =
+        mkdtempSync(
+          path.join(
+            os.tmpdir(),
+            "movie-video-"
+          )
+        );
+
+      const textFile =
+        path.join(tempDir, "script.txt");
+
+      const audioFile =
+        path.join(tempDir, "voice.mp3");
+
+      const videoFile =
+        path.join(
+          tempDir,
+          "movie-explanation.mp4"
+        );
+
+      require("fs").writeFileSync(
+        textFile,
+        script,
+        "utf8"
+      );
+
+      const ttsFile =
+        path.join(
+          __dirname,
+          "tts.py"
+        );
+
+      const ttsProcess =
+        spawn(
+          "python3",
+          [
+            ttsFile,
+            textFile,
+            audioFile,
+            voice
+          ]
+        );
+
+      let ttsError = "";
+
+      if (ttsProcess.stderr) {
+
+        ttsProcess.stderr.on(
+          "data",
+          (data) => {
+            ttsError += data.toString();
+          }
+        );
+
+      }
+
+      const ttsExitCode =
+        await new Promise(
+          (resolve, reject) => {
+
+            ttsProcess.on(
+              "error",
+              reject
+            );
+
+            ttsProcess.on(
+              "close",
+              resolve
+            );
+
+          }
+        );
+
+      if (ttsExitCode !== 0) {
+
+        throw new Error(
+          ttsError.trim() ||
+          "Voice generation failed."
+        );
+
+      }
+
+      if (!existsSync(audioFile)) {
+
+        throw new Error(
+          "Voice file was not created."
+        );
+
+      }
+
+      const videoProcess =
+        spawn(
+          "ffmpeg",
+          [
+            "-y",
+            "-f",
+            "lavfi",
+            "-i",
+            "color=c=0x111827:s=1920x1080:r=30",
+            "-i",
+            audioFile,
+            "-vf",
+            "drawtext=text='AI MOVIE EXPLANATION':fontcolor=white:fontsize=64:x=(w-text_w)/2:y=(h-text_h)/2",
+            "-c:v",
+            "libx264",
+            "-preset",
+            "veryfast",
+            "-pix_fmt",
+            "yuv420p",
+            "-c:a",
+            "aac",
+            "-b:a",
+            "192k",
+            "-shortest",
+            videoFile
+          ]
+        );
+
+      let videoError = "";
+
+      if (videoProcess.stderr) {
+
+        videoProcess.stderr.on(
+          "data",
+          (data) => {
+            videoError += data.toString();
+            console.log(
+              "FFMPEG:",
+              data.toString()
+            );
+          }
+        );
+
+      }
+
+      const videoExitCode =
+        await new Promise(
+          (resolve, reject) => {
+
+            videoProcess.on(
+              "error",
+              reject
+            );
+
+            videoProcess.on(
+              "close",
+              resolve
+            );
+
+          }
+        );
+
+      if (videoExitCode !== 0) {
+
+        throw new Error(
+          videoError.trim() ||
+          "Video generation failed."
+        );
+
+      }
+
+      if (!existsSync(videoFile)) {
+
+        throw new Error(
+          "Video file was not created."
+        );
+
+      }
+
+      const stat =
+        require("fs")
+          .statSync(videoFile);
+
+      if (!stat.size) {
+
+        throw new Error(
+          "Generated video is empty."
+        );
+
+      }
+
+      res.setHeader(
+        "Content-Type",
+        "video/mp4"
+      );
+
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${movie
+          .replace(
+            /[^a-z0-9]/gi,
+            "_"
+          )}-video.mp4"`
+      );
+
+      const stream =
+        createReadStream(
+          videoFile
+        );
+
+      stream.on(
+        "close",
+        () => {
+
+          if (tempDir) {
+
+            try {
+
+              rmSync(
+                tempDir,
+                {
+                  recursive: true,
+                  force: true
+                }
+              );
+
+            } catch {}
+
+            tempDir = null;
+
+          }
+
+        }
+      );
+
+      stream.pipe(res);
+
+    } catch (error) {
+
+      console.error(
+        "MOVIE VIDEO ERROR:",
+        error
+      );
+
+      if (tempDir) {
+
+        try {
+
+          rmSync(
+            tempDir,
+            {
+              recursive: true,
+              force: true
+            }
+          );
+
+        } catch {}
+
+      }
+
+      if (!res.headersSent) {
+
+        return res.status(500).json({
+          error:
+            error.message ||
+            "Unable to generate movie video."
+        });
+
+      }
+
+    }
+
+  }
+);
+
 
 /*
 ==================================================
@@ -2507,22 +2804,14 @@ START SERVER
 ==================================================
 */
 
-[AI MOVIE VIDEO route]
-
-/*
-==================================================
-STEP 6:
-AI MOVIE VIDEO
-==================================================
-*/
-app.post(
-  "/api/movie-video",
 app.listen(
   PORT,
   "0.0.0.0",
   () => {
+
     console.log(
       `SocialToolHub API running on port ${PORT}`
     );
+
   }
 );
