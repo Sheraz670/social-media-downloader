@@ -2808,16 +2808,66 @@ app.get("/api/movie-info", async (req, res) => {
       });
     }
 
+    const apiKey = process.env.TMDB_API_KEY;
+
+    if (!apiKey) {
+      return res.status(500).json({
+        error: "TMDB API key is not configured."
+      });
+    }
+
+    const searchUrl =
+      `https://api.themoviedb.org/3/search/movie` +
+      `?api_key=${encodeURIComponent(apiKey)}` +
+      `&query=${encodeURIComponent(movie)}` +
+      `&include_adult=false` +
+      `&language=en-US`;
+
+    const response = await fetch(searchUrl);
+
+    if (!response.ok) {
+      throw new Error(
+        `TMDB request failed: ${response.status}`
+      );
+    }
+
+    const data = await response.json();
+
+    const results = Array.isArray(data.results)
+      ? data.results
+      : [];
+
+    if (!results.length) {
+      return res.status(404).json({
+        error: "Movie not found."
+      });
+    }
+
     return res.json({
-      title: movie,
-      message: "Movie search system connected."
+      results: results.slice(0, 10).map((item) => ({
+        id: item.id,
+        title: item.title,
+        releaseDate: item.release_date || "",
+        year: item.release_date
+          ? item.release_date.slice(0, 4)
+          : "",
+        overview: item.overview || "",
+        posterPath: item.poster_path || null,
+        originalLanguage:
+          item.original_language || ""
+      }))
     });
 
   } catch (error) {
-    console.error("MOVIE INFO ERROR:", error);
+    console.error(
+      "MOVIE INFO ERROR:",
+      error
+    );
 
     return res.status(500).json({
-      error: "Unable to get movie information."
+      error:
+        error.message ||
+        "Unable to search movie."
     });
   }
 });
