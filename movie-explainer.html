@@ -1549,3 +1549,44 @@
           .trim()
           .replace(
             /[^a-z0-9]/
+                        /[^a-z0-9]/gi,
+            "_"
+          );
+
+
+      const link =
+        document.createElement("a");
+
+
+      link.href =
+        voiceAudioUrl;
+
+
+      link.download =
+        (movie || "movie-explanation") +
+        "-voice.mp3";
+
+
+      document.body.appendChild(
+        link
+      );
+
+
+      link.click();
+
+
+      document.body.removeChild(
+        link
+      );
+
+    }
+
+
+    /* ================================================
+       END OF JAVASCRIPT
+    ================================================ */
+
+  </script>
+
+</body>
+</html>
