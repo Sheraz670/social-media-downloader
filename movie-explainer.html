@@ -1471,6 +1471,9 @@ async function generateVoice() {
     voiceResult.classList.remove(
       "hidden"
     );
+    document
+  .getElementById("videoSection")
+  .classList.remove("hidden");
 
     status.textContent =
       "✅ AI voice generated successfully!";
