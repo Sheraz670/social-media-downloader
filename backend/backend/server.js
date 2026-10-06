@@ -2509,6 +2509,14 @@ START SERVER
 
 [AI MOVIE VIDEO route]
 
+/*
+==================================================
+STEP 6:
+AI MOVIE VIDEO
+==================================================
+*/
+app.post(
+  "/api/movie-video",
 app.listen(
   PORT,
   "0.0.0.0",
