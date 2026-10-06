@@ -2630,7 +2630,7 @@ app.post(
             "-f",
 "lavfi",
 "-i",
-"color=c=0x111827:s=1920x1080:r=24",
+"color=c=0x111827:s=1280x720:r=24",
             "-i",
             audioFile,
             "-vf",
