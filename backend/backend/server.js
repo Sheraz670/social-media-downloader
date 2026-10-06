@@ -1460,7 +1460,8 @@ app.post(
     try {
 
       const input =
-        req.body?.input?.trim();
+  req.body?.movie?.trim() ||
+  req.body?.input?.trim();
 
       const duration =
         Number(
