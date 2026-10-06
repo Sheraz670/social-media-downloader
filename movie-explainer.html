@@ -1,172 +1,176 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
   <title>AI Movie Explainer</title>
 
   <style>
+
     * {
       box-sizing: border-box;
     }
 
     body {
-      font-family: Arial, sans-serif;
       margin: 0;
-      min-height: 100vh;
-      padding: 40px 20px;
-
-      background:
-        radial-gradient(circle at top left, #6a5cff 0%, transparent 35%),
-        radial-gradient(circle at bottom right, #00c6ff 0%, transparent 35%),
-        linear-gradient(135deg, #111827, #1e293b);
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #f1f5f9;
+      color: #111827;
     }
 
     .container {
       width: 100%;
-      max-width: 700px;
-
-      background: rgba(255, 255, 255, 0.97);
-
-      padding: 32px;
-
-      border-radius: 20px;
-
-      box-shadow:
-        0 20px 60px rgba(0,0,0,0.25);
+      max-width: 850px;
+      margin: 0 auto;
     }
 
-    h1 {
+    .header {
       text-align: center;
-      margin-top: 0;
-      margin-bottom: 10px;
-      color: #111827;
-    }
-
-    p {
-      text-align: center;
-      color: #666;
       margin-bottom: 25px;
-      line-height: 1.5;
+    }
+
+    .header h1 {
+      margin: 0 0 8px;
+      font-size: 32px;
+    }
+
+    .header p {
+      margin: 0;
+      color: #64748b;
+    }
+
+    .box {
+      background: white;
+      padding: 25px;
+      border-radius: 14px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
     }
 
     input,
-    select {
+    select,
+    textarea {
       width: 100%;
-      padding: 15px;
+      font-family: Arial, sans-serif;
+    }
 
-      margin-top: 15px;
+    input {
+      padding: 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 9px;
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
 
-      border: 1px solid #ddd;
-      border-radius: 10px;
-
+    select {
+      padding: 13px;
+      border: 1px solid #cbd5e1;
+      border-radius: 9px;
       font-size: 16px;
       background: white;
     }
 
-    input:focus,
-    select:focus {
-      outline: none;
-      border-color: #6a5cff;
-      box-shadow: 0 0 0 3px rgba(106,92,255,0.12);
+    textarea {
+      min-height: 300px;
+      padding: 15px;
+      border: 1px solid #cbd5e1;
+      border-radius: 9px;
+      font-size: 15px;
+      line-height: 1.6;
+      resize: vertical;
     }
 
     button {
       width: 100%;
-
-      padding: 15px;
-
-      margin-top: 15px;
-
-      border: 0;
-      border-radius: 10px;
-
-      background: #111827;
-      color: white;
-
+      border: none;
+      border-radius: 9px;
+      padding: 14px 18px;
       font-size: 16px;
       font-weight: bold;
-
       cursor: pointer;
-
-      transition: 0.2s;
+      background: #111827;
+      color: white;
+      margin-top: 10px;
     }
 
     button:hover {
-      transform: translateY(-1px);
-      opacity: 0.92;
+      opacity: 0.9;
     }
 
     button:disabled {
+      opacity: 0.6;
       cursor: not-allowed;
-      opacity: 0.65;
-      transform: none;
     }
 
-    .hidden {
-      display: none;
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-top: 15px;
     }
 
-    .section-title {
-      margin-top: 25px;
-      margin-bottom: 8px;
-
+    .option-label {
+      display: block;
       font-weight: bold;
-      color: #111827;
+      margin-bottom: 7px;
     }
 
-    #status {
-      margin-top: 20px;
+    .generate-button {
+      background: #2563eb;
+    }
+
+    .copy-button {
+      background: #16a34a;
+    }
+
+    .download-button {
+      background: #475569;
+    }
+
+    .voice-button {
+      background: #7c3aed;
+    }
+
+    .status {
+      margin-top: 15px;
       text-align: center;
-      color: #333;
+      font-weight: bold;
       line-height: 1.5;
     }
 
-    .duration-box {
-      margin-top: 20px;
-      padding: 20px;
-
-      background: #f8fafc;
-
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
+    .hidden {
+      display: none !important;
     }
 
-    /* LOADING BOX */
-
-    .loading-box {
+    .loading-box,
+    .voice-loading {
       margin-top: 20px;
-      padding: 22px;
-
-      background: #f8fafc;
-
-      border: 1px solid #e5e7eb;
+      padding: 20px;
       border-radius: 12px;
-
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
       text-align: center;
     }
 
     .spinner {
-      width: 42px;
-      height: 42px;
-
-      margin: 0 auto 15px;
-
-      border: 4px solid #e5e7eb;
-      border-top: 4px solid #4f46e5;
-
+      width: 35px;
+      height: 35px;
+      margin: 0 auto 12px;
+      border: 4px solid #e2e8f0;
+      border-top: 4px solid #2563eb;
       border-radius: 50%;
-
       animation: spin 1s linear infinite;
     }
 
     @keyframes spin {
-      to {
+      100% {
         transform: rotate(360deg);
       }
     }
@@ -174,115 +178,32 @@
     .loading-main {
       font-size: 17px;
       font-weight: bold;
-      color: #111827;
+      margin-bottom: 7px;
     }
 
     .loading-sub {
-      margin-top: 8px;
-      color: #666;
+      color: #64748b;
       font-size: 14px;
     }
 
     .timer {
-      margin-top: 12px;
-      font-size: 15px;
-      font-weight: bold;
-      color: #4f46e5;
-    }
-
-    .loading-stage {
       margin-top: 10px;
-      font-size: 14px;
-      color: #555;
-      min-height: 20px;
-    }
-
-    /* SCRIPT BOX */
-
-    .script-box {
-      margin-top: 25px;
-      padding: 20px;
-
-      background: #f8fafc;
-
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-    }
-
-    .script-title {
-      font-size: 20px;
       font-weight: bold;
-      color: #111827;
-      margin-bottom: 15px;
+      color: #475569;
     }
 
-    #scriptOutput {
-      width: 100%;
-      min-height: 400px;
-
-      padding: 15px;
-
-      border: 1px solid #d1d5db;
-      border-radius: 10px;
-
-      background: white;
-
-      font-family: Arial, sans-serif;
-      font-size: 15px;
-      line-height: 1.6;
-
-      resize: vertical;
-    }
-
-    .download-buttons {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .download-buttons button {
-      margin-top: 0;
-    }
-
-    .copy-button {
-      background: #4f46e5;
-    }
-
-    .txt-button {
-      background: #059669;
-    }
-
-    .doc-button {
-      background: #2563eb;
-    }
-
-    /* AI VOICE */
-
-    .voice-box {
-      margin-top: 20px;
-      padding: 20px;
-
-      background: #f8fafc;
-
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-
-      text-align: center;
-    }
-
+    .script-title,
     .voice-title {
       font-size: 20px;
       font-weight: bold;
-      color: #111827;
       margin-bottom: 12px;
     }
 
-    .voice-button {
-      background: #7c3aed;
-    }
-
-    .voice-loading {
-      margin-top: 18px;
+    .download-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
     }
 
     .audio-player {
@@ -290,43 +211,70 @@
       margin-top: 15px;
     }
 
-    @media (max-width: 600px) {
+    #downloadAudioButton {
+      background: #059669;
+    }
 
-      .container {
-        padding: 22px;
+    @media (max-width: 650px) {
+
+      body {
+        padding: 12px;
+      }
+
+      .box {
+        padding: 18px;
+      }
+
+      .header h1 {
+        font-size: 26px;
+      }
+
+      .options-grid {
+        grid-template-columns: 1fr;
       }
 
       .download-buttons {
-        flex-direction: column;
+        grid-template-columns: 1fr;
       }
 
     }
+
   </style>
+
 </head>
 
 <body>
 
   <div class="container">
 
-    <h1>🎬 AI Movie Explainer</h1>
+    <div class="header">
 
-    <p>
-      Create an original movie explanation with AI narration.
-    </p>
+      <h1>🎬 AI Movie Explainer</h1>
+
+      <p>
+        Generate an AI movie explanation script and voice.
+      </p>
+
+    </div>
 
 
-    <!-- STEP 1 -->
+    <!-- MOVIE INPUT -->
 
-    <div id="movieSection">
+    <div
+      id="movieSection"
+      class="box"
+    >
 
       <input
         type="text"
         id="movieInput"
         placeholder="Enter movie name or permitted video URL"
+        autocomplete="off"
       >
 
       <button
         id="continueButton"
+        type="button"
         onclick="showOptions()"
       >
         Continue
@@ -335,77 +283,110 @@
     </div>
 
 
-    <!-- STEP 2 -->
+    <!-- OPTIONS -->
 
-    <div id="optionsSection" class="hidden">
+    <div
+      id="optionsSection"
+      class="box hidden"
+    >
 
-      <div class="duration-box">
+      <div class="options-grid">
 
-        <div class="section-title">
-          ⏱️ How long should the script be?
+        <div>
+
+          <label
+            class="option-label"
+            for="duration"
+          >
+            ⏱️ Duration
+          </label>
+
+          <select id="duration">
+
+            <option value="5">5 Minutes</option>
+
+            <option value="8">8 Minutes</option>
+
+            <option
+              value="10"
+              selected
+            >
+              10 Minutes
+            </option>
+
+            <option value="12">12 Minutes</option>
+
+            <option value="15">15 Minutes</option>
+
+          </select>
+
         </div>
 
-        <select id="duration">
 
-          <option value="5">
-            5 Minutes
-          </option>
+        <div>
 
-          <option value="8">
-            8 Minutes
-          </option>
+          <label
+            class="option-label"
+            for="language"
+          >
+            🌎 Language
+          </label>
 
-          <option value="10" selected>
-            10 Minutes
-          </option>
+          <select id="language">
 
-          <option value="12">
-            12 Minutes
-          </option>
+            <option value="English">
+              English
+            </option>
 
-          <option value="15">
-            15 Minutes
-          </option>
+            <option value="Urdu">
+              Urdu
+            </option>
 
-        </select>
+            <option value="Hindi">
+              Hindi
+            </option>
 
+          </select>
 
-        <div class="section-title">
-          🌎 Choose language
         </div>
 
-        <select id="language">
+        <div>
 
-          <option value="English">
-            English
-          </option>
+          <label class="option-label">
+            🤖 AI
+          </label>
 
-          <option value="Urdu">
-            Urdu
-          </option>
+          <select disabled>
 
-          <option value="Hindi">
-            Hindi
-          </option>
+            <option>
+              AI Movie Explanation
+            </option>
 
-        </select>
+          </select>
 
-
-        <button
-          id="generateButton"
-          onclick="generateExplanation()"
-        >
-          ✨ Generate Script
-        </button>
+        </div>
 
       </div>
+
+
+      <button
+        id="generateButton"
+        type="button"
+        class="generate-button"
+        onclick="generateExplanation()"
+      >
+        🎬 Generate Explanation
+      </button>
 
     </div>
 
 
-    <!-- STATUS -->
+    <!-- MAIN STATUS -->
 
-    <div id="status"></div>
+    <div
+      id="status"
+      class="status"
+    ></div>
 
 
     <!-- SCRIPT LOADING -->
@@ -418,12 +399,18 @@
       <div class="spinner"></div>
 
       <div class="loading-main">
-        🤖 AI is creating your movie script...
+        🤖 AI is writing your movie explanation...
       </div>
 
       <div class="loading-sub">
         ⏳ Usually takes around 30–120 seconds.
-        Please don't close this page.
+      </div>
+
+      <div
+        id="loadingStage"
+        class="timer"
+      >
+        Preparing...
       </div>
 
       <div
@@ -433,13 +420,6 @@
         Elapsed time: 0 seconds
       </div>
 
-      <div
-        id="loadingStage"
-        class="loading-stage"
-      >
-        📝 Writing the movie explanation...
-      </div>
-
     </div>
 
 
@@ -447,7 +427,7 @@
 
     <div
       id="scriptSection"
-      class="script-box hidden"
+      class="box hidden"
     >
 
       <div class="script-title">
@@ -464,6 +444,8 @@
       <div class="download-buttons">
 
         <button
+          id="copyButton"
+          type="button"
           class="copy-button"
           onclick="copyScript()"
         >
@@ -471,165 +453,174 @@
         </button>
 
         <button
-          class="txt-button"
+          type="button"
+          class="download-button"
           onclick="downloadTXT()"
         >
-          📄 Download TXT
+          📄 TXT
         </button>
 
         <button
-          class="doc-button"
+          type="button"
+          class="download-button"
           onclick="downloadDOC()"
         >
-          📝 Download DOC
+          📄 DOC
         </button>
 
       </div>
 
+    </div>
 
-      <!-- AI VOICE -->
+
+    <!-- AI VOICE -->
+
+    <div
+      id="voiceSection"
+      class="box hidden"
+    >
+
+      <div class="voice-title">
+        🎙️ AI Voice
+      </div>
+
 
       <div
-        id="voiceSection"
-        class="voice-box hidden"
+        id="voiceSelector"
+        style="
+          display:block;
+          margin-top:15px;
+          text-align:left;
+        "
       >
 
-        <div class="voice-title">
-          🎙️ AI Voice
-        </div>
-
-
-        <div
-          id="voiceSelector"
+        <label
+          for="voiceSelect"
           style="
             display:block;
-            margin-top:15px;
-            text-align:left;
+            margin-bottom:8px;
+            font-weight:bold;
+          "
+        >
+          🎙️ Choose AI Voice
+        </label>
+
+
+        <select
+          id="voiceSelect"
+          style="
+            width:100%;
+            padding:12px;
+            border-radius:8px;
+            border:1px solid #ccc;
+            font-size:16px;
+            background:white;
           "
         >
 
-          <label
-            style="
-              display:block;
-              margin-bottom:8px;
-              font-weight:bold;
-            "
-          >
-            🎙️ Choose AI Voice
-          </label>
+          <option value="en-US-AriaNeural">
+            🇺🇸 Aria — Female, Natural
+          </option>
+
+          <option value="en-US-GuyNeural">
+            🇺🇸 Guy — Male, Natural
+          </option>
+
+          <option value="en-US-JennyNeural">
+            🇺🇸 Jenny — Female, Warm
+          </option>
+
+          <option value="en-US-ChristopherNeural">
+            🇺🇸 Christopher — Male, Deep
+          </option>
+
+          <option value="en-US-EricNeural">
+            🇺🇸 Eric — Male, Clear
+          </option>
+
+          <option value="en-US-MichelleNeural">
+            🇺🇸 Michelle — Female, Soft
+          </option>
+
+          <option value="en-US-RogerNeural">
+            🇺🇸 Roger — Male, Storytelling
+          </option>
+
+          <option value="ur-PK-UzmaNeural">
+            🇵🇰 Uzma — Urdu Female
+          </option>
+
+          <option value="hi-IN-SwaraNeural">
+            🇮🇳 Swara — Hindi Female
+          </option>
+
+        </select>
+
+      </div>
 
 
-          <select
-            id="voiceSelect"
-            style="
-              width:100%;
-              padding:12px;
-              border-radius:8px;
-              border:1px solid #ccc;
-              font-size:16px;
-              background:white;
-            "
-          >
+      <button
+        id="voiceButton"
+        type="button"
+        class="voice-button"
+        onclick="generateVoice()"
+      >
+        🎙️ Generate AI Voice
+      </button>
 
-            <option value="en-US-AriaNeural">
-              🇺🇸 Aria — Female, Natural
-            </option>
 
-            <option value="en-US-GuyNeural">
-              🇺🇸 Guy — Male, Natural
-            </option>
+      <div
+        id="voiceLoading"
+        class="voice-loading hidden"
+      >
 
-            <option value="en-US-JennyNeural">
-              🇺🇸 Jenny — Female, Warm
-            </option>
+        <div class="spinner"></div>
 
-            <option value="en-US-ChristopherNeural">
-              🇺🇸 Christopher — Male, Deep
-            </option>
-
-            <option value="en-US-EricNeural">
-              🇺🇸 Eric — Male, Clear
-            </option>
-
-            <option value="en-US-MichelleNeural">
-              🇺🇸 Michelle — Female, Soft
-            </option>
-
-            <option value="en-US-RogerNeural">
-              🇺🇸 Roger — Male, Storytelling
-            </option>
-
-            <option value="ur-PK-UzmaNeural">
-              🇵🇰 Uzma — Urdu Female
-            </option>
-
-            <option value="hi-IN-SwaraNeural">
-              🇮🇳 Swara — Hindi Female
-            </option>
-
-          </select>
-
+        <div class="loading-main">
+          🎙️ AI is creating your voice...
         </div>
+
+        <div class="loading-sub">
+          ⏳ Please don't close this page.
+        </div>
+
+        <div
+          id="voiceTimer"
+          class="timer"
+        >
+          Elapsed time: 0 seconds
+        </div>
+
+      </div>
+
+
+      <div
+        id="voiceResult"
+        class="hidden"
+      >
+
+        <div
+          class="loading-main"
+          style="margin-top:20px;"
+        >
+          ✅ Voice generated successfully!
+        </div>
+
+
+        <audio
+          id="audioPlayer"
+          class="audio-player"
+          controls
+        ></audio>
 
 
         <button
-          id="voiceButton"
-          class="voice-button"
-          onclick="generateVoice()"
+          id="downloadAudioButton"
+          type="button"
+          onclick="downloadAudio()"
         >
-          🎙️ Generate AI Voice
+          ⬇️ Download Audio
         </button>
-
-
-        <div
-          id="voiceLoading"
-          class="voice-loading hidden"
-        >
-
-          <div class="spinner"></div>
-
-          <div class="loading-main">
-            🎙️ AI is creating your voice...
-          </div>
-
-          <div class="loading-sub">
-            ⏳ Please don't close this page.
-          </div>
-
-          <div
-            id="voiceTimer"
-            class="timer"
-          >
-            Elapsed time: 0 seconds
-          </div>
-
-        </div>
-
-
-        <div
-          id="voiceResult"
-          class="hidden"
-        >
-
-          <div class="loading-main">
-            ✅ Voice generated successfully!
-          </div>
-
-          <audio
-            id="audioPlayer"
-            class="audio-player"
-            controls
-          ></audio>
-
-
-          <button
-            id="downloadAudioButton"
-            onclick="downloadAudio()"
-          >
-            ⬇️ Download Audio
-          </button>
-
-        </div>
 
       </div>
 
@@ -640,28 +631,56 @@
 
   <script>
 
+    /*
+    ==================================================
+    GLOBAL VARIABLES
+    ==================================================
+    */
+
     let timerInterval = null;
+
     let elapsedSeconds = 0;
 
     let voiceTimerInterval = null;
+
     let voiceElapsedSeconds = 0;
+
     let voiceAudioUrl = null;
 
 
-    /* ================================================
-       SHOW OPTIONS
-    ================================================ */
+    /*
+    ==================================================
+    SHOW OPTIONS
+    ==================================================
+    */
 
     function showOptions() {
 
-      const input =
-        document.getElementById("movieInput")
-          .value
-          .trim();
-
+      const inputElement =
+        document.getElementById(
+          "movieInput"
+        );
 
       const status =
-        document.getElementById("status");
+        document.getElementById(
+          "status"
+        );
+
+      const options =
+        document.getElementById(
+          "optionsSection"
+        );
+
+
+      if (!inputElement) {
+
+        return;
+
+      }
+
+
+      const input =
+        inputElement.value.trim();
 
 
       if (!input) {
@@ -669,36 +688,49 @@
         status.textContent =
           "Please enter a movie name or video URL.";
 
+        inputElement.focus();
+
         return;
+
       }
 
 
       status.textContent = "";
 
+      options.classList.remove(
+        "hidden"
+      );
 
-      document.getElementById(
-        "optionsSection"
-      ).classList.remove("hidden");
+      options.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
 
     }
 
 
-    /* ================================================
-       SCRIPT LOADING
-    ================================================ */
+    /*
+    ==================================================
+    START LOADING
+    ==================================================
+    */
 
     function startLoading() {
 
-      const loadingBox =
-        document.getElementById("loadingBox");
-
+      const loading =
+        document.getElementById(
+          "loadingBox"
+        );
 
       const timer =
-        document.getElementById("timer");
-
+        document.getElementById(
+          "timer"
+        );
 
       const stage =
-        document.getElementById("loadingStage");
+        document.getElementById(
+          "loadingStage"
+        );
 
 
       elapsedSeconds = 0;
@@ -709,12 +741,21 @@
 
 
       stage.textContent =
-        "📝 Writing the movie explanation...";
+        "🤖 Starting AI...";
 
 
-      loadingBox.classList.remove(
+      loading.classList.remove(
         "hidden"
       );
+
+
+      if (timerInterval) {
+
+        clearInterval(
+          timerInterval
+        );
+
+      }
 
 
       timerInterval =
@@ -730,26 +771,29 @@
               " seconds";
 
 
-            if (elapsedSeconds >= 15) {
+            if (elapsedSeconds < 15) {
 
               stage.textContent =
-                "🧠 Making the story detailed and engaging...";
+                "🤖 Preparing your request...";
 
-            }
-
-
-            if (elapsedSeconds >= 45) {
-
-              stage.textContent =
-                "✨ Finalizing your movie explanation...";
-
-            }
-
-
-            if (elapsedSeconds >= 90) {
+            } else if (
+              elapsedSeconds < 45
+            ) {
 
               stage.textContent =
-                "⏳ Almost there — AI is finishing your script...";
+                "✍️ AI is writing the explanation...";
+
+            } else if (
+              elapsedSeconds < 90
+            ) {
+
+              stage.textContent =
+                "🧠 AI is improving the story...";
+
+            } else {
+
+              stage.textContent =
+                "⏳ Still working. Please wait...";
 
             }
 
@@ -759,6 +803,12 @@
 
     }
 
+
+    /*
+    ==================================================
+    STOP LOADING
+    ==================================================
+    */
 
     function stopLoading() {
 
@@ -773,85 +823,101 @@
       }
 
 
-      document.getElementById(
-        "loadingBox"
-      ).classList.add("hidden");
+      document
+        .getElementById(
+          "loadingBox"
+        )
+        .classList.add(
+          "hidden"
+        );
 
     }
 
 
-    /* ================================================
-       GENERATE SCRIPT
-    ================================================ */
+    /*
+    ==================================================
+    GENERATE EXPLANATION
+    ==================================================
+    */
 
     async function generateExplanation() {
 
-      const input =
-        document.getElementById("movieInput")
-          .value
-          .trim();
-
+      const movieInput =
+        document.getElementById(
+          "movieInput"
+        );
 
       const duration =
-        document.getElementById("duration")
-          .value;
-
+        document.getElementById(
+          "duration"
+        ).value;
 
       const language =
-        document.getElementById("language")
-          .value;
-
+        document.getElementById(
+          "language"
+        ).value;
 
       const status =
-        document.getElementById("status");
-
+        document.getElementById(
+          "status"
+        );
 
       const scriptSection =
-        document.getElementById("scriptSection");
-
+        document.getElementById(
+          "scriptSection"
+        );
 
       const scriptOutput =
-        document.getElementById("scriptOutput");
-
-
-      const generateButton =
-        document.getElementById("generateButton");
-
+        document.getElementById(
+          "scriptOutput"
+        );
 
       const voiceSection =
-        document.getElementById("voiceSection");
+        document.getElementById(
+          "voiceSection"
+        );
+
+      const generateButton =
+        document.getElementById(
+          "generateButton"
+        );
 
 
-      if (!input) {
+      const movie =
+        movieInput.value.trim();
+
+
+      if (!movie) {
 
         status.textContent =
           "Please enter a movie name or video URL.";
 
+        movieInput.focus();
+
         return;
+
       }
+
+
+      generateButton.disabled =
+        true;
+
+      generateButton.textContent =
+        "⏳ Generating...";
+
+
+      status.textContent = "";
+
+      scriptOutput.value = "";
 
 
       scriptSection.classList.add(
         "hidden"
       );
 
-
       voiceSection.classList.add(
         "hidden"
       );
-
-
-      scriptOutput.value = "";
-
-
-      status.textContent = "";
-
-
-      generateButton.disabled = true;
-
-
-      generateButton.textContent =
-        "⏳ Generating...";
 
 
       startLoading();
@@ -866,12 +932,13 @@
               method: "POST",
 
               headers: {
-                "Content-Type": "application/json"
+                "Content-Type":
+                  "application/json"
               },
 
               body: JSON.stringify({
 
-                input: input,
+                movie: movie,
 
                 duration: duration,
 
@@ -883,30 +950,46 @@
           );
 
 
+        if (!response.ok) {
+
+          let errorMessage =
+            "Movie explanation generation failed.";
+
+
+          try {
+
+            const data =
+              await response.json();
+
+            errorMessage =
+              data.error ||
+              data.message ||
+              errorMessage;
+
+          } catch (_) {}
+
+
+          throw new Error(
+            errorMessage
+          );
+
+        }
+
+
         const data =
           await response.json();
 
 
-        if (!response.ok) {
+        if (
+          !data ||
+          !data.script
+        ) {
 
           throw new Error(
-            data.error ||
-            "Server error"
+            "No script was returned by the server."
           );
 
         }
-
-
-        if (!data.script) {
-
-          throw new Error(
-            "Script was not returned by the server."
-          );
-
-        }
-
-
-        stopLoading();
 
 
         scriptOutput.value =
@@ -929,51 +1012,72 @@
 
         scriptSection.scrollIntoView({
           behavior: "smooth",
-          block: "start"
+          block: "center"
         });
 
 
       } catch (error) {
 
-        console.error(error);
-
-
-        stopLoading();
+        console.error(
+          "Movie explanation error:",
+          error
+        );
 
 
         status.textContent =
           "❌ Error: " +
-          error.message;
+          (
+            error.message ||
+            "Unable to generate explanation."
+          );
+
 
       } finally {
 
-        generateButton.disabled = false;
+        stopLoading();
+
+
+        generateButton.disabled =
+          false;
 
 
         generateButton.textContent =
-          "✨ Generate Script";
+          "🎬 Generate Explanation";
 
       }
 
     }
 
 
-    /* ================================================
-       COPY SCRIPT
-    ================================================ */
+    /*
+    ==================================================
+    COPY SCRIPT
+    ==================================================
+    */
 
     async function copyScript() {
 
       const script =
-        document.getElementById("scriptOutput")
+        document
+          .getElementById(
+            "scriptOutput"
+          )
           .value;
 
 
-      if (!script) {
+      const status =
+        document.getElementById(
+          "status"
+        );
 
-        alert("No script available.");
+
+      if (!script.trim()) {
+
+        status.textContent =
+          "❌ No script available to copy.";
 
         return;
+
       }
 
 
@@ -984,9 +1088,8 @@
         );
 
 
-        alert(
-          "✅ Script copied successfully!"
-        );
+        status.textContent =
+          "✅ Script copied successfully!";
 
 
       } catch (error) {
@@ -997,42 +1100,65 @@
           );
 
 
+        textarea.focus();
+
         textarea.select();
 
 
-        document.execCommand("copy");
+        try {
+
+          document.execCommand(
+            "copy"
+          );
 
 
-        alert(
-          "✅ Script copied successfully!"
-        );
+          status.textContent =
+            "✅ Script copied successfully!";
+
+        } catch (_) {
+
+          status.textContent =
+            "❌ Unable to copy automatically.";
+
+        }
 
       }
 
     }
 
 
-    /* ================================================
-       DOWNLOAD TXT
-    ================================================ */
+    /*
+    ==================================================
+    DOWNLOAD TXT
+    ==================================================
+    */
 
     function downloadTXT() {
 
       const script =
-        document.getElementById("scriptOutput")
+        document
+          .getElementById(
+            "scriptOutput"
+          )
           .value;
 
 
-      if (!script) {
+      if (!script.trim()) {
 
-        alert("No script available.");
+        alert(
+          "No script available."
+        );
 
         return;
+
       }
 
 
       const movie =
-        document.getElementById("movieInput")
+        document
+          .getElementById(
+            "movieInput"
+          )
           .value
           .trim()
           .replace(
@@ -1052,62 +1178,79 @@
 
 
       const url =
-        URL.createObjectURL(blob);
+        URL.createObjectURL(
+          blob
+        );
 
 
       const link =
-        document.createElement("a");
+        document.createElement(
+          "a"
+        );
 
 
       link.href = url;
 
-
       link.download =
-        (movie || "movie-explanation") +
+        (
+          movie ||
+          "movie-explanation"
+        ) +
         "-script.txt";
 
 
-      document.body.appendChild(link);
+      document.body.appendChild(
+        link
+      );
 
 
       link.click();
 
 
-      document.body.removeChild(link);
+      document.body.removeChild(
+        link
+      );
 
 
-      URL.revokeObjectURL(url);
+      URL.revokeObjectURL(
+        url
+      );
 
     }
 
 
-    /* ================================================
-       DOWNLOAD DOC
-    ================================================ */
+    /*
+    ==================================================
+    DOWNLOAD DOC
+    ==================================================
+    */
 
     function downloadDOC() {
 
       const script =
-        document.getElementById("scriptOutput")
+        document.getElementById(
+  "scriptOutput"
+          )
           .value;
 
 
-      if (!script) {
+      if (!script.trim()) {
 
-        alert("No script available.");
+        alert(
+          "No script available."
+        );
 
         return;
+
       }
 
 
-      const movieInput =
-        document.getElementById(
-          "movieInput"
-        ).value;
-
-
       const movie =
-        movieInput
+        document
+          .getElementById(
+            "movieInput"
+          )
+          .value
           .trim()
           .replace(
             /[^a-z0-9]/gi,
@@ -1115,62 +1258,39 @@
           );
 
 
-      const htmlContent =
-        `
-        <html>
+      const safeScript =
+        escapeHTML(
+          script
+        ).replace(
+          /\n/g,
+          "<br>"
+        );
 
-        <head>
-          <meta charset="UTF-8">
 
-          <title>
-            Movie Explanation Script
-          </title>
-        </head>
-
-        <body>
-
-          <h1>
-            AI Movie Explanation
-          </h1>
-
-          <h2>
-            ${escapeHTML(movieInput)}
-          </h2>
-
-          <p>
-            Duration:
-            ${escapeHTML(
-              document.getElementById(
-                "duration"
-              ).value
-            )}
-            minutes
-          </p>
-
-          <p>
-            Language:
-            ${escapeHTML(
-              document.getElementById(
-                "language"
-              ).value
-            )}
-          </p>
-
-          <hr>
-
-          <p style="white-space: pre-wrap;">
-            ${escapeHTML(script)}
-          </p>
-
-        </body>
-
-        </html>
-        `;
+      const html =
+        "<!DOCTYPE html>" +
+        "<html>" +
+        "<head>" +
+        "<meta charset='UTF-8'>" +
+        "<title>Movie Explanation</title>" +
+        "</head>" +
+        "<body>" +
+        "<h1>" +
+        escapeHTML(
+          movie ||
+          "Movie Explanation"
+        ) +
+        "</h1>" +
+        "<p>" +
+        safeScript +
+        "</p>" +
+        "</body>" +
+        "</html>";
 
 
       const blob =
         new Blob(
-          [htmlContent],
+          [html],
           {
             type:
               "application/msword"
@@ -1179,74 +1299,53 @@
 
 
       const url =
-        URL.createObjectURL(blob);
+        URL.createObjectURL(
+          blob
+        );
 
 
       const link =
-        document.createElement("a");
+        document.createElement(
+          "a"
+        );
 
 
       link.href = url;
 
 
       link.download =
-        (movie || "movie-explanation") +
+        (
+          movie ||
+          "movie-explanation"
+        ) +
         "-script.doc";
 
 
-      document.body.appendChild(link);
+      document.body.appendChild(
+        link
+      );
 
 
       link.click();
 
 
-      document.body.removeChild(link);
+      document.body.removeChild(
+        link
+      );
 
 
-      URL.revokeObjectURL(url);
-
-    }
-
-
-    /* ===============================
-           ESCAPE HTML
-    ================================================ */
-
-    function escapeHTML(text) {
-
-      return String(text)
-
-        .replace(
-          /&/g,
-          "&amp;"
-        )
-
-        .replace(
-          /</g,
-          "&lt;"
-        )
-
-        .replace(
-          />/g,
-          "&gt;"
-        )
-
-        .replace(
-          /"/g,
-          "&quot;"
-        )
-
-        .replace(
-          /'/g,
-          "&#039;"
-        );
+      URL.revokeObjectURL(
+        url
+      );
 
     }
 
 
-    /* ================================================
-       AI VOICE LOADING
-    ================================================ */
+    /*
+    ==================================================
+    START VOICE LOADING
+    ==================================================
+    */
 
     function startVoiceLoading() {
 
@@ -1254,7 +1353,6 @@
         document.getElementById(
           "voiceLoading"
         );
-
 
       const timer =
         document.getElementById(
@@ -1272,6 +1370,15 @@
       loading.classList.remove(
         "hidden"
       );
+
+
+      if (voiceTimerInterval) {
+
+        clearInterval(
+          voiceTimerInterval
+        );
+
+      }
 
 
       voiceTimerInterval =
@@ -1293,6 +1400,12 @@
     }
 
 
+    /*
+    ==================================================
+    STOP VOICE LOADING
+    ==================================================
+    */
+
     function stopVoiceLoading() {
 
       if (voiceTimerInterval) {
@@ -1306,42 +1419,56 @@
       }
 
 
-      document.getElementById(
-        "voiceLoading"
-      ).classList.add("hidden");
+      document
+        .getElementById(
+          "voiceLoading"
+        )
+        .classList.add(
+          "hidden"
+        );
 
     }
 
 
-    /* ================================================
-       GENERATE AI VOICE
-    ================================================ */
+    /*
+    ==================================================
+    GENERATE AI VOICE
+    ==================================================
+    */
 
     async function generateVoice() {
 
       const script =
         document
-          .getElementById("scriptOutput")
+          .getElementById(
+            "scriptOutput"
+          )
           .value
           .trim();
 
 
       const language =
         document
-          .getElementById("language")
+          .getElementById(
+            "language"
+          )
           .value;
 
 
       const movie =
         document
-          .getElementById("movieInput")
+          .getElementById(
+            "movieInput"
+          )
           .value
           .trim();
 
 
       const selectedVoice =
         document
-          .getElementById("voiceSelect")
+          .getElementById(
+            "voiceSelect"
+          )
           .value;
 
 
@@ -1375,6 +1502,7 @@
           "❌ Please generate the script first.";
 
         return;
+
       }
 
 
@@ -1405,7 +1533,8 @@
               method: "POST",
 
               headers: {
-                "Content-Type": "application/json"
+                "Content-Type":
+                  "application/json"
               },
 
               body: JSON.stringify({
@@ -1438,8 +1567,8 @@
 
             errorMessage =
               data.error ||
+              data.message ||
               errorMessage;
-
 
           } catch (_) {}
 
@@ -1503,19 +1632,27 @@
 
       } catch (error) {
 
-        console.error(error);
+        console.error(
+          "Voice error:",
+          error
+        );
 
 
         status.textContent =
           "❌ Voice Error: " +
-          error.message;
+          (
+            error.message ||
+            "Unable to generate AI voice."
+          );
+
 
       } finally {
 
         stopVoiceLoading();
 
 
-        button.disabled = false;
+        button.disabled =
+          false;
 
 
         button.textContent =
@@ -1526,9 +1663,11 @@
     }
 
 
-    /* ================================================
-       DOWNLOAD AUDIO
-    ================================================ */
+    /*
+    ==================================================
+    DOWNLOAD AUDIO
+    ==================================================
+    */
 
     function downloadAudio() {
 
@@ -1539,23 +1678,27 @@
         );
 
         return;
+
       }
 
 
       const movie =
         document
-          .getElementById("movieInput")
+          .getElementById(
+            "movieInput"
+          )
           .value
           .trim()
           .replace(
-            /[^a-z0-9]/
-                        /[^a-z0-9]/gi,
+            /[^a-z0-9]/gi,
             "_"
           );
 
 
       const link =
-        document.createElement("a");
+        document.createElement(
+          "a"
+        );
 
 
       link.href =
@@ -1563,7 +1706,10 @@
 
 
       link.download =
-        (movie || "movie-explanation") +
+        (
+          movie ||
+          "movie-explanation"
+        ) +
         "-voice.mp3";
 
 
@@ -1582,9 +1728,72 @@
     }
 
 
-    /* ================================================
-       END OF JAVASCRIPT
-    ================================================ */
+    /*
+    ==================================================
+    ESCAPE HTML
+    ==================================================
+    */
+
+    function escapeHTML(text) {
+
+      return String(text)
+
+        .replace(
+          /&/g,
+          "&amp;"
+        )
+
+        .replace(
+          /</g,
+          "&lt;"
+        )
+
+        .replace(
+          />/g,
+          "&gt;"
+        )
+
+        .replace(
+          /"/g,
+          "&quot;"
+        )
+
+        .replace(
+          /'/g,
+          "&#039;"
+        );
+
+    }
+
+
+    /*
+    ==================================================
+    ENTER KEY SUPPORT
+    ==================================================
+    */
+
+    document
+      .getElementById(
+        "movieInput"
+      )
+      .addEventListener(
+        "keydown",
+        function(event) {
+
+          if (
+            event.key ===
+            "Enter"
+          ) {
+
+            event.preventDefault();
+
+            showOptions();
+
+          }
+
+        }
+      );
+
 
   </script>
 
