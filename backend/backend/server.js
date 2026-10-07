@@ -1531,36 +1531,112 @@ app.post(
 
       const prompt = `
 
-You are a professional YouTube movie explanation scriptwriter.
+You are an expert movie story researcher and professional YouTube movie explanation scriptwriter.
 
-Create an ORIGINAL movie explanation script for:
-
+MOVIE:
 ${input}
 
-Language: ${language}
+LANGUAGE:
+${language}
 
-Target duration:
-approximately ${duration} minutes.
+TARGET DURATION:
+Approximately ${duration} minutes.
 
-Requirements:
+YOUR MAIN GOAL:
 
-- Write a complete voiceover narration.
-- Start with a strong hook.
-- Explain important story events in chronological order.
-- Keep the narration engaging and easy to understand.
-- Use natural ${language}.
+Create a highly engaging, detailed, and factually accurate movie explanation script.
+
+The story must be based on the ACTUAL MOVIE and its real events.
+
+ACCURACY RULES:
+
+- Never invent a scene, event, character, relationship, location, action, dialogue, twist, or ending.
+- Never guess what happened in the movie.
+- Never add an event just to make the story more interesting.
+- Do not confuse actors with characters.
+- Do not change the order or meaning of important events.
+- Do not create fake dialogue.
+- Do not present theories or fan interpretations as confirmed movie facts.
+- If the movie has an ambiguous ending, clearly explain what the movie actually shows and then explain the ambiguity.
+- Keep character motivations consistent with the movie.
+- Make sure the climax and ending match the actual movie.
+- Important events must not be skipped if they are necessary to understand the story.
+
+RESEARCH / VERIFICATION:
+
+Before writing the final script, carefully use your available knowledge and information about the movie to reconstruct the actual story.
+
+If you are uncertain about an event, DO NOT make up an answer.
+
+Instead, verify the information using reliable available sources/context before including it.
+
+Cross-check important plot points, especially:
+
+- Beginning
+- Main characters
+- Character relationships
+- Major events
+- Important twists
+- Cause and effect
+- Climax
+- Ending
+- Post-credit scenes, if relevant
+
+If reliable information cannot confirm a detail, leave that detail out rather than inventing it.
+
+STORYTELLING STYLE:
+
+The script should feel like a professional YouTube movie explanation.
+
+Start with a powerful hook that makes the viewer want to continue listening.
+
+Then naturally introduce the movie and begin the story.
+
+Explain the story in a smooth chronological flow.
+
+Use suspense where appropriate.
+
+Explain WHY important events happen, not just WHAT happens.
+
+Make character motivations easy to understand.
+
+When a major twist happens, explain it clearly without making the narration confusing.
+
+Build naturally toward the climax.
+
+Explain the ending clearly.
+
+Keep the narration interesting from beginning to end.
+
+Do not sound like a Wikipedia article.
+
+Do not repeatedly say "then", "after that", or "next" unnecessarily.
+
+Do not add filler just to increase the length.
+
+FORMAT:
+
+- Write one continuous voiceover narration.
 - Do not use headings.
 - Do not use bullet points.
 - Do not use timestamps.
+- Do not use scene labels.
 - Do not reproduce movie dialogue.
-- Do not copy the movie screenplay.
-- Do not invent characters, scenes, or events.
-- Summarize everything in your own words.
-- Make the script suitable for a YouTube movie explanation video.
-- End naturally.
+- Do not copy the screenplay.
+- Use your own words.
+- Use natural ${language}.
+- Make the script suitable for narration and AI voice generation.
+- End naturally after explaining the movie's ending.
+
+FINAL QUALITY CHECK:
+
+Before returning the script, silently check every major event against the actual movie.
+
+If any sentence contains an invented or uncertain event, remove or correct it.
+
+Return ONLY the final movie explanation script.
 
 `;
-
 
       let script = "";
 
