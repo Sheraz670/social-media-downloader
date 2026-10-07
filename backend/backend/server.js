@@ -3350,7 +3350,7 @@ with open(
 
         text =
             segment.get("text", "").strip()
-
+            
         if not text:
             continue
 
