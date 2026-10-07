@@ -1637,176 +1637,392 @@ If any sentence contains an invented or uncertain event, remove or correct it.
 Return ONLY the final movie explanation script.
 
 `;
-            let script = "";
+            
 
-      let lastError = "";
+      let script = "";  
 
-
-      /*
-      ================================================
-      GROQ
-      ================================================
-      */
-
-      if (
-        process.env.GROQ_API_KEY
-      ) {
-
-        try {
-
-          const groqResponse =
-            await fetch(
-              "https://api.groq.com/openai/v1/chat/completions",
-              {
-
-                method:
-                  "POST",
-
-                headers: {
-
-                  "Content-Type":
-                    "application/json",
-
-                  "Authorization":
-                    `Bearer ${process.env.GROQ_API_KEY}`
-
-                },
-
-                body:
-                  JSON.stringify({
-
-                    model:
-                      "openai/gpt-oss-20b",
-
-                    messages: [
-
-                      {
-                        role:
-                          "user",
-
-                        content:
-                          prompt
-
-                      }
-
-                    ],
-
-                    temperature:
+  let lastError = "";  
 
 
+  /*  
+  ================================================  
+  GEMINI  
+  ================================================  
+  */  
 
-      /*
-      ================================================
-      GEMINI FALLBACK
-      ================================================
-      */
+  let geminiScript = "";  
 
-      if (
-        !script &&
-        process.env.GEMINI_API_KEY
-      ) {
+  if (  
+    process.env.GEMINI_API_KEY  
+  ) {  
 
-        try {
+    try {  
 
-          const geminiResponse =
-            await fetch(
-              "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
-              {
+      const geminiResponse =  
+        await fetch(  
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",  
+          {  
 
-                method:
-                  "POST",
+            method:  
+              "POST",  
 
-                headers: {
+            headers: {  
 
-                  "Content-Type":
-                    "application/json",
+              "Content-Type":  
+                "application/json",  
 
-                  "x-goog-api-key":
-                    process.env.GEMINI_API_KEY
+              "x-goog-api-key":  
+                process.env.GEMINI_API_KEY  
 
-                },
+            },  
 
-                body:
-                  JSON.stringify({
+            body:  
+              JSON.stringify({  
 
-                    contents: [
+                contents: [  
 
-                      {
+                  {  
 
-                        parts: [
+                    parts: [  
 
-                          {
+                      {  
 
-                            text:
-                              prompt
+                        text:  
+                          prompt  
 
-                          }
+                      }  
 
-                        ]
+                    ]  
 
-                      }
+                  }  
 
-                    ]
+                ],  
 
-                  })
+                generationConfig: {  
 
-              }
-            );
+                  temperature:  
+                    0.2  
 
+                }  
 
-          const geminiData =
-            await geminiResponse.json();
+              })  
 
-
-          if (
-            geminiResponse.ok
-          ) {
-
-            script =
-              geminiData
-                ?.candidates?.[0]
-                ?.content?.parts
-                ?.map(
-                  part =>
-                    part.text || ""
-                )
-                .join("")
-                .trim() || "";
-
-          } else {
-
-            lastError =
-              geminiData
-                ?.error
-                ?.message ||
-              "Gemini API request failed.";
+          }  
+        );  
 
 
-            console.error(
-              "GEMINI ERROR:",
-              geminiData
-            );
-
-          }
-
-        } catch (error) {
-
-          lastError =
-            error.message;
+      const geminiData =  
+        await geminiResponse.json();  
 
 
-          console.error(
-            "GEMINI CONNECTION ERROR:",
-            error
-          );
+      if (  
+        geminiResponse.ok  
+      ) {  
 
-        }
+        geminiScript =  
+          geminiData  
+            ?.candidates?.[0]  
+            ?.content?.parts  
+            ?.map(  
+              part =>  
+                part.text || ""  
+            )  
+            .join("")  
+            .trim() || "";  
 
-  }
-  
+      } else {  
+
+        lastError =  
+          geminiData  
+            ?.error  
+            ?.message ||  
+          "Gemini API request failed.";  
 
 
+        console.error(  
+          "GEMINI ERROR:",  
+          geminiData  
+        );  
 
+      }  
+
+    } catch (error) {  
+
+      lastError =  
+        error.message;  
+
+
+      console.error(  
+        "GEMINI CONNECTION ERROR:",  
+        error  
+      );  
+
+    }  
+
+  }  
+
+
+  /*  
+  ================================================  
+  GROQ  
+  VERIFY + CORRECT GEMINI  
+  ================================================  
+  */  
+
+  if (  
+    process.env.GROQ_API_KEY  
+  ) {  
+
+    try {  
+
+      const verificationPrompt = `
+
+You are the final fact-checking editor for a movie explanation script.
+
+MOVIE:
+${input}
+
+LANGUAGE:
+${language}
+
+TARGET DURATION:
+Approximately ${duration} minutes.
+
+FIRST AI DRAFT:
+
+${geminiScript || "No draft was produced. Create the script yourself."}
+
+YOUR JOB:
+
+Create the FINAL movie explanation script.
+
+The movie events must be factually accurate.
+
+STRICT RULES:
+
+1. Only include events that actually happen in the movie.
+
+2. NEVER invent scenes, characters, relationships,
+   locations, actions, deaths, conversations,
+   motivations, twists, or endings.
+
+3. NEVER assume something happened simply because
+   it would make the story more interesting.
+
+4. Do not trust the first AI draft blindly.
+
+5. Check every important event in the draft against
+   your reliable knowledge of the actual movie.
+
+6. If an event in the draft is incorrect,
+   remove or correct it.
+
+7. If an event cannot be reliably confirmed,
+   remove it instead of guessing.
+
+8. Keep the correct chronological order of events.
+
+9. Keep character names and relationships accurate.
+
+10. Make sure the climax is accurate.
+
+11. Make sure the ending is accurate.
+
+12. Do not create fake movie dialogue.
+
+13. Do not present fan theories as confirmed facts.
+
+14. If the ending is intentionally ambiguous,
+    explain only what the movie actually shows
+    and clearly describe the ambiguity.
+
+15. Do not add information merely to increase length.
+
+16. Do not mention that another AI created a draft.
+
+17. Do not mention fact-checking or these instructions
+    in the final script.
+
+STYLE:
+
+Write a professional YouTube movie explanation.
+
+Use natural ${language}.
+
+Start with an engaging hook.
+
+Explain the story in chronological order.
+
+Explain important causes and effects.
+
+Make character motivations understandable.
+
+Keep suspense where appropriate.
+
+Explain the climax clearly.
+
+Explain the ending clearly.
+
+Use your own words.
+
+Do not use headings.
+
+Do not use bullet points.
+
+Do not use timestamps.
+
+Do not use scene labels.
+
+Do not reproduce movie dialogue.
+
+Do not copy the screenplay.
+
+Return ONLY the final movie explanation script.
+
+FINAL CHECK:
+
+Before returning the answer, silently review every
+major event.
+
+Remove anything invented, uncertain, contradictory,
+or unsupported.
+
+The final answer must contain only the movie story
+that can be reliably established.
+
+`;
+      let script= "";
+      let lastError= "";
+
+const groqResponse =  
+        await fetch(  
+          "https://api.groq.com/openai/v1/chat/completions",  
+          {  
+
+            method:  
+              "POST",  
+
+            headers: {  
+
+              "Content-Type":  
+                "application/json",  
+
+              "Authorization":  
+                `Bearer ${process.env.GROQ_API_KEY}`  
+
+            },  
+
+            body:  
+              JSON.stringify({  
+
+                model:  
+                  "openai/gpt-oss-20b",  
+
+                messages: [  
+
+                  {  
+
+                    role:  
+                      "user",  
+
+                    content:  
+                      verificationPrompt  
+
+                  }  
+
+                ],  
+
+                temperature:  
+                  0.2  
+
+              })  
+
+          }  
+        );  
+
+
+      const groqData =  
+        await groqResponse.json();  
+
+
+      if (  
+        groqResponse.ok  
+      ) {  
+
+        script =  
+          groqData  
+            ?.choices?.[0]  
+            ?.message?.content  
+            ?.trim() || "";  
+
+      } else {  
+
+        lastError =  
+          groqData  
+            ?.error  
+            ?.message ||  
+          "Groq API request failed.";  
+
+
+        console.error(  
+          "GROQ ERROR:",  
+          groqData  
+        );  
+
+      }  
+
+    } catch (error) {  
+
+      lastError =  
+        error.message;  
+
+
+      console.error(  
+        "GROQ CONNECTION ERROR:",  
+        error  
+      );  
+
+    }  
+
+  }  
+
+
+  /*  
+  ================================================  
+  IF GROQ FAILED, USE GEMINI RESULT  
+  ================================================  
+  */  
+
+  if (  
+    !script &&  
+    geminiScript  
+  ) {  
+
+    script =  
+      geminiScript;  
+
+  }  
+
+
+  /*  
+  ================================================  
+  NO AI RESULT  
+  ================================================  
+  */  
+
+  if (  
+    !script  
+  ) {  
+
+    return res.status(500).json({  
+
+      error:  
+        lastError ||  
+        "Unable to generate movie explanation."  
+
+    });  
+
+  } Ya code dal duu ?
       /*
       ================================================
       FINAL SCRIPT RESULT
