@@ -2147,6 +2147,26 @@ Return ONLY the movie explanation script.
 
                 body:
                   JSON.stringify({
+          const groqResponse =
+            await fetch(
+              "https://api.groq.com/openai/v1/chat/completions",
+              {
+
+                method:
+                  "POST",
+
+                headers: {
+
+                  "Content-Type":
+                    "application/json",
+
+                  "Authorization":
+                    `Bearer ${process.env.GROQ_API_KEY}`
+
+                },
+
+                body:
+                  JSON.stringify({
 
                     model:
                       "openai/gpt-oss-20b",
@@ -2166,7 +2186,10 @@ Return ONLY the movie explanation script.
                     ],
 
                     temperature:
-                      0.1
+                      0.1,
+
+                    max_tokens:
+                      6000
 
                   })
 
@@ -2178,7 +2201,20 @@ Return ONLY the movie explanation script.
             await groqResponse.json();
 
 
+          console.log(
+            "GROQ STATUS:",
+            groqResponse.status
+          );
+
+
           if (!groqResponse.ok) {
+
+            console.error(
+              "GROQ API ERROR:",
+              JSON.stringify(
+                groqData
+              )
+            );
 
             throw new Error(
               groqData
@@ -2190,17 +2226,26 @@ Return ONLY the movie explanation script.
           }
 
 
+          console.log(
+            "GROQ RESPONSE:",
+            JSON.stringify(
+              groqData
+            )
+          );
+
+
           groqScript =
             groqData
               ?.choices?.[0]
-              ?.message?.content
+              ?.message
+              ?.content
               ?.trim() || "";
 
 
           if (!groqScript) {
 
             throw new Error(
-              "Groq returned an empty script."
+              "Groq returned no usable script content."
             );
 
           }
@@ -2222,9 +2267,6 @@ Return ONLY the movie explanation script.
           );
 
         }
-
-      }
-
 
       /*
       ==================================================
