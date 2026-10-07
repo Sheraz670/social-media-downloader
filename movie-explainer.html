@@ -674,11 +674,183 @@
       margin-top:10px;
       color:#555;
       font-size:14px;
+      line-height:1.6;
     "
   >
     🎙️ Your AI voice will be combined with
     cinematic visuals and captions.
   </div>
+
+
+  <!-- VIDEO FORMAT -->
+
+  <div
+    style="
+      margin-top:18px;
+    "
+  >
+
+    <label
+      for="videoFormat"
+      style="
+        display:block;
+        margin-bottom:8px;
+        font-weight:bold;
+      "
+    >
+      📐 Video Format <span style="color:#dc2626;">*</span>
+    </label>
+
+    <select
+      id="videoFormat"
+      required
+      style="
+        width:100%;
+        padding:13px;
+        border:1px solid #cbd5e1;
+        border-radius:9px;
+        font-size:16px;
+        background:white;
+      "
+    >
+
+      <option value="">
+        Select video format
+      </option>
+
+      <option value="youtube-long">
+        ▶️ YouTube Long — 16:9
+      </option>
+
+      <option value="youtube-shorts">
+        📱 YouTube Shorts — 9:16
+      </option>
+
+      <option value="tiktok">
+        🎵 TikTok — 9:16
+      </option>
+
+      <option value="instagram-reels">
+        📸 Instagram Reels — 9:16
+      </option>
+
+      <option value="square">
+        ⬛ Square — 1:1
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <!-- REFERENCE MEDIA -->
+
+  <div
+    style="
+      margin-top:18px;
+      padding:16px;
+      border:1px solid #e2e8f0;
+      border-radius:12px;
+      background:#f8fafc;
+    "
+  >
+
+    <div
+      style="
+        font-weight:bold;
+        margin-bottom:6px;
+      "
+    >
+      🎞️ Reference Media
+      <span
+        style="
+          font-weight:normal;
+          color:#64748b;
+        "
+      >
+        (Optional)
+      </span>
+    </div>
+
+    <div
+      style="
+        color:#64748b;
+        font-size:13px;
+        line-height:1.6;
+        margin-bottom:12px;
+      "
+    >
+      Upload your own authorized images or video clips.
+      If you don't upload anything, automatic visual selection
+      will be used later.
+    </div>
+
+
+    <!-- REFERENCE IMAGES -->
+
+    <label
+      for="referenceImages"
+      style="
+        display:block;
+        margin-bottom:7px;
+        font-weight:bold;
+      "
+    >
+      🖼️ Reference Images
+    </label>
+
+    <input
+      type="file"
+      id="referenceImages"
+      accept="image/jpeg,image/png,image/webp"
+      multiple
+      style="
+        width:100%;
+        margin-bottom:14px;
+      "
+    />
+
+
+    <!-- REFERENCE VIDEOS -->
+
+    <label
+      for="referenceVideos"
+      style="
+        display:block;
+        margin-bottom:7px;
+        font-weight:bold;
+      "
+    >
+      🎬 Reference Video Clips
+    </label>
+
+    <input
+      type="file"
+      id="referenceVideos"
+      accept="video/mp4,video/webm,video/quicktime"
+      multiple
+      style="
+        width:100%;
+      "
+    />
+
+
+    <div
+      style="
+        margin-top:10px;
+        color:#64748b;
+        font-size:12px;
+        line-height:1.5;
+      "
+    >
+      Only upload media that you own or are authorized
+      to use.
+    </div>
+
+  </div>
+
+
+  <!-- GENERATE BUTTON -->
 
   <button
     id="videoButton"
@@ -688,6 +860,9 @@
   >
     🎬 Generate Movie Video
   </button>
+
+
+  <!-- VIDEO LOADING -->
 
   <div
     id="videoLoading"
@@ -701,7 +876,7 @@
     </div>
 
     <div class="loading-sub">
-      ⏳ Voice + visuals + video processing...
+      ⏳ Voice + visuals + captions + editing...
     </div>
 
     <div
@@ -712,6 +887,9 @@
     </div>
 
   </div>
+
+
+  <!-- VIDEO RESULT -->
 
   <div
     id="videoResult"
@@ -747,7 +925,7 @@
   </div>
 
 </div>
-
+  
   <script>
 
     /*
