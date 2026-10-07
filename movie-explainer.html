@@ -748,22 +748,20 @@
   <script>
 
     /*
-    ==================================================
-    GLOBAL VARIABLES
-    ==================================================
-    */
+==================================================
+GLOBAL VARIABLES
+==================================================
+*/
 
-    let timerInterval = null;
+let timerInterval = null;
 
-    let elapsedSeconds = 0;
+let elapsedSeconds = 0;
 
-    let voiceTimerInterval = null;
+let voiceTimerInterval = null;
 
-    let voiceElapsedSeconds = 0;
+let voiceElapsedSeconds = 0;
 
-    let voiceAudioUrl = null;
-
-
+let voiceAudioUrl = null;
     /*
 ==================================================
 MOVIE SEARCH
@@ -1513,8 +1511,8 @@ function downloadAudio() {
 
 
       const movie =
-        movieInput.value.trim();
-
+  selectedMovie?.title ||
+  movieInput.value.trim();
 
       if (!movie) {
 
