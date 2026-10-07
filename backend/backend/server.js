@@ -2989,7 +2989,8 @@ app.post(
       if (!script) {
 
         return res.status(400).json({
-          error: "Script is required."
+          error:
+            "Script is required."
         });
 
       }
@@ -3036,12 +3037,6 @@ app.post(
         path.join(
           tempDir,
           "movie-visual.jpg"
-        );
-
-      const posterFile =
-        path.join(
-          tempDir,
-          "movie-poster.jpg"
         );
 
       const videoFile =
@@ -3150,20 +3145,21 @@ app.post(
       /*
       ==================================================
       STEP 6B:
-      FIND MOVIE VISUALS FROM TMDB
+      FIND MOVIE VISUAL FROM TMDB
       ==================================================
       */
 
       console.log(
-        "Finding safe movie visuals:",
+        "Finding safe movie visual:",
         movie
       );
 
       const searchUrl =
-        `https://api.themoviedb.org/3/search/movie` +
+        "https://api.themoviedb.org/3/search/movie" +
         `?query=${encodeURIComponent(movie)}` +
-        `&include_adult=false` +
-        `&language=en-US`;
+        "&include_adult=false" +
+        "&language=en-US" +
+        "&page=1";
 
       const movieResponse =
         await fetch(
@@ -3172,6 +3168,7 @@ app.post(
             headers: {
               Authorization:
                 `Bearer ${tmdbToken}`,
+
               accept:
                 "application/json"
             }
@@ -3179,6 +3176,14 @@ app.post(
         );
 
       if (!movieResponse.ok) {
+
+        const errorText =
+          await movieResponse.text();
+
+        console.error(
+          "TMDB SEARCH ERROR:",
+          errorText
+        );
 
         throw new Error(
           "Unable to search TMDB for movie visuals."
@@ -3189,51 +3194,95 @@ app.post(
       const movieData =
         await movieResponse.json();
 
+      const results =
+        Array.isArray(movieData.results)
+          ? movieData.results
+          : [];
+
+      console.log(
+        "TMDB RESULTS:",
+        results.length
+      );
+
+      /*
+      Find the first result that actually
+      contains a usable image.
+      */
+
       const movieResult =
-        Array.isArray(movieData.results) &&
-        movieData.results.length
-          ? movieData.results[0]
-          : null;
+        results.find(
+          (item) =>
+            item &&
+            (
+              item.backdrop_path ||
+              item.poster_path
+            )
+        );
 
       if (!movieResult) {
 
         throw new Error(
-          "Movie visual was not found."
+          `No TMDB visual was found for "${movie}".`
         );
 
       }
 
-      const backdropPath =
-        movieResult.backdrop_path ||
-        null;
+      console.log(
+        "TMDB MOVIE FOUND:",
+        movieResult.title ||
+        movieResult.original_title ||
+        movie
+      );
 
-      const posterPath =
-        movieResult.poster_path ||
-        null;
+      console.log(
+        "TMDB BACKDROP:",
+        movieResult.backdrop_path
+      );
+
+      console.log(
+        "TMDB POSTER:",
+        movieResult.poster_path
+      );
 
       let visualUrl = null;
 
-      if (backdropPath) {
+      /*
+      Prefer landscape backdrop.
+      */
+
+      if (
+        movieResult.backdrop_path
+      ) {
 
         visualUrl =
-          `https://image.tmdb.org/t/p/w1280${backdropPath}`;
+          `https://image.tmdb.org/t/p/w1280${movieResult.backdrop_path}`;
 
       }
 
-      else if (posterPath) {
+      /*
+      Use poster if backdrop is unavailable.
+      */
+
+      else if (
+        movieResult.poster_path
+      ) {
 
         visualUrl =
-          `https://image.tmdb.org/t/p/w780${posterPath}`;
+          `https://image.tmdb.org/t/p/w780${movieResult.poster_path}`;
 
       }
 
       if (!visualUrl) {
 
         throw new Error(
-          "No movie image is available."
+          "TMDB returned the movie but no usable image."
         );
 
       }
+
+      console.log(
+        "Downloading movie visual..."
+      );
 
       const imageResponse =
         await fetch(
@@ -3243,7 +3292,7 @@ app.post(
       if (!imageResponse.ok) {
 
         throw new Error(
-          "Unable to download movie visual."
+          `Unable to download movie visual. HTTP ${imageResponse.status}`
         );
 
       }
@@ -3253,9 +3302,21 @@ app.post(
           await imageResponse.arrayBuffer()
         );
 
+      if (!imageBuffer.length) {
+
+        throw new Error(
+          "Downloaded movie visual is empty."
+        );
+
+      }
+
       require("fs").writeFileSync(
         visualFile,
         imageBuffer
+      );
+
+      console.log(
+        "Movie visual saved successfully."
       );
 
       /*
@@ -3275,7 +3336,8 @@ app.post(
           "make_captions.py"
         );
 
-      const captionPython = String.raw`
+      const captionPython =
+        String.raw`
 
 import sys
 import whisper
@@ -3292,9 +3354,14 @@ result = model.transcribe(
 
 def srt_time(seconds):
 
-    seconds = max(0, float(seconds))
+    seconds = max(
+        0,
+        float(seconds)
+    )
 
-    hours = int(seconds // 3600)
+    hours = int(
+        seconds // 3600
+    )
 
     minutes = int(
         (seconds % 3600) // 60
@@ -3322,7 +3389,11 @@ def srt_time(seconds):
         f"{millis:03d}"
     )
 
-segments = result.get("segments", [])
+segments =
+    result.get(
+        "segments",
+        []
+    )
 
 with open(
     output_file,
@@ -3336,14 +3407,23 @@ with open(
     ):
 
         start =
-            segment.get("start", 0)
+            segment.get(
+                "start",
+                0
+            )
 
         end =
-            segment.get("end", start + 1)
+            segment.get(
+                "end",
+                start + 1
+            )
 
         text =
-            segment.get("text", "").strip()
-            
+            segment.get(
+                "text",
+                ""
+            ).strip()
+
         if not text:
             continue
 
@@ -3369,15 +3449,14 @@ with open(
 `;
 
       /*
-      Fix Python indentation generated above.
+      Fix generated Python indentation.
       */
 
       const fixedCaptionPython =
-        captionPython
-          .replace(
-            /^        /gm,
-            ""
-          );
+        captionPython.replace(
+          /^        /gm,
+          ""
+        );
 
       require("fs").writeFileSync(
         captionScript,
@@ -3453,7 +3532,7 @@ with open(
       /*
       ==================================================
       STEP 6D:
-      CREATE PROPER VIDEO
+      CREATE FINAL VIDEO
       ==================================================
       */
 
@@ -3649,9 +3728,11 @@ with open(
       if (!res.headersSent) {
 
         return res.status(500).json({
+
           error:
             error.message ||
             "Unable to generate movie video."
+
         });
 
       }
@@ -3660,6 +3741,7 @@ with open(
 
   }
 );
+
 
 app.get("/api/movie-info", async (req, res) => {
   try {
