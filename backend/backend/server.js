@@ -3320,25 +3320,24 @@ app.post(
       );
 
       /*
-      ==================================================
-      STEP 6C:
-      AUTOMATIC CAPTIONS USING WHISPER
-      ==================================================
-      */
+      /*
+==================================================
+STEP 6C:
+AUTOMATIC CAPTIONS USING WHISPER
+==================================================
+*/
 
-      console.log(
-        "Creating automatic captions..."
-      );
+console.log(
+  "Creating automatic captions..."
+);
 
-      const captionScript =
-        path.join(
-          tempDir,
-          "make_captions.py"
-        );
+const captionScript =
+  path.join(
+    tempDir,
+    "make_captions.py"
+  );
 
-      const captionPython =
-        String.raw`
-
+const captionPython = String.raw`
 import sys
 import whisper
 
@@ -3362,114 +3361,6 @@ def srt_time(seconds):
     hours = int(
         seconds // 3600
     )
-
-    minutes = int(
-        (seconds % 3600) // 60
-    )
-
-    secs = int(
-        seconds % 60
-    )
-
-    millis = int(
-        round(
-            (seconds - int(seconds)) * 1000
-        )
-    )
-
-    if millis >= 1000:
-
-        secs += 1
-        millis = 0
-
-    return (
-        f"{hours:02d}:"
-        f"{minutes:02d}:"
-        f"{secs:02d},"
-        f"{millis:03d}"
-    )
-
-segments =
-    result.get(
-        "segments",
-        []
-    )
-
-with open(
-    output_file,
-    "w",
-    encoding="utf-8"
-) as f:
-
-    for index, segment in enumerate(
-        segments,
-        start=1
-    ):
-
-        start =
-            segment.get(
-                "start",
-                0
-            )
-
-        end =
-            segment.get(
-                "end",
-                start + 1
-            )
-
-        text =
-            segment.get(
-                "text",
-                ""
-            ).strip()
-
-        if not text:
-            continue
-
-        f.write(
-            f"{index}\n"
-        )
-
-        f.write(
-            f"{srt_time(start)} --> "
-            f"{srt_time(end)}\n"
-        )
-
-        f.write(
-            text.replace(
-                "-->",
-                "→"
-            )
-        )
-
-        f.write(
-            "\n\n"
-        )
-`;
-
-      /*
-      Fix generated Python indentation.
-      */
-
-      const captionPython = String.raw`
-import sys
-import whisper
-
-audio_file = sys.argv[1]
-output_file = sys.argv[2]
-
-model = whisper.load_model("tiny")
-
-result = model.transcribe(
-    audio_file,
-    fp16=False
-)
-
-def srt_time(seconds):
-    seconds = max(0, float(seconds))
-
-    hours = int(seconds // 3600)
 
     minutes = int(
         (seconds % 3600) // 60
@@ -3551,40 +3442,76 @@ with open(
         )
 `;
 
-      const captionExitCode =
-        await new Promise(
-          (resolve, reject) => {
+require("fs").writeFileSync(
+  captionScript,
+  captionPython,
+  "utf8"
+);
 
-            captionProcess.on(
-              "error",
-              reject
-            );
+const captionProcess =
+  spawn(
+    "python3",
+    [
+      captionScript,
+      audioFile,
+      captionFile
+    ]
+  );
 
-            captionProcess.on(
-              "close",
-              resolve
-            );
+let captionError = "";
 
-          }
-        );
+if (captionProcess.stderr) {
 
-      if (captionExitCode !== 0) {
+  captionProcess.stderr.on(
+    "data",
+    (data) => {
 
-        throw new Error(
-          captionError.trim() ||
-          "Automatic caption generation failed."
-        );
+      captionError +=
+        data.toString();
 
-      }
+      console.log(
+        "WHISPER:",
+        data.toString()
+      );
 
-      if (!existsSync(captionFile)) {
+    }
+  );
 
-        throw new Error(
-          "Caption file was not created."
-        );
+}
 
-      }
+const captionExitCode =
+  await new Promise(
+    (resolve, reject) => {
 
+      captionProcess.on(
+        "error",
+        reject
+      );
+
+      captionProcess.on(
+        "close",
+        resolve
+      );
+
+    }
+  );
+
+if (captionExitCode !== 0) {
+
+  throw new Error(
+    captionError.trim() ||
+    "Automatic caption generation failed."
+  );
+
+}
+
+if (!existsSync(captionFile)) {
+
+  throw new Error(
+    "Caption file was not created."
+  );
+
+}
       /*
       ==================================================
       STEP 6D:
