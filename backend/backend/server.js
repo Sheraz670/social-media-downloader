@@ -1637,145 +1637,143 @@ If any sentence contains an invented or uncertain event, remove or correct it.
 Return ONLY the final movie explanation script.
 
 `;
-            
+       let script = "";
 
-      let script = "";  
-
-  let lastError = "";  
+      let lastError = "";
 
 
-  /*  
-  ================================================  
-  GEMINI  
-  ================================================  
-  */  
+      /*
+      ================================================
+      GEMINI
+      ================================================
+      */
 
-  let geminiScript = "";  
+      let geminiScript = "";
 
-  if (  
-    process.env.GEMINI_API_KEY  
-  ) {  
+      if (
+        process.env.GEMINI_API_KEY
+      ) {
 
-    try {  
+        try {
 
-      const geminiResponse =  
-        await fetch(  
-          "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",  
-          {  
+          const geminiResponse =
+            await fetch(
+              "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
+              {
 
-            method:  
-              "POST",  
+                method:
+                  "POST",
 
-            headers: {  
+                headers: {
 
-              "Content-Type":  
-                "application/json",  
+                  "Content-Type":
+                    "application/json",
 
-              "x-goog-api-key":  
-                process.env.GEMINI_API_KEY  
+                  "x-goog-api-key":
+                    process.env.GEMINI_API_KEY
 
-            },  
+                },
 
-            body:  
-              JSON.stringify({  
+                body:
+                  JSON.stringify({
 
-                contents: [  
+                    contents: [
 
-                  {  
+                      {
 
-                    parts: [  
+                        parts: [
 
-                      {  
+                          {
 
-                        text:  
-                          prompt  
+                            text:
+                              prompt
 
-                      }  
+                          }
 
-                    ]  
+                        ]
 
-                  }  
+                      }
 
-                ],  
+                    ],
 
-                generationConfig: {  
+                    generationConfig: {
 
-                  temperature:  
-                    0.2  
+                      temperature:
+                        0.2
 
-                }  
+                    }
 
-              })  
+                  })
 
-          }  
-        );  
-
-
-      const geminiData =  
-        await geminiResponse.json();  
+              }
+            );
 
 
-      if (  
-        geminiResponse.ok  
-      ) {  
-
-        geminiScript =  
-          geminiData  
-            ?.candidates?.[0]  
-            ?.content?.parts  
-            ?.map(  
-              part =>  
-                part.text || ""  
-            )  
-            .join("")  
-            .trim() || "";  
-
-      } else {  
-
-        lastError =  
-          geminiData  
-            ?.error  
-            ?.message ||  
-          "Gemini API request failed.";  
+          const geminiData =
+            await geminiResponse.json();
 
 
-        console.error(  
-          "GEMINI ERROR:",  
-          geminiData  
-        );  
+          if (
+            geminiResponse.ok
+          ) {
 
-      }  
+            geminiScript =
+              geminiData
+                ?.candidates?.[0]
+                ?.content?.parts
+                ?.map(
+                  part =>
+                    part.text || ""
+                )
+                .join("")
+                .trim() || "";
 
-    } catch (error) {  
+          } else {
 
-      lastError =  
-        error.message;  
-
-
-      console.error(  
-        "GEMINI CONNECTION ERROR:",  
-        error  
-      );  
-
-    }  
-
-  }  
+            lastError =
+              geminiData
+                ?.error
+                ?.message ||
+              "Gemini API request failed.";
 
 
-  /*  
-  ================================================  
-  GROQ  
-  VERIFY + CORRECT GEMINI  
-  ================================================  
-  */  
+            console.error(
+              "GEMINI ERROR:",
+              geminiData
+            );
 
-  if (  
-    process.env.GROQ_API_KEY  
-  ) {  
+          }
 
-    try {  
+        } catch (error) {
 
-      const verificationPrompt = `
+          lastError =
+            error.message;
+
+
+          console.error(
+            "GEMINI CONNECTION ERROR:",
+            error
+          );
+
+        }
+
+      }
+
+
+      /*
+      ================================================
+      GROQ
+      VERIFY + CORRECT GEMINI
+      ================================================
+      */
+
+      if (
+        process.env.GROQ_API_KEY
+      ) {
+
+        try {
+
+          const verificationPrompt = `
 
 You are the final fact-checking editor for a movie explanation script.
 
@@ -1792,6 +1790,7 @@ FIRST AI DRAFT:
 
 ${geminiScript || "No draft was produced. Create the script yourself."}
 
+
 YOUR JOB:
 
 Create the FINAL movie explanation script.
@@ -1803,22 +1802,22 @@ STRICT RULES:
 1. Only include events that actually happen in the movie.
 
 2. NEVER invent scenes, characters, relationships,
-   locations, actions, deaths, conversations,
-   motivations, twists, or endings.
+locations, actions, deaths, conversations,
+motivations, twists, or endings.
 
 3. NEVER assume something happened simply because
-   it would make the story more interesting.
+it would make the story more interesting.
 
 4. Do not trust the first AI draft blindly.
 
 5. Check every important event in the draft against
-   your reliable knowledge of the actual movie.
+your reliable knowledge of the actual movie.
 
 6. If an event in the draft is incorrect,
-   remove or correct it.
+remove or correct it.
 
 7. If an event cannot be reliably confirmed,
-   remove it instead of guessing.
+remove it instead of guessing.
 
 8. Keep the correct chronological order of events.
 
@@ -1833,15 +1832,16 @@ STRICT RULES:
 13. Do not present fan theories as confirmed facts.
 
 14. If the ending is intentionally ambiguous,
-    explain only what the movie actually shows
-    and clearly describe the ambiguity.
+explain only what the movie actually shows
+and clearly describe the ambiguity.
 
 15. Do not add information merely to increase length.
 
 16. Do not mention that another AI created a draft.
 
 17. Do not mention fact-checking or these instructions
-    in the final script.
+in the final script.
+
 
 STYLE:
 
@@ -1879,6 +1879,7 @@ Do not copy the screenplay.
 
 Return ONLY the final movie explanation script.
 
+
 FINAL CHECK:
 
 Before returning the answer, silently review every
@@ -1891,138 +1892,143 @@ The final answer must contain only the movie story
 that can be reliably established.
 
 `;
-      let script= "";
-      let lastError= "";
-
-const groqResponse =  
-        await fetch(  
-          "https://api.groq.com/openai/v1/chat/completions",  
-          {  
-
-            method:  
-              "POST",  
-
-            headers: {  
-
-              "Content-Type":  
-                "application/json",  
-
-              "Authorization":  
-                `Bearer ${process.env.GROQ_API_KEY}`  
-
-            },  
-
-            body:  
-              JSON.stringify({  
-
-                model:  
-                  "openai/gpt-oss-20b",  
-
-                messages: [  
-
-                  {  
-
-                    role:  
-                      "user",  
-
-                    content:  
-                      verificationPrompt  
-
-                  }  
-
-                ],  
-
-                temperature:  
-                  0.2  
-
-              })  
-
-          }  
-        );  
 
 
-      const groqData =  
-        await groqResponse.json();  
+          const groqResponse =
+            await fetch(
+              "https://api.groq.com/openai/v1/chat/completions",
+              {
+
+                method:
+                  "POST",
+
+                headers: {
+
+                  "Content-Type":
+                    "application/json",
+
+                  "Authorization":
+                    `Bearer ${process.env.GROQ_API_KEY}`
+
+                },
+
+                body:
+                  JSON.stringify({
+
+                    model:
+                      "openai/gpt-oss-20b",
+
+                    messages: [
+
+                      {
+
+                        role:
+                          "user",
+
+                        content:
+                          verificationPrompt
+
+                      }
+
+                    ],
+
+                    temperature:
+                      0.2
+
+                  })
+
+              }
+            );
 
 
-      if (  
-        groqResponse.ok  
-      ) {  
-
-        script =  
-          groqData  
-            ?.choices?.[0]  
-            ?.message?.content  
-            ?.trim() || "";  
-
-      } else {  
-
-        lastError =  
-          groqData  
-            ?.error  
-            ?.message ||  
-          "Groq API request failed.";  
+          const groqData =
+            await groqResponse.json();
 
 
-        console.error(  
-          "GROQ ERROR:",  
-          groqData  
-        );  
+          if (
+            groqResponse.ok
+          ) {
 
-      }  
+            script =
+              groqData
+                ?.choices?.[0]
+                ?.message?.content
+                ?.trim() || "";
 
-    } catch (error) {  
+          } else {
 
-      lastError =  
-        error.message;  
-
-
-      console.error(  
-        "GROQ CONNECTION ERROR:",  
-        error  
-      );  
-
-    }  
-
-  }  
+            lastError =
+              groqData
+                ?.error
+                ?.message ||
+              "Groq API request failed.";
 
 
-  /*  
-  ================================================  
-  IF GROQ FAILED, USE GEMINI RESULT  
-  ================================================  
-  */  
+            console.error(
+              "GROQ ERROR:",
+              groqData
+            );
 
-  if (  
-    !script &&  
-    geminiScript  
-  ) {  
+          }
 
-    script =  
-      geminiScript;  
+        } catch (error) {
 
-  }  
+          lastError =
+            error.message;
 
 
-  /*  
-  ================================================  
-  NO AI RESULT  
-  ================================================  
-  */  
+          console.error(
+            "GROQ CONNECTION ERROR:",
+            error
+          );
 
-  if (  
-    !script  
-  ) {  
+        }
 
-    return res.status(500).json({  
+      }
 
-      error:  
-        lastError ||  
-        "Unable to generate movie explanation."  
 
-    });  
+      /*
+      ================================================
+      IF GROQ FAILED, USE GEMINI RESULT
+      ================================================
+      */
 
-  } Ya code dal duu ?
+      if (
+        !script &&
+        geminiScript
+      ) {
+
+        script =
+          geminiScript;
+
+      }
+
+
+      /*
+      ================================================
+      NO AI RESULT
+      ================================================
+      */
+
+      if (
+        !script
+      ) {
+
+        return res.status(500).json({
+
+          error:
+            lastError ||
+            "Unable to generate movie explanation."
+
+        });
+
+      }
+
+      
+  
+      
+
+
       /*
       ================================================
       FINAL SCRIPT RESULT
