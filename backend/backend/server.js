@@ -1637,9 +1637,7 @@ If any sentence contains an invented or uncertain event, remove or correct it.
 Return ONLY the final movie explanation script.
 
 `;
-      
-
-      let script = "";
+            let script = "";
 
       let lastError = "";
 
@@ -1805,6 +1803,8 @@ Return ONLY the final movie explanation script.
         }
 
   }
+  
+
 
 
       /*
