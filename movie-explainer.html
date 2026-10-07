@@ -2273,6 +2273,18 @@ async function generateVideo() {
     return;
 
   }
+    const videoFormat =
+    document.getElementById("videoFormat").value;
+
+  if (!videoFormat) {
+
+    alert(
+      "Please select a video format."
+    );
+
+    return;
+
+    }
 
   /*
   ==================================================
