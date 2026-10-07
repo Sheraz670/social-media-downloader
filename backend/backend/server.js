@@ -3320,194 +3320,458 @@ app.post(
       );
 
       /*
-      /*
-/*
 ==================================================
 STEP 6C:
-AUTOMATIC CAPTIONS USING FASTER-WHISPER
+LIGHTWEIGHT AUTOMATIC CAPTIONS
 ==================================================
 */
 
 console.log(
-  "Creating automatic captions..."
+  "Creating lightweight automatic captions..."
 );
 
-const captionScript =
-  path.join(
-    tempDir,
-    "make_captions.py"
-  );
+const fs =
+  require("fs");
 
-const captionPython = String.raw`
-import sys
-from faster_whisper import WhisperModel
+const captionText =
+  String(script || "").trim();
 
-audio_file = sys.argv[1]
-output_file = sys.argv[2]
+if (!captionText) {
 
-model = WhisperModel(
-    "tiny",
-    device="cpu",
-    compute_type="int8"
-)
-
-segments, info = model.transcribe(
-    audio_file,
-    beam_size=5
-)
-
-def srt_time(seconds):
-
-    seconds = max(
-        0,
-        float(seconds)
-    )
-
-    hours = int(
-        seconds // 3600
-    )
-
-    minutes = int(
-        (seconds % 3600) // 60
-    )
-
-    secs = int(
-        seconds % 60
-    )
-
-    millis = int(
-        round(
-            (seconds - int(seconds)) * 1000
-        )
-    )
-
-    if millis >= 1000:
-
-        secs += 1
-        millis = 0
-
-    if secs >= 60:
-
-        secs = 0
-        minutes += 1
-
-    if minutes >= 60:
-
-        minutes = 0
-        hours += 1
-
-    return (
-        f"{hours:02d}:"
-        f"{minutes:02d}:"
-        f"{secs:02d},"
-        f"{millis:03d}"
-    )
-
-
-with open(
-    output_file,
-    "w",
-    encoding="utf-8"
-) as f:
-
-    index = 1
-
-    for segment in segments:
-
-        start = segment.start
-        end = segment.end
-        text = segment.text.strip()
-
-        if not text:
-            continue
-
-        f.write(
-            f"{index}\n"
-        )
-
-        f.write(
-            f"{srt_time(start)} --> "
-            f"{srt_time(end)}\n"
-        )
-
-        f.write(
-            text.replace(
-                "-->",
-                "→"
-            )
-        )
-
-        f.write(
-            "\n\n"
-        )
-
-        index += 1
-`;
-
-require("fs").writeFileSync(
-  captionScript,
-  captionPython,
-  "utf8"
-);
-
-const captionProcess =
-  spawn(
-    "python3",
-    [
-      captionScript,
-      audioFile,
-      captionFile
-    ]
-  );
-
-let captionError = "";
-
-if (captionProcess.stderr) {
-
-  captionProcess.stderr.on(
-    "data",
-    (data) => {
-
-      captionError +=
-        data.toString();
-
-      console.log(
-        "WHISPER:",
-        data.toString()
-      );
-
-    }
+  throw new Error(
+    "Movie script is empty. Cannot create captions."
   );
 
 }
 
-const captionExitCode =
+
+/*
+==================================================
+GET AUDIO DURATION USING FFPROBE
+==================================================
+*/
+
+const audioDuration =
   await new Promise(
     (resolve, reject) => {
 
-      captionProcess.on(
+      const probeProcess =
+        spawn(
+          "ffprobe",
+          [
+            "-v",
+            "error",
+
+            "-show_entries",
+            "format=duration",
+
+            "-of",
+            "default=noprint_wrappers=1:nokey=1",
+
+            audioFile
+          ]
+        );
+
+      let output = "";
+      let error = "";
+
+      probeProcess.stdout.on(
+        "data",
+        (data) => {
+
+          output +=
+            data.toString();
+
+        }
+      );
+
+      probeProcess.stderr.on(
+        "data",
+        (data) => {
+
+          error +=
+            data.toString();
+
+        }
+      );
+
+      probeProcess.on(
         "error",
         reject
       );
 
-      captionProcess.on(
+      probeProcess.on(
         "close",
-        resolve
+        (code) => {
+
+          if (code !== 0) {
+
+            reject(
+              new Error(
+                error.trim() ||
+                "Could not read audio duration."
+              )
+            );
+
+            return;
+
+          }
+
+          const duration =
+            parseFloat(
+              output.trim()
+            );
+
+          if (
+            !Number.isFinite(
+              duration
+            ) ||
+            duration <= 0
+          ) {
+
+            reject(
+              new Error(
+                "Invalid audio duration."
+              )
+            );
+
+            return;
+
+          }
+
+          resolve(
+            duration
+          );
+
+        }
       );
 
     }
   );
 
-if (captionExitCode !== 0) {
 
-  throw new Error(
-    captionError.trim() ||
-    "Automatic caption generation failed."
+console.log(
+  "Audio duration:",
+  audioDuration,
+  "seconds"
+);
+
+
+/*
+==================================================
+BREAK SCRIPT INTO SMALL CAPTION CHUNKS
+==================================================
+*/
+
+const words =
+  captionText
+    .replace(
+      /\s+/g,
+      " "
+    )
+    .trim()
+    .split(" ");
+
+
+const captionChunks = [];
+
+let currentChunk = [];
+
+
+/*
+Maximum words per caption.
+Keeps captions readable.
+*/
+
+const MAX_WORDS =
+  10;
+
+
+for (
+  const word of words
+) {
+
+  currentChunk.push(
+    word
+  );
+
+  const endsSentence =
+    /[.!?]$/.test(
+      word
+    );
+
+  if (
+    currentChunk.length >=
+      MAX_WORDS ||
+    endsSentence
+  ) {
+
+    captionChunks.push(
+      currentChunk.join(" ")
+    );
+
+    currentChunk = [];
+
+  }
+
+}
+
+
+if (
+  currentChunk.length
+) {
+
+  captionChunks.push(
+    currentChunk.join(" ")
   );
 
 }
 
-if (!existsSync(captionFile)) {
+
+if (
+  !captionChunks.length
+) {
+
+  throw new Error(
+    "Could not create caption chunks."
+  );
+
+}
+
+
+/*
+==================================================
+CREATE TIMINGS
+==================================================
+*/
+
+const totalWords =
+  words.length;
+
+
+let currentTime =
+  0;
+
+
+const captionEntries = [];
+
+
+for (
+  let i = 0;
+  i < captionChunks.length;
+  i++
+) {
+
+  const text =
+    captionChunks[i];
+
+  const chunkWordCount =
+    text
+      .split(/\s+/)
+      .length;
+
+
+  let duration =
+    audioDuration *
+    (
+      chunkWordCount /
+      totalWords
+    );
+
+
+  /*
+  Keep very short captions readable.
+  */
+
+  if (
+    duration < 1.2
+  ) {
+
+    duration =
+      1.2;
+
+  }
+
+
+  const remainingChunks =
+    captionChunks.length -
+    i -
+    1;
+
+
+  const remainingTime =
+    audioDuration -
+    currentTime;
+
+
+  /*
+  Prevent the minimum duration
+  from exceeding the audio length.
+  */
+
+  if (
+    remainingChunks === 0
+  ) {
+
+    duration =
+      Math.max(
+        0.5,
+        remainingTime
+      );
+
+  }
+  else {
+
+    const maxAllowed =
+      remainingTime -
+      (
+        remainingChunks *
+        0.5
+      );
+
+    duration =
+      Math.min(
+        duration,
+        Math.max(
+          0.5,
+          maxAllowed
+        )
+      );
+
+  }
+
+
+  const start =
+    currentTime;
+
+  const end =
+    Math.min(
+      audioDuration,
+      currentTime +
+        duration
+    );
+
+
+  captionEntries.push(
+    {
+      index:
+        i + 1,
+
+      start,
+
+      end,
+
+      text
+    }
+  );
+
+
+  currentTime =
+    end;
+
+}
+
+
+/*
+==================================================
+SRT TIME FORMAT
+==================================================
+*/
+
+function srtTime(
+  seconds
+) {
+
+  seconds =
+    Math.max(
+      0,
+      Number(seconds) || 0
+    );
+
+
+  const hours =
+    Math.floor(
+      seconds / 3600
+    );
+
+
+  const minutes =
+    Math.floor(
+      (
+        seconds % 3600
+      ) / 60
+    );
+
+
+  const secs =
+    Math.floor(
+      seconds % 60
+    );
+
+
+  const millis =
+    Math.floor(
+      (
+        seconds -
+        Math.floor(seconds)
+      ) *
+      1000
+    );
+
+
+  return (
+    String(hours).padStart(2, "0") +
+    ":" +
+    String(minutes).padStart(2, "0") +
+    ":" +
+    String(secs).padStart(2, "0") +
+    "," +
+    String(millis).padStart(3, "0")
+  );
+
+}
+
+
+/*
+==================================================
+CREATE SRT FILE
+==================================================
+*/
+
+const srtContent =
+  captionEntries
+    .map(
+      (entry) => {
+
+        return (
+          `${entry.index}\n` +
+          `${srtTime(entry.start)} --> ${srtTime(entry.end)}\n` +
+          `${entry.text}\n\n`
+        );
+
+      }
+    )
+    .join("");
+
+
+fs.writeFileSync(
+  captionFile,
+  srtContent,
+  "utf8"
+);
+
+
+/*
+==================================================
+VERIFY CAPTION FILE
+==================================================
+*/
+
+if (
+  !existsSync(
+    captionFile
+  )
+) {
 
   throw new Error(
     "Caption file was not created."
@@ -3515,8 +3779,31 @@ if (!existsSync(captionFile)) {
 
 }
 
+
+const captionStats =
+  fs.statSync(
+    captionFile
+  );
+
+
+if (
+  !captionStats.size
+) {
+
+  throw new Error(
+    "Caption file is empty."
+  );
+
+}
+
+
 console.log(
-  "Automatic captions created successfully."
+  "Lightweight captions created successfully."
+);
+
+console.log(
+  "Caption count:",
+  captionEntries.length
 );
 
       /*
