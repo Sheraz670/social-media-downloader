@@ -2796,8 +2796,6 @@ app.post(
 
   }
 );
-
-
 app.get("/api/movie-info", async (req, res) => {
   try {
     const movie = String(req.query.movie || "").trim();
@@ -2843,22 +2841,302 @@ app.get("/api/movie-info", async (req, res) => {
       });
     }
 
+    /*
+    ==================================================
+    GET DETAILED INFORMATION FOR EACH RESULT
+    ==================================================
+    */
+
+    const detailedResults = await Promise.all(
+      results.slice(0, 10).map(async (item) => {
+
+        try {
+
+          const detailsUrl =
+            `https://api.themoviedb.org/3/movie/${item.id}` +
+            `?api_key=${encodeURIComponent(apiKey)}` +
+            `&language=en-US`;
+
+          const detailsResponse =
+            await fetch(detailsUrl);
+
+          if (!detailsResponse.ok) {
+            return {
+              id: item.id,
+              title: item.title,
+              releaseDate: item.release_date || "",
+              year: item.release_date
+                ? item.release_date.slice(0, 4)
+                : "",
+              overview: item.overview || "",
+              posterPath: item.poster_path || null,
+              backdropPath: item.backdrop_path || null,
+              originalLanguage:
+                item.original_language || "",
+              genres: [],
+              productionCountries: [],
+              productionCompanies: [],
+              industry: "International"
+            };
+          }
+
+          const details =
+            await detailsResponse.json();
+
+          /*
+          ==============================================
+          GENRES
+          ==============================================
+          */
+
+          const genres =
+            Array.isArray(details.genres)
+              ? details.genres.map(
+                  (genre) => genre.name
+                )
+              : [];
+
+          /*
+          ==============================================
+          PRODUCTION COUNTRIES
+          ==============================================
+          */
+
+          const productionCountries =
+            Array.isArray(
+              details.production_countries
+            )
+              ? details.production_countries.map(
+                  (country) =>
+                    country.name
+                )
+              : [];
+
+          /*
+          ==============================================
+          PRODUCTION COMPANIES
+          ==============================================
+          */
+
+          const productionCompanies =
+            Array.isArray(
+              details.production_companies
+            )
+              ? details.production_companies
+                  .slice(0, 5)
+                  .map(
+                    (company) =>
+                      company.name
+                  )
+              : [];
+
+          /*
+          ==============================================
+          INDUSTRY
+          ==============================================
+          */
+
+          let industry =
+            "International";
+
+          const originalLanguage =
+            details.original_language || "";
+
+          const countryCodes =
+            Array.isArray(
+              details.production_countries
+            )
+              ? details.production_countries.map(
+                  (country) =>
+                    country.iso_3166_1
+                )
+              : [];
+
+          if (
+            countryCodes.includes("US") &&
+            (
+              originalLanguage === "en" ||
+              countryCodes.length === 1
+            )
+          ) {
+            industry = "Hollywood";
+          }
+
+          else if (
+            countryCodes.includes("IN")
+          ) {
+
+            if (
+              originalLanguage === "hi"
+            ) {
+              industry = "Bollywood";
+            }
+
+            else if (
+              originalLanguage === "te"
+            ) {
+              industry = "Telugu Cinema";
+            }
+
+            else if (
+              originalLanguage === "ta"
+            ) {
+              industry = "Tamil Cinema";
+            }
+
+            else if (
+              originalLanguage === "ml"
+            ) {
+              industry = "Malayalam Cinema";
+            }
+
+            else if (
+              originalLanguage === "kn"
+            ) {
+              industry = "Kannada Cinema";
+            }
+
+            else {
+              industry = "Indian Cinema";
+            }
+          }
+
+          else if (
+            countryCodes.includes("KR")
+          ) {
+            industry = "Korean Cinema";
+          }
+
+          else if (
+            countryCodes.includes("JP")
+          ) {
+            industry = "Japanese Cinema";
+          }
+
+          else if (
+            countryCodes.includes("CN")
+          ) {
+            industry = "Chinese Cinema";
+          }
+
+          else if (
+            countryCodes.includes("FR")
+          ) {
+            industry = "French Cinema";
+          }
+
+          else if (
+            countryCodes.includes("GB")
+          ) {
+            industry = "British Cinema";
+          }
+
+          return {
+            id: details.id || item.id,
+
+            title:
+              details.title ||
+              item.title ||
+              "",
+
+            originalTitle:
+              details.original_title ||
+              "",
+
+            releaseDate:
+              details.release_date ||
+              item.release_date ||
+              "",
+
+            year:
+              details.release_date
+                ? details.release_date.slice(0, 4)
+                : (
+                    item.release_date
+                      ? item.release_date.slice(0, 4)
+                      : ""
+                  ),
+
+            overview:
+              details.overview ||
+              item.overview ||
+              "",
+
+            posterPath:
+              details.poster_path ||
+              item.poster_path ||
+              null,
+
+            backdropPath:
+              details.backdrop_path ||
+              null,
+
+            originalLanguage,
+
+            genres,
+
+            productionCountries,
+
+            productionCompanies,
+
+            industry,
+
+            runtime:
+              details.runtime || 0,
+
+            voteAverage:
+              details.vote_average || 0,
+
+            voteCount:
+              details.vote_count || 0,
+
+            popularity:
+              details.popularity || 0
+
+          };
+
+        } catch (detailError) {
+
+          console.error(
+            "MOVIE DETAIL ERROR:",
+            detailError
+          );
+
+          return {
+            id: item.id,
+            title: item.title,
+            releaseDate:
+              item.release_date || "",
+            year:
+              item.release_date
+                ? item.release_date.slice(0, 4)
+                : "",
+            overview:
+              item.overview || "",
+            posterPath:
+              item.poster_path || null,
+            backdropPath:
+              null,
+            originalLanguage:
+              item.original_language || "",
+            genres: [],
+            productionCountries: [],
+            productionCompanies: [],
+            industry: "International"
+          };
+        }
+
+      })
+    );
+
     return res.json({
-      results: results.slice(0, 10).map((item) => ({
-        id: item.id,
-        title: item.title,
-        releaseDate: item.release_date || "",
-        year: item.release_date
-          ? item.release_date.slice(0, 4)
-          : "",
-        overview: item.overview || "",
-        posterPath: item.poster_path || null,
-        originalLanguage:
-          item.original_language || ""
-      }))
+      success: true,
+      query: movie,
+      results: detailedResults
     });
 
   } catch (error) {
+
     console.error(
       "MOVIE INFO ERROR:",
       error
@@ -2871,6 +3149,8 @@ app.get("/api/movie-info", async (req, res) => {
     });
   }
 });
+
+
 /*
 ==================================================
 START SERVER
