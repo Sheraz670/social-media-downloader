@@ -2807,27 +2807,29 @@ app.get("/api/movie-info", async (req, res) => {
     }
 
     const apiKey = process.env.TMDB_API_KEY;
+const accessToken = process.env.TMDB_ACCESS_TOKEN;
 
-    if (!apiKey) {
-      return res.status(500).json({
-        error: "TMDB API key is not configured."
-      });
+if (!accessToken) {
+  return res.status(500).json({
+    error: "TMDB access token is not configured."
+  });
+}
+
+const searchUrl =
+  `https://api.themoviedb.org/3/search/movie` +
+  `?query=${encodeURIComponent(movie)}` +
+  `&include_adult=false` +
+  `&language=en-US`;
+
+const response = await fetch(
+  searchUrl,
+  {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      accept: "application/json"
     }
-
-    const searchUrl =
-      `https://api.themoviedb.org/3/search/movie` +
-      `?api_key=${encodeURIComponent(apiKey)}` +
-      `&query=${encodeURIComponent(movie)}` +
-      `&include_adult=false` +
-      `&language=en-US`;
-
-    const response = await fetch(searchUrl);
-
-    if (!response.ok) {
-      throw new Error(
-        `TMDB request failed: ${response.status}`
-      );
-    }
+  }
+);
 
     const data = await response.json();
 
