@@ -2970,8 +2970,703 @@ app.use(
 ==================================================
 STEP 6:
 AI MOVIE VIDEO
+SAFE VISUALS + AI VOICE + AUTO CAPTIONS
 ==================================================
 */
+
+app.post(
+  "/api/movie-video",
+  async (req, res) => {
+
+    let tempDir = null;
+
+    try {
+
+      const script =
+        req.body?.script?.trim();
+
+      const movie =
+        req.body?.movie?.trim() ||
+        "movie-explanation";
+
+      const voice =
+        req.body?.voice?.trim() ||
+        "en-US-AriaNeural";
+
+      if (!script) {
+
+        return res.status(400).json({
+          error: "Script is required."
+        });
+
+      }
+
+      const tmdbToken =
+        process.env.TMDB_ACCESS_TOKEN;
+
+      if (!tmdbToken) {
+
+        return res.status(500).json({
+          error:
+            "TMDB access token is not configured."
+        });
+
+      }
+
+      tempDir =
+        mkdtempSync(
+          path.join(
+            os.tmpdir(),
+            "movie-video-"
+          )
+        );
+
+      const textFile =
+        path.join(
+          tempDir,
+          "script.txt"
+        );
+
+      const audioFile =
+        path.join(
+          tempDir,
+          "voice.mp3"
+        );
+
+      const captionFile =
+        path.join(
+          tempDir,
+          "captions.srt"
+        );
+
+      const visualFile =
+        path.join(
+          tempDir,
+          "movie-visual.jpg"
+        );
+
+      const posterFile =
+        path.join(
+          tempDir,
+          "movie-poster.jpg"
+        );
+
+      const videoFile =
+        path.join(
+          tempDir,
+          "movie-explanation.mp4"
+        );
+
+      require("fs").writeFileSync(
+        textFile,
+        script,
+        "utf8"
+      );
+
+      /*
+      ==================================================
+      STEP 6A:
+      GENERATE AI VOICE
+      ==================================================
+      */
+
+      const ttsFile =
+        path.join(
+          __dirname,
+          "tts.py"
+        );
+
+      if (!existsSync(ttsFile)) {
+
+        throw new Error(
+          "tts.py was not found."
+        );
+
+      }
+
+      console.log(
+        "Generating movie voice..."
+      );
+
+      const ttsProcess =
+        spawn(
+          "python3",
+          [
+            ttsFile,
+            textFile,
+            audioFile,
+            voice
+          ]
+        );
+
+      let ttsError = "";
+
+      if (ttsProcess.stderr) {
+
+        ttsProcess.stderr.on(
+          "data",
+          (data) => {
+
+            ttsError +=
+              data.toString();
+
+            console.log(
+              "TTS:",
+              data.toString()
+            );
+
+          }
+        );
+
+      }
+
+      const ttsExitCode =
+        await new Promise(
+          (resolve, reject) => {
+
+            ttsProcess.on(
+              "error",
+              reject
+            );
+
+            ttsProcess.on(
+              "close",
+              resolve
+            );
+
+          }
+        );
+
+      if (ttsExitCode !== 0) {
+
+        throw new Error(
+          ttsError.trim() ||
+          "AI voice generation failed."
+        );
+
+      }
+
+      if (!existsSync(audioFile)) {
+
+        throw new Error(
+          "Voice file was not created."
+        );
+
+      }
+
+      /*
+      ==================================================
+      STEP 6B:
+      FIND MOVIE VISUALS FROM TMDB
+      ==================================================
+      */
+
+      console.log(
+        "Finding safe movie visuals:",
+        movie
+      );
+
+      const searchUrl =
+        `https://api.themoviedb.org/3/search/movie` +
+        `?query=${encodeURIComponent(movie)}` +
+        `&include_adult=false` +
+        `&language=en-US`;
+
+      const movieResponse =
+        await fetch(
+          searchUrl,
+          {
+            headers: {
+              Authorization:
+                `Bearer ${tmdbToken}`,
+              accept:
+                "application/json"
+            }
+          }
+        );
+
+      if (!movieResponse.ok) {
+
+        throw new Error(
+          "Unable to search TMDB for movie visuals."
+        );
+
+      }
+
+      const movieData =
+        await movieResponse.json();
+
+      const movieResult =
+        Array.isArray(movieData.results) &&
+        movieData.results.length
+          ? movieData.results[0]
+          : null;
+
+      if (!movieResult) {
+
+        throw new Error(
+          "Movie visual was not found."
+        );
+
+      }
+
+      const backdropPath =
+        movieResult.backdrop_path ||
+        null;
+
+      const posterPath =
+        movieResult.poster_path ||
+        null;
+
+      let visualUrl = null;
+
+      if (backdropPath) {
+
+        visualUrl =
+          `https://image.tmdb.org/t/p/w1280${backdropPath}`;
+
+      }
+
+      else if (posterPath) {
+
+        visualUrl =
+          `https://image.tmdb.org/t/p/w780${posterPath}`;
+
+      }
+
+      if (!visualUrl) {
+
+        throw new Error(
+          "No movie image is available."
+        );
+
+      }
+
+      const imageResponse =
+        await fetch(
+          visualUrl
+        );
+
+      if (!imageResponse.ok) {
+
+        throw new Error(
+          "Unable to download movie visual."
+        );
+
+      }
+
+      const imageBuffer =
+        Buffer.from(
+          await imageResponse.arrayBuffer()
+        );
+
+      require("fs").writeFileSync(
+        visualFile,
+        imageBuffer
+      );
+
+      /*
+      ==================================================
+      STEP 6C:
+      AUTOMATIC CAPTIONS USING WHISPER
+      ==================================================
+      */
+
+      console.log(
+        "Creating automatic captions..."
+      );
+
+      const captionScript =
+        path.join(
+          tempDir,
+          "make_captions.py"
+        );
+
+      const captionPython = String.raw`
+
+import sys
+import whisper
+
+audio_file = sys.argv[1]
+output_file = sys.argv[2]
+
+model = whisper.load_model("tiny")
+
+result = model.transcribe(
+    audio_file,
+    fp16=False
+)
+
+def srt_time(seconds):
+
+    seconds = max(0, float(seconds))
+
+    hours = int(seconds // 3600)
+
+    minutes = int(
+        (seconds % 3600) // 60
+    )
+
+    secs = int(
+        seconds % 60
+    )
+
+    millis = int(
+        round(
+            (seconds - int(seconds)) * 1000
+        )
+    )
+
+    if millis >= 1000:
+
+        secs += 1
+        millis = 0
+
+    return (
+        f"{hours:02d}:"
+        f"{minutes:02d}:"
+        f"{secs:02d},"
+        f"{millis:03d}"
+    )
+
+segments = result.get("segments", [])
+
+with open(
+    output_file,
+    "w",
+    encoding="utf-8"
+) as f:
+
+    for index, segment in enumerate(
+        segments,
+        start=1
+    ):
+
+        start =
+            segment.get("start", 0)
+
+        end =
+            segment.get("end", start + 1)
+
+        text =
+            segment.get("text", "").strip()
+
+        if not text:
+            continue
+
+        f.write(
+            f"{index}\n"
+        )
+
+        f.write(
+            f"{srt_time(start)} --> "
+            f"{srt_time(end)}\n"
+        )
+
+        f.write(
+            text.replace(
+                "-->",
+                "→"
+            )
+        )
+
+        f.write(
+            "\n\n"
+        )
+`;
+
+      /*
+      Fix Python indentation generated above.
+      */
+
+      const fixedCaptionPython =
+        captionPython
+          .replace(
+            /^        /gm,
+            ""
+          );
+
+      require("fs").writeFileSync(
+        captionScript,
+        fixedCaptionPython,
+        "utf8"
+      );
+
+      const captionProcess =
+        spawn(
+          "python3",
+          [
+            captionScript,
+            audioFile,
+            captionFile
+          ]
+        );
+
+      let captionError = "";
+
+      if (captionProcess.stderr) {
+
+        captionProcess.stderr.on(
+          "data",
+          (data) => {
+
+            captionError +=
+              data.toString();
+
+            console.log(
+              "WHISPER:",
+              data.toString()
+            );
+
+          }
+        );
+
+      }
+
+      const captionExitCode =
+        await new Promise(
+          (resolve, reject) => {
+
+            captionProcess.on(
+              "error",
+              reject
+            );
+
+            captionProcess.on(
+              "close",
+              resolve
+            );
+
+          }
+        );
+
+      if (captionExitCode !== 0) {
+
+        throw new Error(
+          captionError.trim() ||
+          "Automatic caption generation failed."
+        );
+
+      }
+
+      if (!existsSync(captionFile)) {
+
+        throw new Error(
+          "Caption file was not created."
+        );
+
+      }
+
+      /*
+      ==================================================
+      STEP 6D:
+      CREATE PROPER VIDEO
+      ==================================================
+      */
+
+      console.log(
+        "Creating final movie explainer video..."
+      );
+
+      const videoProcess =
+        spawn(
+          "ffmpeg",
+          [
+            "-y",
+
+            "-loop",
+            "1",
+
+            "-i",
+            visualFile,
+
+            "-i",
+            audioFile,
+
+            "-vf",
+            `scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720,zoompan=z='min(zoom+0.0005,1.12)':d=1:s=1280x720:fps=24,subtitles=${captionFile}:force_style='FontName=Arial,FontSize=22,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,BorderStyle=1,Outline=2,Shadow=1,Alignment=2,MarginV=45'`,
+
+            "-c:v",
+            "libx264",
+
+            "-preset",
+            "veryfast",
+
+            "-tune",
+            "stillimage",
+
+            "-pix_fmt",
+            "yuv420p",
+
+            "-c:a",
+            "aac",
+
+            "-b:a",
+            "192k",
+
+            "-shortest",
+
+            videoFile
+          ]
+        );
+
+      let videoError = "";
+
+      if (videoProcess.stderr) {
+
+        videoProcess.stderr.on(
+          "data",
+          (data) => {
+
+            videoError +=
+              data.toString();
+
+            console.log(
+              "FFMPEG:",
+              data.toString()
+            );
+
+          }
+        );
+
+      }
+
+      const videoExitCode =
+        await new Promise(
+          (resolve, reject) => {
+
+            videoProcess.on(
+              "error",
+              reject
+            );
+
+            videoProcess.on(
+              "close",
+              resolve
+            );
+
+          }
+        );
+
+      if (videoExitCode !== 0) {
+
+        throw new Error(
+          videoError.trim() ||
+          "Final video generation failed."
+        );
+
+      }
+
+      if (!existsSync(videoFile)) {
+
+        throw new Error(
+          "Final video file was not created."
+        );
+
+      }
+
+      const stat =
+        require("fs")
+          .statSync(videoFile);
+
+      if (!stat.size) {
+
+        throw new Error(
+          "Generated video is empty."
+        );
+
+      }
+
+      /*
+      ==================================================
+      STEP 6E:
+      SEND FINAL VIDEO
+      ==================================================
+      */
+
+      res.setHeader(
+        "Content-Type",
+        "video/mp4"
+      );
+
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${movie
+          .replace(
+            /[^a-z0-9]/gi,
+            "_"
+          )}-video.mp4"`
+      );
+
+      const stream =
+        createReadStream(
+          videoFile
+        );
+
+      stream.on(
+        "close",
+        () => {
+
+          if (tempDir) {
+
+            try {
+
+              rmSync(
+                tempDir,
+                {
+                  recursive: true,
+                  force: true
+                }
+              );
+
+            } catch {}
+
+            tempDir = null;
+
+          }
+
+        }
+      );
+
+      stream.pipe(res);
+
+    } catch (error) {
+
+      console.error(
+        "MOVIE VIDEO ERROR:",
+        error
+      );
+
+      if (tempDir) {
+
+        try {
+
+          rmSync(
+            tempDir,
+            {
+              recursive: true,
+              force: true
+            }
+          );
+
+        } catch {}
+
+      }
+
+      if (!res.headersSent) {
+
+        return res.status(500).json({
+          error:
+            error.message ||
+            "Unable to generate movie video."
+        });
+
+      }
+
+    }
+
+  }
+);
 
 app.get("/api/movie-info", async (req, res) => {
   try {
