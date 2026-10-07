@@ -260,27 +260,54 @@
 
     <!-- MOVIE INPUT -->
 
-    <div
-      id="movieSection"
-      class="box"
-    >
+    <!-- MOVIE SEARCH -->
 
-      <input
-        type="text"
-        id="movieInput"
-        placeholder="Enter movie name or permitted video URL"
-        autocomplete="off"
-      >
+<div
+  id="movieSection"
+  class="box"
+>
 
-      <button
-        id="continueButton"
-        type="button"
-        onclick="showOptions()"
-      >
-        Continue
-      </button>
+  <div class="script-title">
+    🎬 Search Movie
+  </div>
 
-    </div>
+  <input
+    type="text"
+    id="movieInput"
+    placeholder="Enter movie name..."
+    autocomplete="off"
+  >
+
+  <button
+    id="continueButton"
+    type="button"
+    onclick="searchMovies()"
+  >
+    🔎 Search Movie
+  </button>
+
+  <div
+    id="movieSearchLoading"
+    class="hidden"
+    style="
+      text-align:center;
+      margin-top:18px;
+      color:#64748b;
+    "
+  >
+    ⏳ Searching movies...
+  </div>
+
+  <div
+    id="movieResults"
+    style="
+      display:grid;
+      gap:14px;
+      margin-top:18px;
+    "
+  ></div>
+
+</div>
 
 
     <!-- OPTIONS -->
