@@ -1637,6 +1637,7 @@ If any sentence contains an invented or uncertain event, remove or correct it.
 Return ONLY the final movie explanation script.
 
 `;
+      
 
       let script = "";
 
@@ -1693,68 +1694,7 @@ Return ONLY the final movie explanation script.
                     ],
 
                     temperature:
-                                0.7,
 
-tools: [
-  {
-    type:
-      "browser_search"
-  }
-],
-
-tool_choice:
-  "required"
-
-                  })
-
-              }
-            );
-
-
-          const groqData =
-            await groqResponse.json();
-
-
-          if (
-            groqResponse.ok
-          ) {
-
-            script =
-              groqData
-                ?.choices?.[0]
-                ?.message?.content
-                ?.trim() || "";
-
-          } else {
-
-            lastError =
-              groqData
-                ?.error
-                ?.message ||
-              "Groq API request failed.";
-
-
-            console.error(
-              "GROQ ERROR:",
-              groqData
-            );
-
-          }
-
-        } catch (error) {
-
-          lastError =
-            error.message;
-
-
-          console.error(
-            "GROQ CONNECTION ERROR:",
-            error
-          );
-
-        }
-
-      }
 
 
       /*
@@ -1864,7 +1804,7 @@ tool_choice:
 
         }
 
-      }
+  }
 
 
       /*
