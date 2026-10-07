@@ -1900,7 +1900,7 @@ Return ONLY the script.
       ==================================================
       */
 
-      if (
+            if (
         process.env.GROQ_API_KEY
       ) {
 
@@ -1910,16 +1910,7 @@ Return ONLY the script.
             "GROQ: Starting final script generation..."
           );
 
-
           let groqPrompt = "";
-
-
-          /*
-          ----------------------------------------------
-          CASE 1:
-          GEMINI RESEARCH AVAILABLE
-          ----------------------------------------------
-          */
 
           if (research) {
 
@@ -1948,51 +1939,30 @@ Create the FINAL movie explanation script.
 The VERIFIED RESEARCH is the primary factual source.
 
 Check the Gemini draft against the research.
-
 Correct anything that conflicts with the research.
-
 Remove anything unsupported.
-
 Remove invented events.
-
 Remove invented characters.
-
 Remove invented relationships.
-
 Remove invented locations.
-
 Remove invented deaths.
-
 Remove invented twists.
-
 Remove invented motivations.
-
 Remove invented dialogue.
-
 Do not change important chronology.
-
 Do not confuse actors and characters.
-
 Do not use fan theories as facts.
-
 Do not guess missing information.
-
 Pay special attention to the climax and ending.
-
-If information is uncertain, leave it out.
 
 STYLE:
 
 Start with an engaging hook.
-
 Explain the actual movie naturally.
-
+Follow the movie's story.
 Explain important cause and effect.
-
-Explain important twists.
-
+Explain major twists clearly.
 Build toward the climax.
-
 Explain the actual ending.
 
 FORMAT:
@@ -2009,30 +1979,19 @@ FORMAT:
 - Suitable for YouTube narration.
 - No filler.
 
-Do not mention Gemini, Groq, AI, research,
-sources, or these instructions.
+Do not mention Gemini, Groq, AI,
+research, sources, or these instructions.
 
 Return ONLY the final script.
 
 `;
 
-          }
-
-
-          /*
-          ----------------------------------------------
-          CASE 2:
-          GEMINI UNAVAILABLE
-          GROQ WORKS AS STANDALONE FALLBACK
-          ----------------------------------------------
-          */
-
-          else {
+          } else {
 
             groqPrompt = `
 
 You are a professional YouTube movie explanation
-scriptwriter and fact-checking editor.
+scriptwriter.
 
 MOVIE:
 ${input}
@@ -2043,67 +2002,39 @@ ${language}
 TARGET DURATION:
 Approximately ${duration} minutes.
 
-IMPORTANT:
-
 The primary research service is temporarily
 unavailable.
 
-You must still create the best factual movie
-explanation possible.
-
-Use your internal knowledge of the EXACT movie.
+Create the best factual explanation possible
+using your knowledge of the EXACT movie.
 
 STRICT ACCURACY:
 
-1. Only describe events that actually happen.
-
-2. Do not invent scenes.
-
-3. Do not invent characters.
-
-4. Do not invent relationships.
-
-5. Do not invent locations.
-
-6. Do not invent deaths.
-
-7. Do not invent dialogue.
-
-8. Do not invent motivations.
-
-9. Do not invent twists.
-
-10. Do not invent the climax.
-
-11. Do not invent the ending.
-
-12. Do not confuse actors with characters.
-
-13. Do not mix another movie into this movie.
-
-14. Do not use fan theories as facts.
-
-15. Do not guess uncertain details.
-
-16. If you are not confident about a detail,
-leave that detail out.
-
-17. Pay special attention to the climax and ending.
+- Do not invent events.
+- Do not invent characters.
+- Do not invent relationships.
+- Do not invent locations.
+- Do not invent deaths.
+- Do not invent dialogue.
+- Do not invent motivations.
+- Do not invent twists.
+- Do not invent the climax.
+- Do not invent the ending.
+- Do not confuse actors and characters.
+- Do not mix another movie into this movie.
+- Do not use fan theories as facts.
+- Do not guess uncertain details.
+- If you are not confident about a detail,
+leave it out.
 
 STYLE:
 
 Start with an engaging hook.
-
 Explain the actual story naturally.
-
 Follow the movie's chronology.
-
 Explain important cause and effect.
-
 Explain major twists clearly.
-
 Build toward the climax.
-
 Explain the actual ending.
 
 FORMAT:
@@ -2123,6 +2054,10 @@ FORMAT:
 Return ONLY the movie explanation script.
 
 `;
+
+          }
+
+
           const groqResponse =
             await fetch(
               "https://api.groq.com/openai/v1/chat/completions",
@@ -2243,6 +2178,18 @@ Return ONLY the movie explanation script.
           );
 
         }
+
+      }
+
+
+      /*
+      ==================================================
+      FINAL SCRIPT SELECTION
+      ==================================================
+      */
+
+      let script = "";
+          
 
       /*
       ==================================================
