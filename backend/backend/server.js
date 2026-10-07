@@ -3321,9 +3321,10 @@ app.post(
 
       /*
       /*
+/*
 ==================================================
 STEP 6C:
-AUTOMATIC CAPTIONS USING WHISPER
+AUTOMATIC CAPTIONS USING FASTER-WHISPER
 ==================================================
 */
 
@@ -3339,16 +3340,20 @@ const captionScript =
 
 const captionPython = String.raw`
 import sys
-import whisper
+from faster_whisper import WhisperModel
 
 audio_file = sys.argv[1]
 output_file = sys.argv[2]
 
-model = whisper.load_model("tiny")
+model = WhisperModel(
+    "tiny",
+    device="cpu",
+    compute_type="int8"
+)
 
-result = model.transcribe(
+segments, info = model.transcribe(
     audio_file,
-    fp16=False
+    beam_size=5
 )
 
 def srt_time(seconds):
@@ -3377,8 +3382,19 @@ def srt_time(seconds):
     )
 
     if millis >= 1000:
+
         secs += 1
         millis = 0
+
+    if secs >= 60:
+
+        secs = 0
+        minutes += 1
+
+    if minutes >= 60:
+
+        minutes = 0
+        hours += 1
 
     return (
         f"{hours:02d}:"
@@ -3387,10 +3403,6 @@ def srt_time(seconds):
         f"{millis:03d}"
     )
 
-segments = result.get(
-    "segments",
-    []
-)
 
 with open(
     output_file,
@@ -3398,25 +3410,13 @@ with open(
     encoding="utf-8"
 ) as f:
 
-    for index, segment in enumerate(
-        segments,
-        start=1
-    ):
+    index = 1
 
-        start = segment.get(
-            "start",
-            0
-        )
+    for segment in segments:
 
-        end = segment.get(
-            "end",
-            start + 1
-        )
-
-        text = segment.get(
-            "text",
-            ""
-        ).strip()
+        start = segment.start
+        end = segment.end
+        text = segment.text.strip()
 
         if not text:
             continue
@@ -3440,6 +3440,8 @@ with open(
         f.write(
             "\n\n"
         )
+
+        index += 1
 `;
 
 require("fs").writeFileSync(
@@ -3512,6 +3514,11 @@ if (!existsSync(captionFile)) {
   );
 
 }
+
+console.log(
+  "Automatic captions created successfully."
+);
+
       /*
       ==================================================
       STEP 6D:
