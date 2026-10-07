@@ -3452,48 +3452,104 @@ with open(
       Fix generated Python indentation.
       */
 
-      const fixedCaptionPython =
-        captionPython.replace(
-          /^        /gm,
-          ""
-        );
+      const captionPython = String.raw`
+import sys
+import whisper
 
-      require("fs").writeFileSync(
-        captionScript,
-        fixedCaptionPython,
-        "utf8"
-      );
+audio_file = sys.argv[1]
+output_file = sys.argv[2]
 
-      const captionProcess =
-        spawn(
-          "python3",
-          [
-            captionScript,
-            audioFile,
-            captionFile
-          ]
-        );
+model = whisper.load_model("tiny")
 
-      let captionError = "";
+result = model.transcribe(
+    audio_file,
+    fp16=False
+)
 
-      if (captionProcess.stderr) {
+def srt_time(seconds):
+    seconds = max(0, float(seconds))
 
-        captionProcess.stderr.on(
-          "data",
-          (data) => {
+    hours = int(seconds // 3600)
 
-            captionError +=
-              data.toString();
+    minutes = int(
+        (seconds % 3600) // 60
+    )
 
-            console.log(
-              "WHISPER:",
-              data.toString()
-            );
+    secs = int(
+        seconds % 60
+    )
 
-          }
-        );
+    millis = int(
+        round(
+            (seconds - int(seconds)) * 1000
+        )
+    )
 
-      }
+    if millis >= 1000:
+        secs += 1
+        millis = 0
+
+    return (
+        f"{hours:02d}:"
+        f"{minutes:02d}:"
+        f"{secs:02d},"
+        f"{millis:03d}"
+    )
+
+segments = result.get(
+    "segments",
+    []
+)
+
+with open(
+    output_file,
+    "w",
+    encoding="utf-8"
+) as f:
+
+    for index, segment in enumerate(
+        segments,
+        start=1
+    ):
+
+        start = segment.get(
+            "start",
+            0
+        )
+
+        end = segment.get(
+            "end",
+            start + 1
+        )
+
+        text = segment.get(
+            "text",
+            ""
+        ).strip()
+
+        if not text:
+            continue
+
+        f.write(
+            f"{index}\n"
+        )
+
+        f.write(
+            f"{srt_time(start)} --> "
+            f"{srt_time(end)}\n"
+        )
+
+        f.write(
+            text.replace(
+                "-->",
+                "→"
+            )
+        )
+
+        f.write(
+            "\n\n"
+        )
+`;
 
       const captionExitCode =
         await new Promise(
