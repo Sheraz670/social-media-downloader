@@ -1693,7 +1693,17 @@ Return ONLY the final movie explanation script.
                     ],
 
                     temperature:
-                      0.7
+                                0.7,
+
+tools: [
+  {
+    type:
+      "browser_search"
+  }
+],
+
+tool_choice:
+  "required"
 
                   })
 
