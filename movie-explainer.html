@@ -2062,6 +2062,7 @@ async function generateVoice() {
   }
 
 }
+
 /*
 ==================================================
 GENERATE MOVIE VIDEO
@@ -2095,6 +2096,38 @@ async function generateVideo() {
 
   }
 
+  /*
+  ==================================================
+  GET MOVIE NAME
+  ==================================================
+  */
+
+  const movieInput =
+    document.getElementById("movieInput") ||
+    document.getElementById("movieName") ||
+    document.getElementById("movie");
+
+  if (!movieInput) {
+
+    status.textContent =
+      "❌ Movie name input was not found.";
+
+    return;
+
+  }
+
+  const movieName =
+    movieInput.value.trim();
+
+  if (!movieName) {
+
+    status.textContent =
+      "❌ Please enter a movie name first.";
+
+    return;
+
+  }
+
   videoButton.disabled = true;
 
   videoButton.textContent =
@@ -2123,14 +2156,23 @@ async function generateVideo() {
 
           body: JSON.stringify({
 
-  script:
-    document
-      .getElementById("scriptOutput")
-      .value
-      .trim(),
+            script:
+              document
+                .getElementById("scriptOutput")
+                .value
+                .trim(),
 
-  audioUrl:
-    voiceAudioUrl
+            movie:
+              movieName,
+
+            voice:
+              typeof selectedVoice !== "undefined"
+                ? selectedVoice
+                : "en-US-AriaNeural",
+
+            audioUrl:
+              voiceAudioUrl
+
           })
 
         }
@@ -2220,8 +2262,8 @@ async function generateVideo() {
 
   }
 
-    }
-
+}
+    
 /*
 ==================================================
 DOWNLOAD DOC
