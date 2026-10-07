@@ -1460,8 +1460,8 @@ app.post(
     try {
 
       const input =
-  req.body?.movie?.trim() ||
-  req.body?.input?.trim();
+        req.body?.movie?.trim() ||
+        req.body?.input?.trim();
 
       const duration =
         Number(
@@ -1529,126 +1529,19 @@ app.post(
       }
 
 
-      const prompt = `
+      /*
+      ==================================================
+      STEP 1:
+      GEMINI + GOOGLE SEARCH GROUNDING
+      ==================================================
+      */
 
-You are an expert movie story researcher and professional YouTube movie explanation scriptwriter.
+      let research = "";
 
-MOVIE:
-${input}
-
-LANGUAGE:
-${language}
-
-TARGET DURATION:
-Approximately ${duration} minutes.
-
-YOUR MAIN GOAL:
-
-Create a highly engaging, detailed, and factually accurate movie explanation script.
-
-The story must be based on the ACTUAL MOVIE and its real events.
-
-ACCURACY RULES:
-
-- Never invent a scene, event, character, relationship, location, action, dialogue, twist, or ending.
-- Never guess what happened in the movie.
-- Never add an event just to make the story more interesting.
-- Do not confuse actors with characters.
-- Do not change the order or meaning of important events.
-- Do not create fake dialogue.
-- Do not present theories or fan interpretations as confirmed movie facts.
-- If the movie has an ambiguous ending, clearly explain what the movie actually shows and then explain the ambiguity.
-- Keep character motivations consistent with the movie.
-- Make sure the climax and ending match the actual movie.
-- Important events must not be skipped if they are necessary to understand the story.
-
-RESEARCH / VERIFICATION:
-
-Before writing the final script, carefully use your available knowledge and information about the movie to reconstruct the actual story.
-
-If you are uncertain about an event, DO NOT make up an answer.
-
-Instead, verify the information using reliable available sources/context before including it.
-
-Cross-check important plot points, especially:
-
-- Beginning
-- Main characters
-- Character relationships
-- Major events
-- Important twists
-- Cause and effect
-- Climax
-- Ending
-- Post-credit scenes, if relevant
-
-If reliable information cannot confirm a detail, leave that detail out rather than inventing it.
-
-STORYTELLING STYLE:
-
-The script should feel like a professional YouTube movie explanation.
-
-Start with a powerful hook that makes the viewer want to continue listening.
-
-Then naturally introduce the movie and begin the story.
-
-Explain the story in a smooth chronological flow.
-
-Use suspense where appropriate.
-
-Explain WHY important events happen, not just WHAT happens.
-
-Make character motivations easy to understand.
-
-When a major twist happens, explain it clearly without making the narration confusing.
-
-Build naturally toward the climax.
-
-Explain the ending clearly.
-
-Keep the narration interesting from beginning to end.
-
-Do not sound like a Wikipedia article.
-
-Do not repeatedly say "then", "after that", or "next" unnecessarily.
-
-Do not add filler just to increase the length.
-
-FORMAT:
-
-- Write one continuous voiceover narration.
-- Do not use headings.
-- Do not use bullet points.
-- Do not use timestamps.
-- Do not use scene labels.
-- Do not reproduce movie dialogue.
-- Do not copy the screenplay.
-- Use your own words.
-- Use natural ${language}.
-- Make the script suitable for narration and AI voice generation.
-- End naturally after explaining the movie's ending.
-
-FINAL QUALITY CHECK:
-
-Before returning the script, silently check every major event against the actual movie.
-
-If any sentence contains an invented or uncertain event, remove or correct it.
-
-Return ONLY the final movie explanation script.
-
-`;
-       let script = "";
+      let geminiScript = "";
 
       let lastError = "";
 
-
-      /*
-      ================================================
-      GEMINI
-      ================================================
-      */
-
-      let geminiScript = "";
 
       if (
         process.env.GEMINI_API_KEY
@@ -1656,7 +1549,92 @@ Return ONLY the final movie explanation script.
 
         try {
 
-          const geminiResponse =
+          const researchPrompt = `
+
+You are a professional movie researcher.
+
+MOVIE:
+${input}
+
+Your task is to research the ACTUAL movie.
+
+Use Google Search grounding to verify the movie information.
+
+IMPORTANT:
+
+Do NOT rely only on your memory.
+
+Search the web for reliable information about this exact movie.
+
+Cross-check multiple reliable sources whenever possible.
+
+You must identify:
+
+- Exact movie title
+- Release year
+- Main characters
+- Character relationships
+- Beginning of the story
+- Major events in chronological order
+- Important cause and effect
+- Major twists
+- Important reveals
+- Climax
+- Ending
+- Post-credit scene if one exists and is relevant
+
+ACCURACY RULES:
+
+1. Only include events that actually happen in the movie.
+
+2. Never invent scenes.
+
+3. Never invent characters.
+
+4. Never invent relationships.
+
+5. Never invent locations.
+
+6. Never invent deaths.
+
+7. Never invent dialogue.
+
+8. Never invent motivations.
+
+9. Never invent twists.
+
+10. Never invent an ending.
+
+11. Do not confuse the actor with the character.
+
+12. Do not mix events from another movie with this movie.
+
+13. Do not use fan theories as confirmed facts.
+
+14. If different sources disagree, investigate further.
+
+15. If a detail cannot be reliably confirmed, mark it as UNCERTAIN.
+
+16. Do not guess.
+
+17. Pay special attention to the climax and ending.
+
+18. Keep events in the correct chronological order.
+
+19. If the movie has multiple timelines, dream levels,
+flashbacks, parallel stories, or time jumps, keep them
+separate and explain their order correctly.
+
+20. Only research this exact movie.
+
+Return a detailed FACTUAL MOVIE RESEARCH REPORT.
+
+Do not write a YouTube script yet.
+
+`;
+
+
+          const geminiResearchResponse =
             await fetch(
               "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
               {
@@ -1686,7 +1664,222 @@ Return ONLY the final movie explanation script.
                           {
 
                             text:
-                              prompt
+                              researchPrompt
+
+                          }
+
+                        ]
+
+                      }
+
+                    ],
+
+                    tools: [
+
+                      {
+
+                        google_search: {}
+
+                      }
+
+                    ],
+
+                    generationConfig: {
+
+                      temperature:
+                        0.1
+
+                    }
+
+                  })
+
+              }
+            );
+
+
+          const geminiResearchData =
+            await geminiResearchResponse.json();
+
+
+          if (
+            geminiResearchResponse.ok
+          ) {
+
+            research =
+              geminiResearchData
+                ?.candidates?.[0]
+                ?.content?.parts
+                ?.map(
+                  part =>
+                    part.text || ""
+                )
+                .join("")
+                .trim() || "";
+
+
+          } else {
+
+            lastError =
+              geminiResearchData
+                ?.error
+                ?.message ||
+              "Gemini research failed.";
+
+            console.error(
+              "GEMINI RESEARCH ERROR:",
+              geminiResearchData
+            );
+
+          }
+
+
+        } catch (error) {
+
+          lastError =
+            error.message;
+
+          console.error(
+            "GEMINI RESEARCH CONNECTION ERROR:",
+            error
+          );
+
+        }
+
+      }
+
+
+      /*
+      ==================================================
+      STEP 2:
+      GEMINI CREATES INITIAL SCRIPT FROM RESEARCH
+      ==================================================
+      */
+
+      if (
+        process.env.GEMINI_API_KEY &&
+        research
+      ) {
+
+        try {
+
+          const scriptPrompt = `
+
+You are a professional YouTube movie explanation scriptwriter.
+
+MOVIE:
+${input}
+
+LANGUAGE:
+${language}
+
+TARGET DURATION:
+Approximately ${duration} minutes.
+
+VERIFIED MOVIE RESEARCH:
+
+${research}
+
+
+IMPORTANT:
+
+The research above is the factual source for the script.
+
+Write the movie explanation using ONLY information
+supported by the research.
+
+ACCURACY RULES:
+
+- Never invent an event.
+- Never invent a scene.
+- Never invent dialogue.
+- Never invent a character.
+- Never invent a relationship.
+- Never invent a location.
+- Never invent a death.
+- Never invent a twist.
+- Never invent an ending.
+- Never change the order of important events.
+- Never confuse actor names with character names.
+- Never add fan theories as facts.
+- Never add information simply to make the story longer.
+- Never fill missing information with guesses.
+
+If something is not supported by the research,
+DO NOT include it.
+
+STORY STYLE:
+
+Start with an engaging hook.
+
+Then explain the movie naturally.
+
+Follow the actual chronological story.
+
+Explain important causes and effects.
+
+Explain character motivations only when supported
+by the movie/research.
+
+Explain major twists clearly.
+
+Build naturally toward the climax.
+
+Explain the actual ending accurately.
+
+If the ending is ambiguous, explain only what
+the movie actually shows and clearly describe
+the ambiguity.
+
+FORMAT:
+
+- One continuous voiceover narration.
+- No headings.
+- No bullet points.
+- No timestamps.
+- No scene labels.
+- No fake dialogue.
+- Do not copy screenplay dialogue.
+- Use your own words.
+- Natural ${language}.
+- Suitable for YouTube narration.
+- No filler.
+
+Return ONLY the movie explanation script.
+
+`;
+
+
+          const geminiScriptResponse =
+            await fetch(
+              "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
+              {
+
+                method:
+                  "POST",
+
+                headers: {
+
+                  "Content-Type":
+                    "application/json",
+
+                  "x-goog-api-key":
+                    process.env.GEMINI_API_KEY
+
+                },
+
+                body:
+                  JSON.stringify({
+
+                    contents: [
+
+                      {
+
+                        parts: [
+
+                          {
+
+                            text:
+                              scriptPrompt
 
                           }
 
@@ -1699,7 +1892,7 @@ Return ONLY the final movie explanation script.
                     generationConfig: {
 
                       temperature:
-                        0.2
+                        0.15
 
                     }
 
@@ -1709,16 +1902,16 @@ Return ONLY the final movie explanation script.
             );
 
 
-          const geminiData =
-            await geminiResponse.json();
+          const geminiScriptData =
+            await geminiScriptResponse.json();
 
 
           if (
-            geminiResponse.ok
+            geminiScriptResponse.ok
           ) {
 
             geminiScript =
-              geminiData
+              geminiScriptData
                 ?.candidates?.[0]
                 ?.content?.parts
                 ?.map(
@@ -1731,15 +1924,14 @@ Return ONLY the final movie explanation script.
           } else {
 
             lastError =
-              geminiData
+              geminiScriptData
                 ?.error
                 ?.message ||
-              "Gemini API request failed.";
-
+              "Gemini script generation failed.";
 
             console.error(
-              "GEMINI ERROR:",
-              geminiData
+              "GEMINI SCRIPT ERROR:",
+              geminiScriptData
             );
 
           }
@@ -1749,9 +1941,8 @@ Return ONLY the final movie explanation script.
           lastError =
             error.message;
 
-
           console.error(
-            "GEMINI CONNECTION ERROR:",
+            "GEMINI SCRIPT CONNECTION ERROR:",
             error
           );
 
@@ -1761,21 +1952,26 @@ Return ONLY the final movie explanation script.
 
 
       /*
-      ================================================
-      GROQ
-      VERIFY + CORRECT GEMINI
-      ================================================
+      ==================================================
+      STEP 3:
+      GROQ FINAL FACT CHECK
+      ==================================================
       */
 
+      let script = "";
+
+
       if (
-        process.env.GROQ_API_KEY
+        process.env.GROQ_API_KEY &&
+        (geminiScript || research)
       ) {
 
         try {
 
           const verificationPrompt = `
 
-You are the final fact-checking editor for a movie explanation script.
+You are the FINAL FACT-CHECKING EDITOR for a
+professional YouTube movie explanation.
 
 MOVIE:
 ${input}
@@ -1786,110 +1982,135 @@ ${language}
 TARGET DURATION:
 Approximately ${duration} minutes.
 
-FIRST AI DRAFT:
 
-${geminiScript || "No draft was produced. Create the script yourself."}
+VERIFIED RESEARCH:
+
+${research}
+
+
+GEMINI DRAFT:
+
+${geminiScript || "No Gemini draft available."}
 
 
 YOUR JOB:
 
 Create the FINAL movie explanation script.
 
-The movie events must be factually accurate.
+The final script must describe ONLY events that
+actually happen in the movie.
 
-STRICT RULES:
+The verified research is the primary factual source.
 
-1. Only include events that actually happen in the movie.
+The Gemini draft is NOT automatically trustworthy.
 
-2. NEVER invent scenes, characters, relationships,
-locations, actions, deaths, conversations,
-motivations, twists, or endings.
+Check the Gemini draft against the research.
 
-3. NEVER assume something happened simply because
-it would make the story more interesting.
+If the draft conflicts with the research,
+CORRECT IT.
 
-4. Do not trust the first AI draft blindly.
+If the draft contains an event that cannot be
+supported by the research,
+REMOVE IT.
 
-5. Check every important event in the draft against
-your reliable knowledge of the actual movie.
+If the draft invents something,
+REMOVE IT.
 
-6. If an event in the draft is incorrect,
-remove or correct it.
+STRICT ACCURACY RULES:
 
-7. If an event cannot be reliably confirmed,
-remove it instead of guessing.
+1. Do not invent any event.
 
-8. Keep the correct chronological order of events.
+2. Do not invent scenes.
 
-9. Keep character names and relationships accurate.
+3. Do not invent characters.
 
-10. Make sure the climax is accurate.
+4. Do not invent relationships.
 
-11. Make sure the ending is accurate.
+5. Do not invent locations.
 
-12. Do not create fake movie dialogue.
+6. Do not invent deaths.
 
-13. Do not present fan theories as confirmed facts.
+7. Do not invent dialogue.
 
-14. If the ending is intentionally ambiguous,
-explain only what the movie actually shows
-and clearly describe the ambiguity.
+8. Do not invent motivations.
 
-15. Do not add information merely to increase length.
+9. Do not invent twists.
 
-16. Do not mention that another AI created a draft.
+10. Do not invent the climax.
 
-17. Do not mention fact-checking or these instructions
-in the final script.
+11. Do not invent the ending.
 
+12. Do not change the chronological order.
 
-STYLE:
+13. Do not confuse actors and characters.
 
-Write a professional YouTube movie explanation.
+14. Do not combine events from different movies.
 
-Use natural ${language}.
+15. Do not use fan theories as facts.
+
+16. Do not guess missing information.
+
+17. If information is uncertain, leave it out.
+
+18. Pay special attention to the climax.
+
+19. Pay special attention to the ending.
+
+20. If the movie contains multiple timelines,
+dream levels, flashbacks, parallel stories, or
+time jumps, preserve their correct structure.
+
+21. Do not add filler just to reach the requested duration.
+
+22. Do not mention this fact-checking process.
+
+23. Do not mention Gemini, Groq, AI, research,
+sources, or these instructions.
+
+STORY STYLE:
 
 Start with an engaging hook.
 
-Explain the story in chronological order.
+Explain the movie naturally.
 
-Explain important causes and effects.
+Follow the actual story.
+
+Explain important cause and effect.
 
 Make character motivations understandable.
 
-Keep suspense where appropriate.
+Explain major twists clearly.
 
-Explain the climax clearly.
+Build toward the climax.
 
-Explain the ending clearly.
+Explain the actual ending.
 
-Use your own words.
+If the ending is ambiguous, explain only what
+the movie actually shows.
 
-Do not use headings.
+FORMAT:
 
-Do not use bullet points.
+- One continuous voiceover narration.
+- No headings.
+- No bullet points.
+- No timestamps.
+- No scene labels.
+- No fake dialogue.
+- Do not reproduce movie dialogue.
+- Do not copy the screenplay.
+- Use your own words.
+- Natural ${language}.
+- Suitable for YouTube narration.
 
-Do not use timestamps.
+FINAL SAFETY CHECK:
 
-Do not use scene labels.
+Before returning the answer, silently check every
+major event against the verified research.
 
-Do not reproduce movie dialogue.
-
-Do not copy the screenplay.
+If even one sentence is unsupported, invented,
+contradictory, or uncertain, remove or correct it.
 
 Return ONLY the final movie explanation script.
-
-
-FINAL CHECK:
-
-Before returning the answer, silently review every
-major event.
-
-Remove anything invented, uncertain, contradictory,
-or unsupported.
-
-The final answer must contain only the movie story
-that can be reliably established.
 
 `;
 
@@ -1933,7 +2154,7 @@ that can be reliably established.
                     ],
 
                     temperature:
-                      0.2
+                      0.1
 
                   })
 
@@ -1963,7 +2184,6 @@ that can be reliably established.
                 ?.message ||
               "Groq API request failed.";
 
-
             console.error(
               "GROQ ERROR:",
               groqData
@@ -1976,7 +2196,6 @@ that can be reliably established.
           lastError =
             error.message;
 
-
           console.error(
             "GROQ CONNECTION ERROR:",
             error
@@ -1988,9 +2207,9 @@ that can be reliably established.
 
 
       /*
-      ================================================
-      IF GROQ FAILED, USE GEMINI RESULT
-      ================================================
+      ==================================================
+      FALLBACK
+      ==================================================
       */
 
       if (
@@ -2004,6 +2223,78 @@ that can be reliably established.
       }
 
 
+      if (
+        !script &&
+        research
+      ) {
+
+        script =
+          research;
+
+      }
+
+
+      if (!script) {
+
+        return res.status(500).json({
+
+          error:
+            lastError ||
+            "Unable to generate movie explanation."
+
+        });
+
+      }
+
+
+      /*
+      ==================================================
+      FINAL RESPONSE
+      ==================================================
+      */
+
+      return res.json({
+
+        success:
+          true,
+
+        movie:
+          input,
+
+        duration:
+          duration,
+
+        language:
+          language,
+
+        script:
+          script
+
+      });
+
+
+    } catch (error) {
+
+      console.error(
+        "MOVIE EXPLAINER ERROR:",
+        error
+      );
+
+
+      return res.status(500).json({
+
+        error:
+          "Movie explanation failed.",
+
+        details:
+          error.message
+
+      });
+
+    }
+
+  }
+);
       /*
       ================================================
       NO AI RESULT
