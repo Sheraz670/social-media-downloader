@@ -2181,16 +2181,6 @@ Return ONLY the movie explanation script.
 
       }
 
-
-      /*
-      ==================================================
-      FINAL SCRIPT SELECTION
-      ==================================================
-      */
-
-      let script = "";
-          
-
       /*
       ==================================================
       FINAL SCRIPT SELECTION
