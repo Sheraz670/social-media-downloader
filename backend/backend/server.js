@@ -3983,20 +3983,18 @@ app.post(
               ),
 
               "-vf",
-              `scale=${width}:${height}:force_original_aspect_ratio=increase,crop=${width}:${height},zoompan=z='${zoomExpression}':d=1:s=${width}x${height}:fps=15',
+`scale=${width}:${height}:force_original_aspect_ratio=increase,crop=${width}:${height},zoompan=z='${zoomExpression}':d=1:s=${width}x${height}:fps=15`,
 
-              "-an",
+          "-an",
 
-              "-c:v",
-              "libx264",
+          "-c:v",
+          "libx264",
 
-              "-preset",
-                "ultrafast",
-              
+          "-preset",
+          "ultrafast",
 
-              "-pix_fmt",
-              "yuv420p",
-
+          "-pix_fmt",
+          "yuv420p",
               slideFile
             ]
           );
