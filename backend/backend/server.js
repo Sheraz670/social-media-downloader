@@ -3983,7 +3983,7 @@ app.post(
               ),
 
               "-vf",
-`scale=${width}:${height}:force_original_aspect_ratio=increase,crop=${width}:${height},zoompan=z='${zoomExpression}':d=1:s=${width}x${height}:fps=15`,
+  `scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280,zoompan=z='${zoomExpression}':d=1:s=720x1280:fps=14`
 
           "-an",
 
