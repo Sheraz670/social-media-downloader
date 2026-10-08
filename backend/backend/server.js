@@ -2949,6 +2949,53 @@ app.post(
       const format =
         req.body?.format?.trim() ||
         "youtube-long";
+      const editSettings =
+  req.body?.editSettings || {};
+
+const captionStyle =
+  editSettings.captionStyle ||
+  "cinematic";
+
+const editCaptionSize =
+  Number(editSettings.captionSize) || 22;
+
+const captionPosition =
+  editSettings.captionPosition ||
+  "bottom";
+
+const videoFilter =
+  editSettings.videoFilter ||
+  "none";
+
+const brightness =
+  Number(editSettings.brightness) || 0;
+
+const contrast =
+  Number(editSettings.contrast) || 0;
+
+const saturation =
+  Number(editSettings.saturation) || 0;
+
+const videoSpeed =
+  Number(editSettings.speed) || 1;
+
+const voiceVolume =
+  Number(editSettings.voiceVolume);
+
+console.log(
+  "EDIT SETTINGS:",
+  {
+    captionStyle,
+    editCaptionSize,
+    captionPosition,
+    videoFilter,
+    brightness,
+    contrast,
+    saturation,
+    videoSpeed,
+    voiceVolume
+  }
+);
 
 
       /*
