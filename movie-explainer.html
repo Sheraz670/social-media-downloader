@@ -2894,6 +2894,142 @@ function downloadDOC() {
   URL.revokeObjectURL(url);
 }
 
+    /*
+==================================================
+EDIT VIDEO STUDIO
+==================================================
+*/
+
+let videoEditSettings = {
+  captionStyle: "cinematic",
+  captionSize: 22,
+  captionPosition: "bottom",
+  videoFilter: "none",
+  brightness: 0,
+  contrast: 0,
+  saturation: 0,
+  speed: 1,
+  voiceVolume: 100
+};
+
+
+/*
+==================================================
+OPEN VIDEO EDITOR
+==================================================
+*/
+
+function openVideoEditor() {
+
+  const editor =
+    document.getElementById("videoEditor");
+
+  if (!editor) return;
+
+  editor.classList.remove("hidden");
+
+  editor.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+
+}
+
+
+/*
+==================================================
+SAVE VIDEO EDITS
+==================================================
+*/
+
+function saveVideoEdits() {
+
+  videoEditSettings = {
+
+    captionStyle:
+      document.getElementById("captionStyle")?.value ||
+      "cinematic",
+
+    captionSize:
+      Number(
+        document.getElementById("captionSize")?.value ||
+        22
+      ),
+
+    captionPosition:
+      document.getElementById("captionPosition")?.value ||
+      "bottom",
+
+    videoFilter:
+      document.getElementById("videoFilter")?.value ||
+      "none",
+
+    brightness:
+      Number(
+        document.getElementById("videoBrightness")?.value ||
+        0
+      ),
+
+    contrast:
+      Number(
+        document.getElementById("videoContrast")?.value ||
+        0
+      ),
+
+    saturation:
+      Number(
+        document.getElementById("videoSaturation")?.value ||
+        0
+      ),
+
+    speed:
+      Number(
+        document.getElementById("videoSpeed")?.value ||
+        1
+      ),
+
+    voiceVolume:
+      Number(
+        document.getElementById("voiceVolume")?.value ||
+        100
+      )
+
+  };
+
+  alert("✅ Video editing settings saved!");
+
+}
+
+
+/*
+==================================================
+GENERATE FINAL EDITED VIDEO
+==================================================
+*/
+
+async function generateFinalEditedVideo() {
+
+  saveVideoEdits();
+
+  const videoPlayer =
+    document.getElementById("videoPlayer");
+
+  if (!videoPlayer || !videoPlayer.src) {
+
+    alert(
+      "Please generate the movie video first."
+    );
+
+    return;
+
+  }
+
+  alert(
+    "🎬 Final edited video rendering will be connected next."
+  );
+
+}
+
   </script>
 
 </body>
