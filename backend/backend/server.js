@@ -2970,97 +2970,106 @@ app.post(
 
 
       /*
-      ==================================================
-      FORMAT SETTINGS
-      ==================================================
-      */
+==================================================
+FORMAT SETTINGS
+==================================================
+*/
 
-      let width = 1920;
+let width = 1920;
 
-      let height = 1080;
+let height = 1080;
 
-      let formatName =
-        "YouTube Long";
-
-
-      if (
-        format === "youtube-shorts" ||
-        format === "shorts"
-      ) {
-
-        width = 1080;
-
-        height = 1920;
-
-        formatName =
-          "YouTube Shorts";
-
-      }
+let formatName =
+  "YouTube Long";
 
 
-      else if (
-        format === "tiktok"
-      ) {
+if (
+  format === "youtube-shorts" ||
+  format === "shorts"
+) {
 
-        width = 1080;
+  width = 1080;
 
-        height = 1920;
+  height = 1920;
 
-        formatName =
-          "TikTok";
+  formatName =
+    "YouTube Shorts";
 
-      }
-
-
-      else if (
-        format === "instagram-reels" ||
-        format === "reels"
-      ) {
-
-        width = 1080;
-
-        height = 1920;
-
-        formatName =
-          "Instagram Reels";
-
-      }
+}
 
 
-      else if (
-        format === "square"
-      ) {
+else if (
+  format === "tiktok"
+) {
 
-        width = 1080;
+  width = 1080;
 
-        height = 1080;
+  height = 1920;
 
-        formatName =
-          "Square";
+  formatName =
+    "TikTok";
 
-      }
-
-
-      else {
-
-        width = 1920;
-
-        height = 1080;
-
-        formatName =
-          "YouTube Long";
-
-      }
+}
 
 
-      console.log(
-        "VIDEO FORMAT:",
-        formatName,
-        `${width}x${height}`
-      );
+else if (
+  format === "instagram-reels" ||
+  format === "reels"
+) {
 
-      let captionFontSize = 22;
+  width = 1080;
+
+  height = 1920;
+
+  formatName =
+    "Instagram Reels";
+
+}
+
+
+else if (
+  format === "square"
+) {
+
+  width = 1080;
+
+  height = 1080;
+
+  formatName =
+    "Square";
+
+}
+
+
+else {
+
+  width = 1920;
+
+  height = 1080;
+
+  formatName =
+    "YouTube Long";
+
+}
+
+
+console.log(
+  "VIDEO FORMAT:",
+  formatName,
+  `${width}x${height}`
+);
+
+
+/*
+==================================================
+CAPTION SETTINGS
+==================================================
+*/
+
+let captionFontSize = 22;
+
 let captionMarginV = 45;
+
 
 if (
   format === "youtube-shorts" ||
@@ -3071,26 +3080,30 @@ if (
 ) {
 
   captionFontSize = 20;
+
   captionMarginV = 180;
 
 }
+
 
 else if (
   format === "square"
 ) {
 
   captionFontSize = 21;
+
   captionMarginV = 80;
 
 }
 
+
 else {
 
   captionFontSize = 22;
+
   captionMarginV = 45;
 
 }
-
 
       /*
       ==================================================
