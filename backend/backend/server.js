@@ -3983,7 +3983,7 @@ app.post(
               ),
 
               "-vf",
-              `scale=${width}:${height}:force_original_aspect_ratio=increase,crop=${width}:${height},zoompan=z='${zoomExpression}':d=1:s=${width}x${height}:fps=24`,
+              `scale=${width}:${height}:force_original_aspect_ratio=increase,crop=${width}:${height},zoompan=z='${zoomExpression}':d=1:s=${width}x${height}:fps=15',
 
               "-an",
 
@@ -3991,7 +3991,8 @@ app.post(
               "libx264",
 
               "-preset",
-              "veryfast",
+                "ultrafast",
+              
 
               "-pix_fmt",
               "yuv420p",
