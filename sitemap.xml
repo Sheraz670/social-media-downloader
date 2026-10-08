@@ -27,6 +27,10 @@
   </url>
 
   <url>
+    <loc>https://social-media-downloader.afzainkhan90.workers.dev/movie-explainer</loc>
+  </url>
+
+  <url>
     <loc>https://social-media-downloader.afzainkhan90.workers.dev/about</loc>
   </url>
 
@@ -61,7 +65,5 @@
   <url>
     <loc>https://social-media-downloader.afzainkhan90.workers.dev/faq</loc>
   </url>
-  <loc>https://social-media-downloader.afzainkhan90.workers.dev/movie-explainer</loc>
-</url>
 
 </urlset>
