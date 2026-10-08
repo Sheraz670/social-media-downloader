@@ -2327,11 +2327,8 @@ async function generateVideo() {
 
   videoButton.disabled = true;
 
-  videoLoading.style.display =
-    "block";
-
-  videoResult.style.display =
-    "none";
+  videoLoading.classList.remove("hidden");
+videoResult.classList.add("hidden");
 
   if (status) {
 
