@@ -2918,47 +2918,6 @@ app.post(
   }
 );
 
-
-/*
-==================================================
-GLOBAL ERROR HANDLER
-==================================================
-*/
-
-app.use(
-  (
-    error,
-    req,
-    res,
-    next
-  ) => {
-
-    console.error(
-      "GLOBAL ERROR:",
-      error
-    );
-
-
-    if (
-      res.headersSent
-    ) {
-
-      return next(error);
-
-    }
-
-
-    return res.status(500).json({
-
-      error:
-        error.message ||
-        "Internal server error."
-
-    });
-
-  }
-);
-
 /*
 ==================================================
 STEP 6:
@@ -4762,6 +4721,44 @@ const response = await fetch(
     });
   }
 });
+
+/*
+==================================================
+GLOBAL ERROR HANDLER
+==================================================
+*/
+
+app.use(
+  (
+    error,
+    req,
+    res,
+    next
+  ) => {
+
+    console.error(
+      "GLOBAL ERROR:",
+      error
+    );
+
+    if (
+      res.headersSent
+    ) {
+
+      return next(error);
+
+    }
+
+    return res.status(500).json({
+
+      error:
+        error.message ||
+        "Internal server error."
+
+    });
+
+  }
+);
 
 
 /*
