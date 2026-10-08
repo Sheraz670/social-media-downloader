@@ -3059,6 +3059,38 @@ app.post(
         `${width}x${height}`
       );
 
+      let captionFontSize = 22;
+let captionMarginV = 45;
+
+if (
+  format === "youtube-shorts" ||
+  format === "shorts" ||
+  format === "tiktok" ||
+  format === "instagram-reels" ||
+  format === "reels"
+) {
+
+  captionFontSize = 20;
+  captionMarginV = 180;
+
+}
+
+else if (
+  format === "square"
+) {
+
+  captionFontSize = 21;
+  captionMarginV = 80;
+
+}
+
+else {
+
+  captionFontSize = 22;
+  captionMarginV = 45;
+
+}
+
 
       /*
       ==================================================
