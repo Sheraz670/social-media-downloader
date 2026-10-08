@@ -4182,11 +4182,18 @@ else {
             "-map",
             "1:a:0",
 
-            "-c:v",
-            "libx264",
+            "-c:v", 
+            
+           "libx264",
 
-            "-preset",
-            "veryfast",
+           "-preset",
+           "ultrafast",
+
+           "-threads",
+               "1",
+
+           "-crf",
+            "28",
 
             "-pix_fmt",
             "yuv420p",
