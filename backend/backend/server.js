@@ -2979,8 +2979,13 @@ const saturation =
 const videoSpeed =
   Number(editSettings.speed) || 1;
 
-const voiceVolume =
+const voiceVolumeValue =
   Number(editSettings.voiceVolume);
+
+const voiceVolume =
+  Number.isFinite(voiceVolumeValue)
+    ? voiceVolumeValue
+    : 100;
 
 console.log(
   "EDIT SETTINGS:",
