@@ -4361,10 +4361,13 @@ app.post(
   }
 );
 
-
-
-      
-
+/*
+==================================================
+STEP 7:
+TMDB MOVIE INFORMATION
+MOVIE SEARCH + DETAILS + POSTER
+==================================================
+*/
     
 app.get("/api/movie-info", async (req, res) => {
   try {
