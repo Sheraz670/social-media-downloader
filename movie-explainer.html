@@ -934,6 +934,332 @@
   </div>
 
 </div>
+
+  <!-- EDIT VIDEO STUDIO -->
+
+<div
+  id="videoEditor"
+  class="box hidden"
+  style="margin-top:20px;"
+>
+
+  <div class="voice-title">
+    ✏️ Edit Video Studio
+  </div>
+
+  <div
+    style="
+      margin-top:10px;
+      color:#555;
+      font-size:14px;
+      line-height:1.6;
+    "
+  >
+    🎬 Customize captions, visuals, effects and scene settings.
+  </div>
+
+
+  <!-- CAPTION STYLE -->
+
+  <div style="margin-top:20px;">
+
+    <label>
+      🎨 Caption Style
+    </label>
+
+    <select
+      id="captionStyle"
+      style="width:100%;padding:12px;margin-top:8px;"
+    >
+
+      <option value="cinematic">
+        🎬 Cinematic
+      </option>
+
+      <option value="viral">
+        🔥 Viral Shorts
+      </option>
+
+      <option value="impact">
+        💥 Impact
+      </option>
+
+      <option value="clean">
+        ✨ Clean
+      </option>
+
+      <option value="color-pop">
+        🌈 Color Pop
+      </option>
+
+      <option value="highlight">
+        🖍️ Highlight
+      </option>
+
+      <option value="dark-box">
+        ⬛ Dark Box
+      </option>
+
+      <option value="minimal">
+        ⚪ Minimal
+      </option>
+
+      <option value="movie">
+        🎥 Movie
+      </option>
+
+      <option value="safe-zone">
+        📱 Shorts / TikTok Safe Zone
+      </option>
+
+      <option value="reaction">
+        😱 Reaction
+      </option>
+
+      <option value="premium">
+        💎 Premium
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <!-- CAPTION SIZE -->
+
+  <div style="margin-top:18px;">
+
+    <label>
+      🔠 Caption Size
+    </label>
+
+    <input
+      id="captionSize"
+      type="range"
+      min="14"
+      max="60"
+      value="22"
+      style="width:100%;"
+    >
+
+  </div>
+
+
+  <!-- CAPTION POSITION -->
+
+  <div style="margin-top:18px;">
+
+    <label>
+      📐 Caption Position
+    </label>
+
+    <select
+      id="captionPosition"
+      style="width:100%;padding:12px;margin-top:8px;"
+    >
+
+      <option value="top">
+        Top
+      </option>
+
+      <option value="center">
+        Center
+      </option>
+
+      <option value="bottom" selected>
+        Bottom
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <!-- FILTER -->
+
+  <div style="margin-top:18px;">
+
+    <label>
+      🎨 Video Filter
+    </label>
+
+    <select
+      id="videoFilter"
+      style="width:100%;padding:12px;margin-top:8px;"
+    >
+
+      <option value="none">
+        Normal
+      </option>
+
+      <option value="cinematic">
+        🎬 Cinematic
+      </option>
+
+      <option value="blackwhite">
+        ⚫ Black & White
+      </option>
+
+      <option value="warm">
+        🔥 Warm
+      </option>
+
+      <option value="cool">
+        ❄️ Cool
+      </option>
+
+      <option value="vintage">
+        📽️ Vintage
+      </option>
+
+      <option value="dramatic">
+        😱 Dramatic
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <!-- BRIGHTNESS -->
+
+  <div style="margin-top:18px;">
+
+    <label>
+      ☀️ Brightness
+    </label>
+
+    <input
+      id="videoBrightness"
+      type="range"
+      min="-100"
+      max="100"
+      value="0"
+      style="width:100%;"
+    >
+
+  </div>
+
+
+  <!-- CONTRAST -->
+
+  <div style="margin-top:18px;">
+
+    <label>
+      ◐ Contrast
+    </label>
+
+    <input
+      id="videoContrast"
+      type="range"
+      min="-100"
+      max="100"
+      value="0"
+      style="width:100%;"
+    >
+
+  </div>
+
+
+  <!-- SATURATION -->
+
+  <div style="margin-top:18px;">
+
+    <label>
+      🌈 Saturation
+    </label>
+
+    <input
+      id="videoSaturation"
+      type="range"
+      min="-100"
+      max="100"
+      value="0"
+      style="width:100%;"
+    >
+
+  </div>
+
+
+  <!-- VIDEO SPEED -->
+
+  <div style="margin-top:18px;">
+
+    <label>
+      ⏩ Video Speed
+    </label>
+
+    <select
+      id="videoSpeed"
+      style="width:100%;padding:12px;margin-top:8px;"
+    >
+
+      <option value="1">
+        1× Normal
+      </option>
+
+      <option value="0.75">
+        0.75× Slow
+      </option>
+
+      <option value="0.5">
+        0.5× Very Slow
+      </option>
+
+      <option value="1.25">
+        1.25× Fast
+      </option>
+
+      <option value="1.5">
+        1.5× Faster
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <!-- VOICE VOLUME -->
+
+  <div style="margin-top:18px;">
+
+    <label>
+      🔊 Voice Volume
+    </label>
+
+    <input
+      id="voiceVolume"
+      type="range"
+      min="0"
+      max="200"
+      value="100"
+      style="width:100%;"
+    >
+
+  </div>
+
+
+  <!-- ACTION BUTTONS -->
+
+  <button
+    type="button"
+    class="generate-button"
+    onclick="saveVideoEdits()"
+    style="margin-top:22px;"
+  >
+    💾 Save Changes
+  </button>
+
+  <button
+    type="button"
+    class="generate-button"
+    onclick="generateFinalEditedVideo()"
+    style="margin-top:10px;"
+  >
+    🎬 Generate Final Video
+  </button>
+
+</div>
   
   <script>
 
