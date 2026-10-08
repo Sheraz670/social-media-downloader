@@ -4484,79 +4484,118 @@ videoFilterChain.push(
 const finalVideoFilter =
   videoFilterChain.join(",");
 
-
 /*
 ==================================================
 FFMPEG FINAL RENDER
 ==================================================
 */
 
+const ffmpegArgs = [
+  "-y",
+
+  "-f",
+  "concat",
+
+  "-safe",
+  "0",
+
+  "-i",
+  concatFile,
+
+  "-i",
+  audioFile,
+
+  "-vf",
+  finalVideoFilter,
+
+  "-map",
+  "0:v:0",
+
+  "-map",
+  "1:a:0",
+
+  "-c:v",
+  "libx264",
+
+  "-preset",
+  "ultrafast",
+
+  "-threads",
+  "1",
+
+  "-crf",
+  "28",
+
+  "-pix_fmt",
+  "yuv420p",
+
+  "-c:a",
+  "aac",
+
+  "-b:a",
+  "192k"
+];
+
+
+/*
+==================================================
+AUDIO FILTERS
+==================================================
+*/
+
+const audioFilterChain = [];
+
+
+if (videoSpeed !== 1) {
+
+  audioFilterChain.push(
+    `atempo=${videoSpeed}`
+  );
+
+}
+
+
+if (voiceVolume !== 100) {
+
+  audioFilterChain.push(
+    `volume=${voiceVolume / 100}`
+  );
+
+}
+
+
+if (audioFilterChain.length > 0) {
+
+  ffmpegArgs.push(
+    "-filter:a",
+    audioFilterChain.join(",")
+  );
+
+}
+
+
+/*
+==================================================
+FINAL OPTIONS
+==================================================
+*/
+
+ffmpegArgs.push(
+  "-shortest",
+  videoFile
+);
+
+
+/*
+==================================================
+START FFMPEG
+==================================================
+*/
+
 const videoProcess =
   spawn(
     "ffmpeg",
-    [
-      "-y",
-
-      "-f",
-      "concat",
-
-      "-safe",
-      "0",
-
-      "-i",
-      concatFile,
-
-      "-i",
-      audioFile,
-
-      "-vf",
-      finalVideoFilter,
-
-      "-map",
-      "0:v:0",
-
-      "-map",
-      "1:a:0",
-
-      "-c:v",
-      "libx264",
-
-      "-preset",
-      "ultrafast",
-
-      "-threads",
-      "1",
-
-      "-crf",
-      "28",
-
-      "-pix_fmt",
-      "yuv420p",
-
-      "-c:a",
-      "aac",
-
-      "-b:a",
-      "192k",
-
-      ...(videoSpeed !== 1
-        ? [
-            "-filter:a",
-            `atempo=${videoSpeed}`
-          ]
-        : []),
-
-      ...(voiceVolume !== 100
-        ? [
-            "-filter:a",
-            `volume=${voiceVolume / 100}`
-          ]
-        : []),
-
-      "-shortest",
-
-      videoFile
-    ]
+    ffmpegArgs
   );
 
 
@@ -4586,6 +4625,12 @@ if (
 }
 
 
+/*
+==================================================
+WAIT FOR FFMPEG
+==================================================
+*/
+
 const videoExitCode =
   await new Promise(
     (
@@ -4607,6 +4652,12 @@ const videoExitCode =
   );
 
 
+/*
+==================================================
+CHECK FFMPEG RESULT
+==================================================
+*/
+
 if (
   videoExitCode !== 0
 ) {
@@ -4618,6 +4669,12 @@ if (
 
 }
 
+
+/*
+==================================================
+CHECK VIDEO FILE
+==================================================
+*/
 
 if (
   !existsSync(
@@ -4631,6 +4688,12 @@ if (
 
 }
 
+
+/*
+==================================================
+CHECK VIDEO SIZE
+==================================================
+*/
 
 const stat =
   require("fs")
@@ -4650,7 +4713,10 @@ if (
 }
 
 
-
+console.log(
+  "Final movie video created successfully:",
+  videoFile
+);
 
       /*
       ==================================================
