@@ -2454,173 +2454,168 @@ async function generateVideo() {
 
 }
 
-  /*
-  ==================================================
-  GET MOVIE NAME
-  ==================================================
-  */
+<!-- AI MOVIE VIDEO -->
 
-  const movieInput =
-    document.getElementById("movieInput") ||
-    document.getElementById("movieName") ||
-    document.getElementById("movie");
+<div
+  id="videoSection"
+  class="box hidden"
+>
 
-  if (!movieInput) {
+  <div class="voice-title">
+    🎬 AI Movie Video
+  </div>
 
-    status.textContent =
-      "❌ Movie name input was not found.";
+  <div
+    style="
+      margin-top:10px;
+      color:#555;
+      font-size:14px;
+    "
+  >
+    🎙️ Your AI voice will be combined with
+    cinematic visuals and captions.
+  </div>
 
-    return;
 
-  }
+  <!-- VIDEO FORMAT -->
 
-  const movieName =
-    movieInput.value.trim();
+  <div
+    style="
+      margin-top:18px;
+      margin-bottom:15px;
+    "
+  >
 
-  if (!movieName) {
+    <label
+      for="videoFormat"
+      style="
+        display:block;
+        margin-bottom:8px;
+        font-weight:bold;
+      "
+    >
+      🎥 Select Video Format
+    </label>
 
-    status.textContent =
-      "❌ Please enter a movie name first.";
+    <select
+      id="videoFormat"
+      style="
+        width:100%;
+        padding:13px;
+        border:1px solid #cbd5e1;
+        border-radius:9px;
+        font-size:16px;
+        background:white;
+      "
+    >
 
-    return;
+      <option value="">
+        Select format
+      </option>
 
-  }
+      <option value="youtube-long">
+        YouTube Long — 16:9
+      </option>
 
-  videoButton.disabled = true;
+      <option value="youtube-shorts">
+        YouTube Shorts — 9:16
+      </option>
 
-  videoButton.textContent =
-    "⏳ Generating Movie Video...";
+      <option value="tiktok">
+        TikTok — 9:16
+      </option>
 
-  videoLoading.classList.remove(
-    "hidden"
-  );
+      <option value="instagram-reels">
+        Instagram Reels — 9:16
+      </option>
 
-  videoResult.classList.add(
-    "hidden"
-  );
+      <option value="square">
+        Square — 1:1
+      </option>
 
-  try {
+    </select>
 
-    const response =
-      await fetch(
-        "https://social-media-downloader-f8pv.onrender.com/api/movie-video",
-        {
-          method: "POST",
+  </div>
 
-          headers: {
-            "Content-Type":
-              "application/json"
-          },
 
-          body: JSON.stringify({
+  <!-- GENERATE VIDEO BUTTON -->
 
-            script:
-              document
-                .getElementById("scriptOutput")
-                .value
-                .trim(),
+  <button
+    id="videoButton"
+    type="button"
+    class="generate-button"
+    onclick="generateVideo()"
+  >
+    🎬 Generate Movie Video
+  </button>
 
-            movie:
-              movieName,
 
-            voice:
-              typeof selectedVoice !== "undefined"
-                ? selectedVoice
-                : "en-US-AriaNeural",
+  <!-- VIDEO LOADING -->
 
-            audioUrl:
-              voiceAudioUrl
+  <div
+    id="videoLoading"
+    class="voice-loading hidden"
+  >
 
-          })
+    <div class="spinner"></div>
 
-        }
-      );
+    <div class="loading-main">
+      🎬 Creating your movie video...
+    </div>
 
-    if (!response.ok) {
+    <div class="loading-sub">
+      ⏳ Voice + visuals + captions + video processing...
+    </div>
 
-      let errorMessage =
-        "Video generation failed.";
+    <div
+      id="videoTimer"
+      class="timer"
+    >
+      Please wait...
+    </div>
 
-      try {
+  </div>
 
-        const data =
-          await response.json();
 
-        errorMessage =
-          data.error ||
-          data.message ||
-          errorMessage;
+  <!-- VIDEO RESULT -->
 
-      } catch (_) {}
+  <div
+    id="videoResult"
+    class="hidden"
+  >
 
-      throw new Error(
-        errorMessage
-      );
+    <div
+      class="loading-main"
+      style="margin-top:20px;"
+    >
+      ✅ Movie video generated successfully!
+    </div>
 
-    }
 
-    const videoBlob =
-      await response.blob();
+    <video
+      id="videoPlayer"
+      controls
+      playsinline
+      style="
+        width:100%;
+        margin-top:15px;
+        border-radius:12px;
+        background:#000;
+      "
+    ></video>
 
-    if (!videoBlob.size) {
 
-      throw new Error(
-        "Video file is empty."
-      );
+    <button
+      id="downloadVideoButton"
+      type="button"
+      onclick="downloadVideo()"
+    >
+      ⬇️ Download Video
+    </button>
 
-    }
+  </div>
 
-    const videoUrl =
-      URL.createObjectURL(
-        videoBlob
-      );
-
-    videoPlayer.src =
-      videoUrl;
-
-    videoPlayer.load();
-
-    videoResult.classList.remove(
-      "hidden"
-    );
-
-    status.textContent =
-      "✅ Movie video generated successfully!";
-
-    videoResult.scrollIntoView({
-      behavior: "smooth",
-      block: "center"
-    });
-
-  } catch (error) {
-
-    console.error(
-      "VIDEO ERROR:",
-      error
-    );
-
-    status.textContent =
-      "❌ Video Error: " +
-      (
-        error.message ||
-        "Unable to generate video."
-      );
-
-  } finally {
-
-    videoLoading.classList.add(
-      "hidden"
-    );
-
-    videoButton.disabled =
-      false;
-
-    videoButton.textContent =
-      "🎬 Generate Movie Video";
-
-  }
-
-}
+</div>
     
 /*
 ==================================================
