@@ -4175,7 +4175,8 @@ else {
             audioFile,
 
             "-vf",
-`subtitles=${captionFile}:force_style='FontName=Arial,FontSize=22,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,BorderStyle=1,Outline=2,Shadow=1,Alignment=2,MarginV=45'`,
+`subtitles=${captionFile}:force_style='FontName=Arial,FontSize=${captionFontSize},PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,BorderStyle=1,Outline=2,Shadow=1,Alignment=2,MarginV=${captionMarginV}'`,
+            
             "-map",
             "0:v:0",
 
