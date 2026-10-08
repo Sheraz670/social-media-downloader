@@ -4189,164 +4189,467 @@ else {
         concatContent,
         "utf8"
       );
+/*
+==================================================
+STEP 6G:
+CONCAT VISUALS + AUDIO + EDITS + CAPTIONS
+==================================================
+*/
+
+console.log(
+  "Creating final movie explainer video..."
+);
 
 
-      /*
-      ==================================================
-      STEP 6G:
-      CONCAT VISUALS + AUDIO + CAPTIONS
-      ==================================================
-      */
+/*
+==================================================
+VIDEO FILTER
+==================================================
+*/
+
+let videoFilterChain = [];
+
+
+// Brightness
+if (brightness !== 0) {
+
+  videoFilterChain.push(
+    `eq=brightness=${brightness / 100}`
+  );
+
+}
+
+
+// Contrast
+if (contrast !== 0) {
+
+  videoFilterChain.push(
+    `eq=contrast=${1 + (contrast / 100)}`
+  );
+
+}
+
+
+// Saturation
+if (saturation !== 0) {
+
+  videoFilterChain.push(
+    `eq=saturation=${1 + (saturation / 100)}`
+  );
+
+}
+
+
+// Preset filters
+if (videoFilter === "blackwhite") {
+
+  videoFilterChain.push(
+    "hue=s=0"
+  );
+
+}
+
+else if (videoFilter === "warm") {
+
+  videoFilterChain.push(
+    "colorbalance=rs=.08:gs=.03:bs=-.05"
+  );
+
+}
+
+else if (videoFilter === "cool") {
+
+  videoFilterChain.push(
+    "colorbalance=rs=-.05:gs=.02:bs=.08"
+  );
+
+}
+
+else if (videoFilter === "vintage") {
+
+  videoFilterChain.push(
+    "curves=vintage"
+  );
+
+}
+
+else if (videoFilter === "dramatic") {
+
+  videoFilterChain.push(
+    "eq=contrast=1.25:saturation=1.1"
+  );
+
+}
+
+
+// Speed
+if (videoSpeed !== 1) {
+
+  videoFilterChain.push(
+    `setpts=${1 / videoSpeed}*PTS`
+  );
+
+}
+
+
+/*
+==================================================
+CAPTION STYLE
+==================================================
+*/
+
+let finalCaptionFontSize =
+  editCaptionSize;
+
+let finalCaptionMarginV =
+  captionMarginV;
+
+let captionAlignment = 2;
+
+let captionOutline = 2;
+
+let captionShadow = 1;
+
+let captionPrimaryColour =
+  "&H00FFFFFF";
+
+let captionOutlineColour =
+  "&H00000000";
+
+
+if (captionPosition === "top") {
+
+  captionAlignment = 8;
+
+  finalCaptionMarginV = 45;
+
+}
+
+else if (
+  captionPosition === "center"
+) {
+
+  captionAlignment = 5;
+
+  finalCaptionMarginV = 0;
+
+}
+
+else {
+
+  captionAlignment = 2;
+
+  finalCaptionMarginV =
+    captionMarginV;
+
+}
+
+
+/*
+==================================================
+CAPTION STYLE PRESETS
+==================================================
+*/
+
+if (captionStyle === "viral") {
+
+  finalCaptionFontSize =
+    editCaptionSize + 4;
+
+  captionOutline = 3;
+
+  captionShadow = 2;
+
+}
+
+else if (captionStyle === "impact") {
+
+  finalCaptionFontSize =
+    editCaptionSize + 8;
+
+  captionOutline = 4;
+
+  captionShadow = 2;
+
+}
+
+else if (captionStyle === "clean") {
+
+  captionOutline = 1;
+
+  captionShadow = 0;
+
+}
+
+else if (captionStyle === "color-pop") {
+
+  captionOutline = 3;
+
+  captionShadow = 2;
+
+}
+
+else if (captionStyle === "highlight") {
+
+  captionOutline = 3;
+
+  captionShadow = 1;
+
+}
+
+else if (captionStyle === "dark-box") {
+
+  captionOutline = 0;
+
+  captionShadow = 0;
+
+}
+
+else if (captionStyle === "minimal") {
+
+  captionOutline = 1;
+
+  captionShadow = 0;
+
+}
+
+else if (captionStyle === "movie") {
+
+  finalCaptionFontSize =
+    editCaptionSize + 2;
+
+  captionOutline = 2;
+
+  captionShadow = 2;
+
+}
+
+else if (
+  captionStyle === "safe-zone"
+) {
+
+  finalCaptionFontSize =
+    editCaptionSize;
+
+  captionOutline = 3;
+
+  captionShadow = 2;
+
+  finalCaptionMarginV = 220;
+
+}
+
+else if (
+  captionStyle === "reaction"
+) {
+
+  finalCaptionFontSize =
+    editCaptionSize + 8;
+
+  captionOutline = 4;
+
+  captionShadow = 2;
+
+}
+
+else if (
+  captionStyle === "premium"
+) {
+
+  finalCaptionFontSize =
+    editCaptionSize + 2;
+
+  captionOutline = 2;
+
+  captionShadow = 2;
+
+}
+
+
+/*
+==================================================
+SUBTITLE FILTER
+==================================================
+*/
+
+const subtitleFilter =
+  `subtitles=${captionFile}:force_style='FontName=Arial,FontSize=${finalCaptionFontSize},PrimaryColour=${captionPrimaryColour},OutlineColour=${captionOutlineColour},BorderStyle=1,Outline=${captionOutline},Shadow=${captionShadow},Alignment=${captionAlignment},MarginV=${finalCaptionMarginV}'`;
+
+
+videoFilterChain.push(
+  subtitleFilter
+);
+
+
+const finalVideoFilter =
+  videoFilterChain.join(",");
+
+
+/*
+==================================================
+FFMPEG FINAL RENDER
+==================================================
+*/
+
+const videoProcess =
+  spawn(
+    "ffmpeg",
+    [
+      "-y",
+
+      "-f",
+      "concat",
+
+      "-safe",
+      "0",
+
+      "-i",
+      concatFile,
+
+      "-i",
+      audioFile,
+
+      "-vf",
+      finalVideoFilter,
+
+      "-map",
+      "0:v:0",
+
+      "-map",
+      "1:a:0",
+
+      "-c:v",
+      "libx264",
+
+      "-preset",
+      "ultrafast",
+
+      "-threads",
+      "1",
+
+      "-crf",
+      "28",
+
+      "-pix_fmt",
+      "yuv420p",
+
+      "-c:a",
+      "aac",
+
+      "-b:a",
+      "192k",
+
+      ...(videoSpeed !== 1
+        ? [
+            "-filter:a",
+            `atempo=${videoSpeed}`
+          ]
+        : []),
+
+      ...(voiceVolume !== 100
+        ? [
+            "-filter:a",
+            `volume=${voiceVolume / 100}`
+          ]
+        : []),
+
+      "-shortest",
+
+      videoFile
+    ]
+  );
+
+
+let videoError =
+  "";
+
+
+if (
+  videoProcess.stderr
+) {
+
+  videoProcess.stderr.on(
+    "data",
+    (data) => {
+
+      videoError +=
+        data.toString();
 
       console.log(
-        "Creating final movie explainer video..."
+        "FFMPEG:",
+        data.toString()
       );
 
+    }
+  );
 
-      const videoProcess =
-        spawn(
-          "ffmpeg",
-          [
-            "-y",
-
-            "-f",
-            "concat",
-
-            "-safe",
-            "0",
-
-            "-i",
-            concatFile,
-
-            "-i",
-            audioFile,
-
-            "-vf",
-`subtitles=${captionFile}:force_style='FontName=Arial,FontSize=${captionFontSize},PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,BorderStyle=1,Outline=2,Shadow=1,Alignment=2,MarginV=${captionMarginV}'`,
-            
-            "-map",
-            "0:v:0",
-
-            "-map",
-            "1:a:0",
-
-            "-c:v", 
-            
-           "libx264",
-
-           "-preset",
-           "ultrafast",
-
-           "-threads",
-               "1",
-
-           "-crf",
-            "28",
-
-            "-pix_fmt",
-            "yuv420p",
-
-            "-c:a",
-            "aac",
-
-            "-b:a",
-            "192k",
-
-            "-shortest",
-
-            videoFile
-          ]
-        );
+}
 
 
-      let videoError =
-        "";
+const videoExitCode =
+  await new Promise(
+    (
+      resolve,
+      reject
+    ) => {
+
+      videoProcess.on(
+        "error",
+        reject
+      );
+
+      videoProcess.on(
+        "close",
+        resolve
+      );
+
+    }
+  );
 
 
-      if (
-        videoProcess.stderr
-      ) {
+if (
+  videoExitCode !== 0
+) {
 
-        videoProcess.stderr.on(
-          "data",
-          (data) => {
+  throw new Error(
+    videoError.trim() ||
+    "Final video generation failed."
+  );
 
-            videoError +=
-              data.toString();
-
-            console.log(
-              "FFMPEG:",
-              data.toString()
-            );
-
-          }
-        );
-
-      }
+}
 
 
-            const videoExitCode =
-        await new Promise(
-          (
-            resolve,
-            reject
-          ) => {
+if (
+  !existsSync(
+    videoFile
+  )
+) {
 
-            videoProcess.on(
-              "error",
-              reject
-            );
+  throw new Error(
+    "Final video file was not created."
+  );
 
-            videoProcess.on(
-              "close",
-              resolve
-            );
-
-          }
-        );
+}
 
 
-      if (
-        videoExitCode !== 0
-      ) {
-
-        throw new Error(
-          videoError.trim() ||
-          "Final video generation failed."
-        );
-
-      }
+const stat =
+  require("fs")
+    .statSync(
+      videoFile
+    );
 
 
-      if (
-        !existsSync(
-          videoFile
-        )
-      ) {
+if (
+  !stat.size
+) {
 
-        throw new Error(
-          "Final video file was not created."
-        );
+  throw new Error(
+    "Generated video is empty."
+  );
 
-      }
+}
 
 
-      const stat =
-        require("fs")
-          .statSync(
-            videoFile
-          );
-
-
-      if (
-        !stat.size
-      ) {
-
-        throw new Error(
-          "Generated video is empty."
-        );
-
-      }
 
 
       /*
