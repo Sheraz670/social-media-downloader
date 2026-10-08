@@ -2963,7 +2963,8 @@ app.use(
 ==================================================
 STEP 6:
 AI MOVIE VIDEO
-SAFE VISUALS + AI VOICE + AUTO CAPTIONS
+MULTI-VISUAL + AI VOICE + AUTO CAPTIONS
+YOUTUBE LONG / SHORTS / TIKTOK / REELS / SQUARE
 ==================================================
 */
 
@@ -2986,26 +2987,147 @@ app.post(
         req.body?.voice?.trim() ||
         "en-US-AriaNeural";
 
+      const format =
+        req.body?.format?.trim() ||
+        "youtube-long";
+
+
+      /*
+      ==================================================
+      VALIDATE SCRIPT
+      ==================================================
+      */
+
       if (!script) {
 
         return res.status(400).json({
+
           error:
             "Script is required."
+
         });
 
       }
+
+
+      /*
+      ==================================================
+      FORMAT SETTINGS
+      ==================================================
+      */
+
+      let width = 1920;
+
+      let height = 1080;
+
+      let formatName =
+        "YouTube Long";
+
+
+      if (
+        format === "youtube-shorts" ||
+        format === "shorts"
+      ) {
+
+        width = 1080;
+
+        height = 1920;
+
+        formatName =
+          "YouTube Shorts";
+
+      }
+
+
+      else if (
+        format === "tiktok"
+      ) {
+
+        width = 1080;
+
+        height = 1920;
+
+        formatName =
+          "TikTok";
+
+      }
+
+
+      else if (
+        format === "instagram-reels" ||
+        format === "reels"
+      ) {
+
+        width = 1080;
+
+        height = 1920;
+
+        formatName =
+          "Instagram Reels";
+
+      }
+
+
+      else if (
+        format === "square"
+      ) {
+
+        width = 1080;
+
+        height = 1080;
+
+        formatName =
+          "Square";
+
+      }
+
+
+      else {
+
+        width = 1920;
+
+        height = 1080;
+
+        formatName =
+          "YouTube Long";
+
+      }
+
+
+      console.log(
+        "VIDEO FORMAT:",
+        formatName,
+        `${width}x${height}`
+      );
+
+
+      /*
+      ==================================================
+      TMDB TOKEN
+      ==================================================
+      */
 
       const tmdbToken =
         process.env.TMDB_ACCESS_TOKEN;
 
+
       if (!tmdbToken) {
 
         return res.status(500).json({
+
           error:
             "TMDB access token is not configured."
+
         });
 
       }
+
+
+      /*
+      ==================================================
+      CREATE TEMP DIRECTORY
+      ==================================================
+      */
 
       tempDir =
         mkdtempSync(
@@ -3015,11 +3137,13 @@ app.post(
           )
         );
 
+
       const textFile =
         path.join(
           tempDir,
           "script.txt"
         );
+
 
       const audioFile =
         path.join(
@@ -3027,17 +3151,13 @@ app.post(
           "voice.mp3"
         );
 
+
       const captionFile =
         path.join(
           tempDir,
           "captions.srt"
         );
 
-      const visualFile =
-        path.join(
-          tempDir,
-          "movie-visual.jpg"
-        );
 
       const videoFile =
         path.join(
@@ -3045,11 +3165,13 @@ app.post(
           "movie-explanation.mp4"
         );
 
+
       require("fs").writeFileSync(
         textFile,
         script,
         "utf8"
       );
+
 
       /*
       ==================================================
@@ -3064,7 +3186,12 @@ app.post(
           "tts.py"
         );
 
-      if (!existsSync(ttsFile)) {
+
+      if (
+        !existsSync(
+          ttsFile
+        )
+      ) {
 
         throw new Error(
           "tts.py was not found."
@@ -3072,9 +3199,11 @@ app.post(
 
       }
 
+
       console.log(
         "Generating movie voice..."
       );
+
 
       const ttsProcess =
         spawn(
@@ -3087,9 +3216,14 @@ app.post(
           ]
         );
 
-      let ttsError = "";
 
-      if (ttsProcess.stderr) {
+      let ttsError =
+        "";
+
+
+      if (
+        ttsProcess.stderr
+      ) {
 
         ttsProcess.stderr.on(
           "data",
@@ -3108,9 +3242,13 @@ app.post(
 
       }
 
+
       const ttsExitCode =
         await new Promise(
-          (resolve, reject) => {
+          (
+            resolve,
+            reject
+          ) => {
 
             ttsProcess.on(
               "error",
@@ -3125,7 +3263,10 @@ app.post(
           }
         );
 
-      if (ttsExitCode !== 0) {
+
+      if (
+        ttsExitCode !== 0
+      ) {
 
         throw new Error(
           ttsError.trim() ||
@@ -3134,7 +3275,12 @@ app.post(
 
       }
 
-      if (!existsSync(audioFile)) {
+
+      if (
+        !existsSync(
+          audioFile
+        )
+      ) {
 
         throw new Error(
           "Voice file was not created."
@@ -3142,17 +3288,19 @@ app.post(
 
       }
 
+
       /*
       ==================================================
       STEP 6B:
-      FIND MOVIE VISUAL FROM TMDB
+      FIND MULTIPLE MOVIE VISUALS
       ==================================================
       */
 
       console.log(
-        "Finding safe movie visual:",
+        "Finding movie visuals:",
         movie
       );
+
 
       const searchUrl =
         "https://api.themoviedb.org/3/search/movie" +
@@ -3161,21 +3309,27 @@ app.post(
         "&language=en-US" +
         "&page=1";
 
+
       const movieResponse =
         await fetch(
           searchUrl,
           {
             headers: {
+
               Authorization:
                 `Bearer ${tmdbToken}`,
 
               accept:
                 "application/json"
+
             }
           }
         );
 
-      if (!movieResponse.ok) {
+
+      if (
+        !movieResponse.ok
+      ) {
 
         const errorText =
           await movieResponse.text();
@@ -3191,35 +3345,29 @@ app.post(
 
       }
 
+
       const movieData =
         await movieResponse.json();
 
-      const results =
-        Array.isArray(movieData.results)
-          ? movieData.results
-          : [];
-
-      console.log(
-        "TMDB RESULTS:",
-        results.length
-      );
-
-      /*
-      Find the first result that actually
-      contains a usable image.
-      */
 
       const movieResult =
-        results.find(
-          (item) =>
-            item &&
-            (
-              item.backdrop_path ||
-              item.poster_path
+        Array.isArray(
+          movieData.results
+        )
+          ? movieData.results.find(
+              (item) =>
+                item &&
+                (
+                  item.backdrop_path ||
+                  item.poster_path
+                )
             )
-        );
+          : null;
 
-      if (!movieResult) {
+
+      if (
+        !movieResult
+      ) {
 
         throw new Error(
           `No TMDB visual was found for "${movie}".`
@@ -3227,589 +3375,773 @@ app.post(
 
       }
 
-      console.log(
-        "TMDB MOVIE FOUND:",
-        movieResult.title ||
-        movieResult.original_title ||
-        movie
-      );
-
-      console.log(
-        "TMDB BACKDROP:",
-        movieResult.backdrop_path
-      );
-
-      console.log(
-        "TMDB POSTER:",
-        movieResult.poster_path
-      );
-
-      let visualUrl = null;
 
       /*
-      Prefer landscape backdrop.
+      ==================================================
+      GET MOVIE DETAILS
+      ==================================================
+      */
+
+      const movieId =
+        movieResult.id;
+
+
+      let images = [];
+
+
+      if (movieId) {
+
+        const imagesUrl =
+          `https://api.themoviedb.org/3/movie/${movieId}/images` +
+          "?include_image_language=en,null";
+
+
+        const imagesResponse =
+          await fetch(
+            imagesUrl,
+            {
+              headers: {
+
+                Authorization:
+                  `Bearer ${tmdbToken}`,
+
+                accept:
+                  "application/json"
+
+              }
+            }
+          );
+
+
+        if (
+          imagesResponse.ok
+        ) {
+
+          const imagesData =
+            await imagesResponse.json();
+
+
+          if (
+            Array.isArray(
+              imagesData.backdrops
+            )
+          ) {
+
+            images =
+              imagesData.backdrops
+                .filter(
+                  (item) =>
+                    item &&
+                    item.file_path
+                )
+                .slice(
+                  0,
+                  15
+                );
+
+          }
+
+        }
+
+      }
+
+
+      /*
+      ==================================================
+      FALLBACK MOVIE IMAGE
+      ==================================================
       */
 
       if (
-        movieResult.backdrop_path
+        images.length === 0
       ) {
 
-        visualUrl =
-          `https://image.tmdb.org/t/p/w1280${movieResult.backdrop_path}`;
+        if (
+          movieResult.backdrop_path
+        ) {
+
+          images.push({
+
+            file_path:
+              movieResult.backdrop_path
+
+          });
+
+        }
+
+        else if (
+          movieResult.poster_path
+        ) {
+
+          images.push({
+
+            file_path:
+              movieResult.poster_path
+
+          });
+
+        }
 
       }
 
+
+      if (
+        images.length === 0
+      ) {
+
+        throw new Error(
+          "No usable movie visuals were found."
+        );
+
+      }
+
+
+      console.log(
+        "MOVIE VISUAL COUNT:",
+        images.length
+      );
+
+
       /*
-      Use poster if backdrop is unavailable.
+      ==================================================
+      DOWNLOAD VISUALS
+      ==================================================
       */
 
-      else if (
-        movieResult.poster_path
+      const visualFiles = [];
+
+
+      for (
+        let i = 0;
+        i < images.length;
+        i++
       ) {
 
-        visualUrl =
-          `https://image.tmdb.org/t/p/w780${movieResult.poster_path}`;
-
-      }
-
-      if (!visualUrl) {
-
-        throw new Error(
-          "TMDB returned the movie but no usable image."
-        );
-
-      }
-
-      console.log(
-        "Downloading movie visual..."
-      );
-
-      const imageResponse =
-        await fetch(
-          visualUrl
-        );
-
-      if (!imageResponse.ok) {
-
-        throw new Error(
-          `Unable to download movie visual. HTTP ${imageResponse.status}`
-        );
-
-      }
-
-      const imageBuffer =
-        Buffer.from(
-          await imageResponse.arrayBuffer()
-        );
-
-      if (!imageBuffer.length) {
-
-        throw new Error(
-          "Downloaded movie visual is empty."
-        );
-
-      }
-
-      require("fs").writeFileSync(
-        visualFile,
-        imageBuffer
-      );
-
-      console.log(
-        "Movie visual saved successfully."
-      );
-
-      /*
-==================================================
-STEP 6C:
-LIGHTWEIGHT AUTOMATIC CAPTIONS
-==================================================
-*/
-
-console.log(
-  "Creating lightweight automatic captions..."
-);
-
-const fs =
-  require("fs");
-
-const captionText =
-  String(script || "").trim();
-
-if (!captionText) {
-
-  throw new Error(
-    "Movie script is empty. Cannot create captions."
-  );
-
-}
+        const image =
+          images[i];
 
 
-/*
-==================================================
-GET AUDIO DURATION USING FFPROBE
-==================================================
-*/
+        const imageUrl =
+          `https://image.tmdb.org/t/p/w1280${image.file_path}`;
 
-const audioDuration =
-  await new Promise(
-    (resolve, reject) => {
 
-      const probeProcess =
-        spawn(
-          "ffprobe",
-          [
-            "-v",
-            "error",
-
-            "-show_entries",
-            "format=duration",
-
-            "-of",
-            "default=noprint_wrappers=1:nokey=1",
-
-            audioFile
-          ]
-        );
-
-      let output = "";
-      let error = "";
-
-      probeProcess.stdout.on(
-        "data",
-        (data) => {
-
-          output +=
-            data.toString();
-
-        }
-      );
-
-      probeProcess.stderr.on(
-        "data",
-        (data) => {
-
-          error +=
-            data.toString();
-
-        }
-      );
-
-      probeProcess.on(
-        "error",
-        reject
-      );
-
-      probeProcess.on(
-        "close",
-        (code) => {
-
-          if (code !== 0) {
-
-            reject(
-              new Error(
-                error.trim() ||
-                "Could not read audio duration."
-              )
-            );
-
-            return;
-
-          }
-
-          const duration =
-            parseFloat(
-              output.trim()
-            );
-
-          if (
-            !Number.isFinite(
-              duration
-            ) ||
-            duration <= 0
-          ) {
-
-            reject(
-              new Error(
-                "Invalid audio duration."
-              )
-            );
-
-            return;
-
-          }
-
-          resolve(
-            duration
+        const imageResponse =
+          await fetch(
+            imageUrl
           );
 
+
+        if (
+          !imageResponse.ok
+        ) {
+
+          console.log(
+            "Skipping visual:",
+            i + 1
+          );
+
+          continue;
+
         }
-      );
 
-    }
-  );
 
+        const imageBuffer =
+          Buffer.from(
+            await imageResponse.arrayBuffer()
+          );
 
-console.log(
-  "Audio duration:",
-  audioDuration,
-  "seconds"
-);
 
+        if (
+          !imageBuffer.length
+        ) {
 
-/*
-==================================================
-BREAK SCRIPT INTO SMALL CAPTION CHUNKS
-==================================================
-*/
+          continue;
 
-const words =
-  captionText
-    .replace(
-      /\s+/g,
-      " "
-    )
-    .trim()
-    .split(" ");
+        }
 
 
-const captionChunks = [];
+        const imageFile =
+          path.join(
+            tempDir,
+            `visual-${i + 1}.jpg`
+          );
 
-let currentChunk = [];
 
+        require("fs").writeFileSync(
+          imageFile,
+          imageBuffer
+        );
 
-/*
-Maximum words per caption.
-Keeps captions readable.
-*/
 
-const MAX_WORDS =
-  10;
-
-
-for (
-  const word of words
-) {
-
-  currentChunk.push(
-    word
-  );
-
-  const endsSentence =
-    /[.!?]$/.test(
-      word
-    );
-
-  if (
-    currentChunk.length >=
-      MAX_WORDS ||
-    endsSentence
-  ) {
-
-    captionChunks.push(
-      currentChunk.join(" ")
-    );
-
-    currentChunk = [];
-
-  }
-
-}
-
-
-if (
-  currentChunk.length
-) {
-
-  captionChunks.push(
-    currentChunk.join(" ")
-  );
-
-}
-
-
-if (
-  !captionChunks.length
-) {
-
-  throw new Error(
-    "Could not create caption chunks."
-  );
-
-}
-
-
-/*
-==================================================
-CREATE TIMINGS
-==================================================
-*/
-
-const totalWords =
-  words.length;
-
-
-let currentTime =
-  0;
-
-
-const captionEntries = [];
-
-
-for (
-  let i = 0;
-  i < captionChunks.length;
-  i++
-) {
-
-  const text =
-    captionChunks[i];
-
-  const chunkWordCount =
-    text
-      .split(/\s+/)
-      .length;
-
-
-  let duration =
-    audioDuration *
-    (
-      chunkWordCount /
-      totalWords
-    );
-
-
-  /*
-  Keep very short captions readable.
-  */
-
-  if (
-    duration < 1.2
-  ) {
-
-    duration =
-      1.2;
-
-  }
-
-
-  const remainingChunks =
-    captionChunks.length -
-    i -
-    1;
-
-
-  const remainingTime =
-    audioDuration -
-    currentTime;
-
-
-  /*
-  Prevent the minimum duration
-  from exceeding the audio length.
-  */
-
-  if (
-    remainingChunks === 0
-  ) {
-
-    duration =
-      Math.max(
-        0.5,
-        remainingTime
-      );
-
-  }
-  else {
-
-    const maxAllowed =
-      remainingTime -
-      (
-        remainingChunks *
-        0.5
-      );
-
-    duration =
-      Math.min(
-        duration,
-        Math.max(
-          0.5,
-          maxAllowed
-        )
-      );
-
-  }
-
-
-  const start =
-    currentTime;
-
-  const end =
-    Math.min(
-      audioDuration,
-      currentTime +
-        duration
-    );
-
-
-  captionEntries.push(
-    {
-      index:
-        i + 1,
-
-      start,
-
-      end,
-
-      text
-    }
-  );
-
-
-  currentTime =
-    end;
-
-}
-
-
-/*
-==================================================
-SRT TIME FORMAT
-==================================================
-*/
-
-function srtTime(
-  seconds
-) {
-
-  seconds =
-    Math.max(
-      0,
-      Number(seconds) || 0
-    );
-
-
-  const hours =
-    Math.floor(
-      seconds / 3600
-    );
-
-
-  const minutes =
-    Math.floor(
-      (
-        seconds % 3600
-      ) / 60
-    );
-
-
-  const secs =
-    Math.floor(
-      seconds % 60
-    );
-
-
-  const millis =
-    Math.floor(
-      (
-        seconds -
-        Math.floor(seconds)
-      ) *
-      1000
-    );
-
-
-  return (
-    String(hours).padStart(2, "0") +
-    ":" +
-    String(minutes).padStart(2, "0") +
-    ":" +
-    String(secs).padStart(2, "0") +
-    "," +
-    String(millis).padStart(3, "0")
-  );
-
-}
-
-
-/*
-==================================================
-CREATE SRT FILE
-==================================================
-*/
-
-const srtContent =
-  captionEntries
-    .map(
-      (entry) => {
-
-        return (
-          `${entry.index}\n` +
-          `${srtTime(entry.start)} --> ${srtTime(entry.end)}\n` +
-          `${entry.text}\n\n`
+        visualFiles.push(
+          imageFile
         );
 
       }
-    )
-    .join("");
 
 
-fs.writeFileSync(
-  captionFile,
-  srtContent,
-  "utf8"
-);
+      if (
+        visualFiles.length === 0
+      ) {
+
+        throw new Error(
+          "Movie visuals could not be downloaded."
+        );
+
+      }
 
 
-/*
-==================================================
-VERIFY CAPTION FILE
-==================================================
-*/
-
-if (
-  !existsSync(
-    captionFile
-  )
-) {
-
-  throw new Error(
-    "Caption file was not created."
-  );
-
-}
+      console.log(
+        "Downloaded visuals:",
+        visualFiles.length
+      );
 
 
-const captionStats =
-  fs.statSync(
-    captionFile
-  );
+      /*
+      ==================================================
+      STEP 6C:
+      GET AUDIO DURATION
+      ==================================================
+      */
+
+      const audioDuration =
+        await new Promise(
+          (
+            resolve,
+            reject
+          ) => {
+
+            const probeProcess =
+              spawn(
+                "ffprobe",
+                [
+                  "-v",
+                  "error",
+
+                  "-show_entries",
+                  "format=duration",
+
+                  "-of",
+                  "default=noprint_wrappers=1:nokey=1",
+
+                  audioFile
+                ]
+              );
 
 
-if (
-  !captionStats.size
-) {
+            let output =
+              "";
 
-  throw new Error(
-    "Caption file is empty."
-  );
-
-}
+            let error =
+              "";
 
 
-console.log(
-  "Lightweight captions created successfully."
-);
+            probeProcess.stdout.on(
+              "data",
+              (data) => {
 
-console.log(
-  "Caption count:",
-  captionEntries.length
-);
+                output +=
+                  data.toString();
+
+              }
+            );
+
+
+            probeProcess.stderr.on(
+              "data",
+              (data) => {
+
+                error +=
+                  data.toString();
+
+              }
+            );
+
+
+            probeProcess.on(
+              "error",
+              reject
+            );
+
+
+            probeProcess.on(
+              "close",
+              (code) => {
+
+                if (
+                  code !== 0
+                ) {
+
+                  reject(
+                    new Error(
+                      error.trim() ||
+                      "Could not read audio duration."
+                    )
+                  );
+
+                  return;
+
+                }
+
+
+                const duration =
+                  parseFloat(
+                    output.trim()
+                  );
+
+
+                if (
+                  !Number.isFinite(
+                    duration
+                  ) ||
+                  duration <= 0
+                ) {
+
+                  reject(
+                    new Error(
+                      "Invalid audio duration."
+                    )
+                  );
+
+                  return;
+
+                }
+
+
+                resolve(
+                  duration
+                );
+
+              }
+            );
+
+          }
+        );
+
+
+      console.log(
+        "Audio duration:",
+        audioDuration,
+        "seconds"
+      );
+
 
       /*
       ==================================================
       STEP 6D:
-      CREATE FINAL VIDEO
+      CREATE CAPTIONS
+      ==================================================
+      */
+
+      const captionText =
+        String(
+          script || ""
+        )
+          .replace(
+            /\s+/g,
+            " "
+          )
+          .trim();
+
+
+      const words =
+        captionText
+          .split(" ");
+
+
+      const captionChunks =
+        [];
+
+
+      let currentChunk =
+        [];
+
+
+      const MAX_WORDS =
+        10;
+
+
+      for (
+        const word of words
+      ) {
+
+        currentChunk.push(
+          word
+        );
+
+
+        if (
+          currentChunk.length >=
+          MAX_WORDS
+        ) {
+
+          captionChunks.push(
+            currentChunk.join(" ")
+          );
+
+          currentChunk = [];
+
+        }
+
+      }
+
+
+      if (
+        currentChunk.length
+      ) {
+
+        captionChunks.push(
+          currentChunk.join(" ")
+        );
+
+      }
+
+
+      const captionEntries =
+        [];
+
+
+      const chunkDuration =
+        audioDuration /
+        Math.max(
+          captionChunks.length,
+          1
+        );
+
+
+      for (
+        let i = 0;
+        i < captionChunks.length;
+        i++
+      ) {
+
+        const start =
+          i *
+          chunkDuration;
+
+
+        const end =
+          Math.min(
+            audioDuration,
+            start +
+            chunkDuration
+          );
+
+
+        captionEntries.push({
+
+          index:
+            i + 1,
+
+          start,
+
+          end,
+
+          text:
+            captionChunks[i]
+
+        });
+
+      }
+
+
+      function srtTime(
+        seconds
+      ) {
+
+        seconds =
+          Math.max(
+            0,
+            Number(seconds) || 0
+          );
+
+
+        const hours =
+          Math.floor(
+            seconds / 3600
+          );
+
+
+        const minutes =
+          Math.floor(
+            (
+              seconds % 3600
+            ) / 60
+          );
+
+
+        const secs =
+          Math.floor(
+            seconds % 60
+          );
+
+
+        const millis =
+          Math.floor(
+            (
+              seconds -
+              Math.floor(seconds)
+            ) *
+            1000
+          );
+
+
+        return (
+          String(hours).padStart(
+            2,
+            "0"
+          ) +
+          ":" +
+          String(minutes).padStart(
+            2,
+            "0"
+          ) +
+          ":" +
+          String(secs).padStart(
+            2,
+            "0"
+          ) +
+          "," +
+          String(millis).padStart(
+            3,
+            "0"
+          )
+        );
+
+      }
+
+
+      const srtContent =
+        captionEntries
+          .map(
+            (entry) => {
+
+              return (
+                `${entry.index}\n` +
+                `${srtTime(entry.start)} --> ${srtTime(entry.end)}\n` +
+                `${entry.text}\n\n`
+              );
+
+            }
+          )
+          .join("");
+
+
+      require("fs").writeFileSync(
+        captionFile,
+        srtContent,
+        "utf8"
+      );
+
+
+      if (
+        !existsSync(
+          captionFile
+        )
+      ) {
+
+        throw new Error(
+          "Caption file was not created."
+        );
+
+      }
+
+
+      /*
+      ==================================================
+      STEP 6E:
+      CREATE VISUAL SLIDES
+      ==================================================
+      */
+
+      const slideDuration =
+        audioDuration /
+        visualFiles.length;
+
+
+      const slideFiles =
+        [];
+
+
+      for (
+        let i = 0;
+        i < visualFiles.length;
+        i++
+      ) {
+
+        const slideFile =
+          path.join(
+            tempDir,
+            `slide-${i + 1}.mp4`
+          );
+
+
+        const visual =
+          visualFiles[i];
+
+
+        const zoomDirection =
+          i % 2 === 0
+            ? "in"
+            : "out";
+
+
+        let zoomExpression;
+
+
+        if (
+          zoomDirection === "in"
+        ) {
+
+          zoomExpression =
+            "min(zoom+0.0015,1.12)";
+
+        }
+
+        else {
+
+          zoomExpression =
+            "max(zoom-0.0015,1.0)";
+
+        }
+
+
+        const slideProcess =
+          spawn(
+            "ffmpeg",
+            [
+              "-y",
+
+              "-loop",
+              "1",
+
+              "-i",
+              visual,
+
+              "-t",
+              String(
+                slideDuration
+              ),
+
+              "-vf",
+              `scale=${width}:${height}:force_original_aspect_ratio=increase,crop=${width}:${height},zoompan=z='${zoomExpression}':d=1:s=${width}x${height}:fps=24`,
+
+              "-an",
+
+              "-c:v",
+              "libx264",
+
+              "-preset",
+              "veryfast",
+
+              "-pix_fmt",
+              "yuv420p",
+
+              slideFile
+            ]
+          );
+
+
+        let slideError =
+          "";
+
+
+        slideProcess.stderr.on(
+          "data",
+          (data) => {
+
+            slideError +=
+              data.toString();
+
+          }
+        );
+
+
+        const slideCode =
+          await new Promise(
+            (
+              resolve,
+              reject
+            ) => {
+
+              slideProcess.on(
+                "error",
+                reject
+              );
+
+              slideProcess.on(
+                "close",
+                resolve
+              );
+
+            }
+          );
+
+
+        if (
+          slideCode !== 0
+        ) {
+
+          throw new Error(
+            slideError.trim() ||
+            `Visual ${i + 1} failed.`
+          );
+
+        }
+
+
+        slideFiles.push(
+          slideFile
+        );
+
+      }
+
+
+      /*
+      ==================================================
+      STEP 6F:
+      CREATE CONCAT FILE
+      ==================================================
+      */
+
+      const concatFile =
+        path.join(
+          tempDir,
+          "slides.txt"
+        );
+
+
+      const concatContent =
+        slideFiles
+          .map(
+            (file) => {
+
+              return (
+                "file '" +
+                file
+                  .replace(
+                    /'/g,
+                    "'\\''"
+                  ) +
+                "'"
+              );
+
+            }
+          )
+          .join("\n");
+
+
+      require("fs").writeFileSync(
+        concatFile,
+        concatContent,
+        "utf8"
+      );
+
+
+      /*
+      ==================================================
+      STEP 6G:
+      CONCAT VISUALS + AUDIO + CAPTIONS
       ==================================================
       */
 
@@ -3817,32 +4149,39 @@ console.log(
         "Creating final movie explainer video..."
       );
 
+
       const videoProcess =
         spawn(
           "ffmpeg",
           [
             "-y",
 
-            "-loop",
-            "1",
+            "-f",
+            "concat",
+
+            "-safe",
+            "0",
 
             "-i",
-            visualFile,
+            concatFile,
 
             "-i",
             audioFile,
 
             "-vf",
-            `scale=1280:720:force_original_aspect_ratio=increase,crop=1280:720,zoompan=z='min(zoom+0.0005,1.12)':d=1:s=1280x720:fps=24,subtitles=${captionFile}:force_style='FontName=Arial,FontSize=22,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,BorderStyle=1,Outline=2,Shadow=1,Alignment=2,MarginV=45'`,
+            `subtitles=${captionFile}:force_style='FontName=Arial,FontSize=22,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,BorderStyle=1,Outline=2,Shadow=1,Alignment=2,MarginV=45'`,
+
+            "-map",
+            "0:v:0",
+
+            "-map",
+            "1:a:0",
 
             "-c:v",
             "libx264",
 
             "-preset",
             "veryfast",
-
-            "-tune",
-            "stillimage",
 
             "-pix_fmt",
             "yuv420p",
@@ -3859,9 +4198,14 @@ console.log(
           ]
         );
 
-      let videoError = "";
 
-      if (videoProcess.stderr) {
+      let videoError =
+        "";
+
+
+      if (
+        videoProcess.stderr
+      ) {
 
         videoProcess.stderr.on(
           "data",
@@ -3880,9 +4224,13 @@ console.log(
 
       }
 
-      const videoExitCode =
+
+            const videoExitCode =
         await new Promise(
-          (resolve, reject) => {
+          (
+            resolve,
+            reject
+          ) => {
 
             videoProcess.on(
               "error",
@@ -3897,7 +4245,10 @@ console.log(
           }
         );
 
-      if (videoExitCode !== 0) {
+
+      if (
+        videoExitCode !== 0
+      ) {
 
         throw new Error(
           videoError.trim() ||
@@ -3906,7 +4257,12 @@ console.log(
 
       }
 
-      if (!existsSync(videoFile)) {
+
+      if (
+        !existsSync(
+          videoFile
+        )
+      ) {
 
         throw new Error(
           "Final video file was not created."
@@ -3914,11 +4270,17 @@ console.log(
 
       }
 
+
       const stat =
         require("fs")
-          .statSync(videoFile);
+          .statSync(
+            videoFile
+          );
 
-      if (!stat.size) {
+
+      if (
+        !stat.size
+      ) {
 
         throw new Error(
           "Generated video is empty."
@@ -3926,9 +4288,10 @@ console.log(
 
       }
 
+
       /*
       ==================================================
-      STEP 6E:
+      STEP 6H:
       SEND FINAL VIDEO
       ==================================================
       */
@@ -3938,25 +4301,34 @@ console.log(
         "video/mp4"
       );
 
+
       res.setHeader(
         "Content-Disposition",
         `attachment; filename="${movie
           .replace(
             /[^a-z0-9]/gi,
             "_"
-          )}-video.mp4"`
+          )}-${format
+            .replace(
+              /[^a-z0-9]/gi,
+              "_"
+            )}.mp4"`
       );
+
 
       const stream =
         createReadStream(
           videoFile
         );
 
+
       stream.on(
         "close",
         () => {
 
-          if (tempDir) {
+          if (
+            tempDir
+          ) {
 
             try {
 
@@ -3970,14 +4342,19 @@ console.log(
 
             } catch {}
 
-            tempDir = null;
+            tempDir =
+              null;
 
           }
 
         }
       );
 
-      stream.pipe(res);
+
+      stream.pipe(
+        res
+      );
+
 
     } catch (error) {
 
@@ -3986,7 +4363,10 @@ console.log(
         error
       );
 
-      if (tempDir) {
+
+      if (
+        tempDir
+      ) {
 
         try {
 
@@ -4002,7 +4382,10 @@ console.log(
 
       }
 
-      if (!res.headersSent) {
+
+      if (
+        !res.headersSent
+      ) {
 
         return res.status(500).json({
 
@@ -4020,6 +4403,10 @@ console.log(
 );
 
 
+
+      
+
+    
 app.get("/api/movie-info", async (req, res) => {
   try {
     const movie = String(req.query.movie || "").trim();
