@@ -2242,6 +2242,7 @@ async function generateVoice() {
 }
 
 /*
+/*
 ==================================================
 GENERATE MOVIE VIDEO
 ==================================================
@@ -2273,7 +2274,8 @@ async function generateVideo() {
     return;
 
   }
-    const videoFormat =
+
+  const videoFormat =
     document.getElementById("videoFormat").value;
 
   if (!videoFormat) {
@@ -2284,7 +2286,173 @@ async function generateVideo() {
 
     return;
 
+  }
+
+  videoButton.disabled = true;
+
+  videoLoading.style.display =
+    "block";
+
+  videoResult.style.display =
+    "none";
+
+  if (status) {
+
+    status.textContent =
+      "Creating movie explainer video...";
+
+  }
+
+  try {
+
+    const movieName =
+      document.getElementById("movieInput")?.value?.trim() ||
+      document.getElementById("movieName")?.value?.trim() ||
+      document.getElementById("movie")?.value?.trim() ||
+      "";
+
+    const response =
+      await fetch(
+        "https://social-media-downloader-f8pv.onrender.com/api/movie-video",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+
+            script:
+              document
+                .getElementById("scriptOutput")
+                .value
+                .trim(),
+
+            movie:
+              movieName,
+
+            voice:
+              typeof selectedVoice !== "undefined"
+                ? selectedVoice
+                : "en-US-AriaNeural",
+
+            audioUrl:
+              voiceAudioUrl,
+
+            format:
+              videoFormat
+
+          })
+        }
+      );
+
+    if (!response.ok) {
+
+      let errorMessage =
+        "Video generation failed.";
+
+      try {
+
+        const errorData =
+          await response.json();
+
+        if (errorData.error) {
+
+          errorMessage =
+            errorData.error;
+
+        }
+
+      } catch (e) {
+
+        // Ignore JSON parsing error
+
+      }
+
+      throw new Error(
+        errorMessage
+      );
+
     }
+
+    const videoBlob =
+      await response.blob();
+
+    if (!videoBlob.size) {
+
+      throw new Error(
+        "Generated video is empty."
+      );
+
+    }
+
+    const videoUrl =
+      URL.createObjectURL(
+        videoBlob
+      );
+
+    videoPlayer.src =
+      videoUrl;
+
+    videoPlayer.load();
+
+    videoResult.style.display =
+      "block";
+
+    if (status) {
+
+      status.textContent =
+        "Movie explainer video created successfully.";
+
+    }
+
+    const downloadButton =
+      document.getElementById(
+        "downloadVideoButton"
+      );
+
+    if (downloadButton) {
+
+      downloadButton.href =
+        videoUrl;
+
+      downloadButton.download =
+        "movie-explainer.mp4";
+
+    }
+
+  } catch (error) {
+
+    console.error(
+      "VIDEO ERROR:",
+      error
+    );
+
+    alert(
+      "Video Error: " +
+      error.message
+    );
+
+    if (status) {
+
+      status.textContent =
+        "Video generation failed.";
+
+    }
+
+  } finally {
+
+    videoButton.disabled =
+      false;
+
+    videoLoading.style.display =
+      "none";
+
+  }
+
+}
 
   /*
   ==================================================
