@@ -2045,6 +2045,7 @@ async function generateVoice() {
     document
       .getElementById("voiceSelect")
       .value;
+  selectedVoice = voice;
 
   const voiceButton =
     document
@@ -2515,7 +2516,7 @@ function downloadDOC() {
   }
 
   const safeScript =
-    escapeHTML(script)
+    escapeHtml(script)
       .replace(
         /\n/g,
         "<br>"
