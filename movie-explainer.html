@@ -2240,6 +2240,41 @@ async function generateVoice() {
   }
 
 }
+    function downloadVideo() {
+
+  const videoPlayer =
+    document.getElementById("videoPlayer");
+
+  if (
+    !videoPlayer ||
+    !videoPlayer.src
+  ) {
+
+    alert(
+      "Please generate the video first."
+    );
+
+    return;
+
+  }
+
+
+  const link =
+    document.createElement("a");
+
+  link.href =
+    videoPlayer.src;
+
+  link.download =
+    "movie-explainer-video.mp4";
+
+  document.body.appendChild(link);
+
+  link.click();
+
+  document.body.removeChild(link);
+
+    }
 
 /*
 /*
