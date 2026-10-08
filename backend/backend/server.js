@@ -3992,6 +3992,9 @@ app.post(
 
           "-preset",
           "ultrafast",
+          
+          "-threads",
+            "1",
 
           "-pix_fmt",
           "yuv420p",
