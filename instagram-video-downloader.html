@@ -2158,6 +2158,30 @@ async function downloadMedia() {
 
     return;
   }
+    // Instagram page: allow Instagram links only
+  let parsedUrl;
+
+  try {
+    parsedUrl = new URL(url);
+  } catch {
+    showStatus(status, "Please enter a valid Instagram URL.", "error");
+    return;
+  }
+
+  const host = parsedUrl.hostname.toLowerCase();
+
+  const isInstagram =
+    host === "instagram.com" ||
+    host.endsWith(".instagram.com");
+
+  if (!isInstagram) {
+    showStatus(
+      status,
+      "This page only accepts Instagram links.",
+      "error"
+    );
+    return;
+  }
 
   hideElement(result);
 
