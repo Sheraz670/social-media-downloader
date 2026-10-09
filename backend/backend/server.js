@@ -5237,6 +5237,174 @@ app.use(
 
   }
 );
+/*
+==================================================
+DOWNLOAD VIDEO
+==================================================
+*/
+
+app.get("/api/download", async (req, res) => {
+  let tempDir = null;
+
+  try {
+    const url = req.query.url;
+
+    validateUrl(url);
+
+    console.log("DOWNLOAD REQUEST:", url);
+
+    // Direct media URL
+    const directInfo = await getDirectMediaInfo(url).catch(
+      () => null
+    );
+
+    if (directInfo) {
+      const response = await fetch(url, {
+        method: "GET",
+        redirect: "follow"
+      });
+
+      if (!response.ok || !response.body) {
+        throw new Error(
+          `Media server returned HTTP ${response.status}.`
+        );
+      }
+
+      const filename = path.basename(
+        new URL(url).pathname
+      ).replace(/[^a-zA-Z0-9._-]/g, "_") || "media-file";
+
+      res.setHeader(
+        "Content-Type",
+        directInfo.contentType || "application/octet-stream"
+      );
+
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${filename}"`
+      );
+
+      const stream = Readable.fromWeb(response.body);
+
+      stream.on("error", (error) => {
+        console.error("DIRECT DOWNLOAD STREAM ERROR:", error);
+
+        if (!res.headersSent) {
+          res.status(500).end("Download stream failed.");
+        } else {
+          res.destroy(error);
+        }
+      });
+
+      stream.pipe(res);
+      return;
+    }
+
+    // Social media URL
+    if (!isSocialMediaUrl(url)) {
+      return res.status(415).json({
+        error: "Please provide a supported public media URL."
+      });
+    }
+
+    tempDir = mkdtempSync(
+      path.join(os.tmpdir(), "socialtoolhub-download-")
+    );
+
+    const outputTemplate = path.join(
+      tempDir,
+      "video.%(ext)s"
+    );
+
+    await runYtDlpProcess(url, {
+      output: outputTemplate,
+      ...getYtDlpOptions(url, true)
+    });
+
+    const downloadedFile = readdirSync(tempDir).find(
+      (file) =>
+        file.startsWith("video.") &&
+        !file.endsWith(".part")
+    );
+
+    if (!downloadedFile) {
+      throw new Error(
+        "Download finished, but the video file was not created."
+      );
+    }
+
+    const videoPath = path.join(tempDir, downloadedFile);
+
+    if (!existsSync(videoPath)) {
+      throw new Error("Downloaded video file was not found.");
+    }
+
+    const safeFilename =
+      "socialtoolhub-video" +
+      (path.extname(downloadedFile) || ".mp4");
+
+    res.setHeader(
+      "Content-Type",
+      "application/octet-stream"
+    );
+
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${safeFilename}"`
+    );
+
+    const stream = createReadStream(videoPath);
+
+    stream.on("error", (error) => {
+      console.error("VIDEO DOWNLOAD STREAM ERROR:", error);
+
+      if (!res.headersSent) {
+        res.status(500).end("Video download stream failed.");
+      } else {
+        res.destroy(error);
+      }
+    });
+
+    stream.on("close", () => {
+      if (tempDir) {
+        try {
+          rmSync(tempDir, {
+            recursive: true,
+            force: true
+          });
+        } catch (error) {
+          console.error("DOWNLOAD CLEANUP ERROR:", error);
+        }
+
+        tempDir = null;
+      }
+    });
+
+    stream.pipe(res);
+
+  } catch (error) {
+    console.error("DOWNLOAD ERROR:", error);
+
+    if (tempDir) {
+      try {
+        rmSync(tempDir, {
+          recursive: true,
+          force: true
+        });
+      } catch {}
+
+      tempDir = null;
+    }
+
+    if (!res.headersSent) {
+      return res.status(500).json({
+        error: error.message || "Video download failed."
+      });
+    }
+
+    res.destroy();
+  }
+});
 
 
 /*
