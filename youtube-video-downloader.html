@@ -2158,6 +2158,32 @@ async function downloadMedia() {
 
     return;
   }
+    // YouTube page: allow YouTube links only
+  let parsedUrl;
+
+  try {
+    parsedUrl = new URL(url);
+  } catch {
+    showStatus(status, "Please enter a valid YouTube URL.", "error");
+    return;
+  }
+
+  const host = parsedUrl.hostname.toLowerCase();
+
+  const isYouTube =
+    host === "youtube.com" ||
+    host.endsWith(".youtube.com") ||
+    host === "youtu.be" ||
+    host.endsWith(".youtu.be");
+
+  if (!isYouTube) {
+    showStatus(
+      status,
+      "This page only accepts YouTube links.",
+      "error"
+    );
+    return;
+  }
 
   hideElement(result);
 
