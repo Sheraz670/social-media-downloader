@@ -2158,6 +2158,32 @@ async function downloadMedia() {
 
     return;
   }
+    // Facebook page: allow Facebook links only
+  let parsedUrl;
+
+  try {
+    parsedUrl = new URL(url);
+  } catch {
+    showStatus(status, "Please enter a valid Facebook URL.", "error");
+    return;
+  }
+
+  const host = parsedUrl.hostname.toLowerCase();
+
+  const isFacebook =
+    host === "facebook.com" ||
+    host.endsWith(".facebook.com") ||
+    host === "fb.watch" ||
+    host.endsWith(".fb.watch");
+
+  if (!isFacebook) {
+    showStatus(
+      status,
+      "This page only accepts Facebook links.",
+      "error"
+    );
+    return;
+  }
 
   hideElement(result);
 
