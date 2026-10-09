@@ -2158,6 +2158,32 @@ async function downloadMedia() {
 
     return;
   }
+    // TikTok page: allow TikTok links only
+  let parsedUrl;
+
+  try {
+    parsedUrl = new URL(url);
+  } catch {
+    showStatus(status, "Please enter a valid TikTok URL.", "error");
+    return;
+  }
+
+  const host = parsedUrl.hostname.toLowerCase();
+
+  const isTikTok =
+    host === "tiktok.com" ||
+    host.endsWith(".tiktok.com") ||
+    host === "vt.tiktok.com" ||
+    host === "vm.tiktok.com";
+
+  if (!isTikTok) {
+    showStatus(
+      status,
+      "This page only accepts TikTok video links.",
+      "error"
+    );
+    return;
+  }
 
   hideElement(result);
 
