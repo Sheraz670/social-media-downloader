@@ -3122,8 +3122,7 @@ function closeDownloadConfirm() {
   const modal = $("downloadConfirmModal");
   if (modal) modal.classList.remove("show");
 }
-
-async function startVideoDownload(url) {
+function startVideoDownload(url) {
   if (!url) return;
 
   const confirmButton = $("downloadConfirmButton");
@@ -3136,124 +3135,49 @@ async function startVideoDownload(url) {
 
   showDownloadProgress();
 
-  downloadController = new AbortController();
+  const text = $("downloadProgressText");
+  const percent = $("downloadProgressPercent");
+  const bar = $("downloadProgressBar");
+
+  if (text) text.textContent = "Starting download...";
+  if (percent) percent.textContent = "…";
+
+  if (bar) {
+    bar.classList.add("indeterminate");
+    bar.style.width = "";
+  }
 
   try {
-    const response = await fetch(url, {
-      method: "GET",
-      signal: downloadController.signal
-    });
-
-    if (!response.ok) {
-      let message = "Video download failed.";
-
-      try {
-        const data = await response.json();
-        if (data?.error) message = data.error;
-      } catch {}
-
-      throw new Error(message);
-    }
-
-    const total = Number(
-      response.headers.get("content-length") || 0
-    );
-
-    if (!response.body) {
-      throw new Error("Your browser could not start the download.");
-    }
-
-    const reader = response.body.getReader();
-    const chunks = [];
-    let loaded = 0;
-
-    while (true) {
-      const { done, value } = await reader.read();
-
-      if (done) break;
-
-      chunks.push(value);
-      loaded += value.byteLength;
-      updateDownloadProgress(loaded, total);
-    }
-
-    updateDownloadProgress(
-      total || loaded,
-      total || loaded
-    );
-
-    const blob = new Blob(chunks, {
-      type:
-        response.headers.get("content-type") ||
-        "video/mp4"
-    });
-
-    const objectUrl = URL.createObjectURL(blob);
     const link = document.createElement("a");
+    link.href = url;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
 
-    link.href = objectUrl;
-    link.download = "socialtoolhub-video.mp4";
     document.body.appendChild(link);
     link.click();
     link.remove();
 
-    setTimeout(function() {
-      URL.revokeObjectURL(objectUrl);
-    }, 30000);
-
-    const text = $("downloadProgressText");
-    const percent = $("downloadProgressPercent");
-    const bar = $("downloadProgressBar");
-
-    if (text) text.textContent = "Download ready.";
-    if (percent) percent.textContent = "100%";
-
-    clearVideoUrl();
-    if (bar) {
-      bar.classList.remove("indeterminate");
-      bar.style.width = "100%";
+    if (text) {
+      text.textContent = "Check your browser downloads.";
     }
 
-    setTimeout(hideDownloadProgress, 1800);
+    setTimeout(hideDownloadProgress, 5000);
 
   } catch (error) {
-    if (error?.name === "AbortError") {
-      const text = $("downloadProgressText");
-      const percent = $("downloadProgressPercent");
-      if (text) text.textContent = "Download cancelled.";
-      if (percent) percent.textContent = "—";
-      setTimeout(hideDownloadProgress, 1200);
-    } else {
-      console.error("VIDEO DOWNLOAD ERROR:", error);
+    console.error("VIDEO DOWNLOAD ERROR:", error);
 
-      showStatus(
-        $("mediaStatus"),
-        error.message || "Unable to download this video.",
-        "error"
-      );
+    showStatus(
+      $("mediaStatus"),
+      error.message || "Unable to start download.",
+      "error"
+    );
 
-      hideDownloadProgress();
-    }
+    hideDownloadProgress();
+
   } finally {
-    downloadController = null;
-
     if (confirmButton) confirmButton.disabled = false;
     if (cancelButton) cancelButton.disabled = false;
     if (downloadButton) downloadButton.style.pointerEvents = "";
-  }
-}
-
-function clearVideoUrl() {
-  const input = $("mediaUrlInput");
-  const clearButton = $("urlClearButton");
-
-  if (input) {
-    input.value = "";
-    input.focus();
-  }
-
-  if (clearButton) {
-    clearButton.classList.remove("show");
   }
 }
 
