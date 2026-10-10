@@ -116,6 +116,9 @@ app.post("/api/shorts/transcribe/:uploadId", (req, res) => {
     finished = true;
 
     let result;
+    console.error("TRANSCRIBE EXIT CODE:", code);
+console.error("TRANSCRIBE STDOUT:", stdout.slice(-2000));
+console.error("TRANSCRIBE STDERR:", stderr.slice(-2000));
 
     try {
       result = JSON.parse(stdout);
