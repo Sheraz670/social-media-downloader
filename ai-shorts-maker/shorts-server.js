@@ -265,6 +265,8 @@ app.post("/api/shorts/from-link", async (req, res) => {
     await runCommand(python, [
       "-m", "yt_dlp",
       "--no-playlist",
+        "--extractor-args",
+  "youtube:player_client=tv,web_safari",
       "--no-warnings",
       "--max-filesize", "500M",
       "--match-filter", "duration <= 600",
