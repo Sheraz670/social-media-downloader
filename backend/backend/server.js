@@ -5338,6 +5338,12 @@ app.get("/api/download", async (req, res) => {
     if (!existsSync(videoPath)) {
       throw new Error("Downloaded video file was not found.");
     }
+    const videoStats = require("fs").statSync(videoPath);
+
+res.setHeader(
+  "Content-Length",
+  videoStats.size
+);
 
     const safeFilename =
       "socialtoolhub-video" +
