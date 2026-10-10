@@ -1,1 +1,232 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Shorts Maker — SocialToolHub</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 24px 16px;
+      background: #09090b;
+      color: #f4f4f5;
+      font-family: Arial, sans-serif;
+    }
+
+    main {
+      max-width: 720px;
+      margin: auto;
+    }
+
+    h1 {
+      color: #a5b4fc;
+    }
+
+    .card {
+      background: #18181b;
+      border: 1px solid #3f3f46;
+      border-radius: 14px;
+      padding: 20px;
+      margin: 18px 0;
+    }
+
+    label {
+      display: block;
+      margin: 16px 0 8px;
+    }
+
+    input,
+    button {
+      width: 100%;
+      padding: 13px;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    input {
+      color: white;
+      background: #09090b;
+      border: 1px solid #52525b;
+    }
+
+    button {
+      margin-top: 14px;
+      border: 0;
+      background: #4f46e5;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+    }
+
+    #status {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      line-height: 1.5;
+    }
+
+    .note {
+      color: #a1a1aa;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      background: #09090b;
+      padding: 12px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+
+<body>
+<main>
+  <h1>AI Shorts Maker</h1>
+
+  <p class="note">
+    Create captions from videos you own or have permission to use.
+  </p>
+
+  <section class="card">
+    <h2>Upload Your Video</h2>
+
+    <form id="uploadForm">
+      <label for="videoFile">Select video file</label>
+
+      <input
+        id="videoFile"
+        name="video"
+        type="file"
+        accept="video/*"
+        required
+      >
+
+      <button id="uploadButton" type="submit">
+        Upload Video
+      </button>
+    </form>
+
+    <button id="transcribeButton" type="button" disabled>
+      Generate Captions
+    </button>
+
+    <p id="status" role="status" aria-live="polite"></p>
+
+    <pre id="captions" hidden></pre>
+  </section>
+</main>
+
+<script>
+  const API_BASE = "/api/shorts";
+
+  const form = document.getElementById("uploadForm");
+  const fileInput = document.getElementById("videoFile");
+  const uploadButton = document.getElementById("uploadButton");
+  const transcribeButton =
+    document.getElementById("transcribeButton");
+  const status = document.getElementById("status");
+  const captions = document.getElementById("captions");
+
+  let currentUploadId = null;
+
+  form.addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    const file = fileInput.files[0];
+
+    if (!file) {
+      status.textContent = "Please select a video first.";
+      return;
+    }
+
+    const data = new FormData();
+    data.append("video", file);
+
+    uploadButton.disabled = true;
+    transcribeButton.disabled = true;
+    status.textContent = "Uploading video...";
+    captions.hidden = true;
+
+    try {
+      const response = await fetch(
+        API_BASE + "/upload",
+        {
+          method: "POST",
+          body: data
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Upload failed.");
+      }
+
+      currentUploadId = result.uploadId;
+
+      status.textContent =
+        "Video uploaded: " + result.fileName +
+        "\nClick Generate Captions to continue.";
+
+      transcribeButton.disabled = false;
+
+    } catch (error) {
+      status.textContent = "Upload error: " + error.message;
+    } finally {
+      uploadButton.disabled = false;
+    }
+  });
+
+  transcribeButton.addEventListener("click", async function() {
+    if (!currentUploadId) return;
+
+    transcribeButton.disabled = true;
+    status.textContent = "Generating captions. Please wait...";
+    captions.hidden = true;
+
+    try {
+      const response = await fetch(
+        API_BASE + "/transcribe/" +
+        encodeURIComponent(currentUploadId),
+        { method: "POST" }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Caption generation failed.");
+      }
+
+      status.textContent =
+        "Captions generated successfully." +
+        "\nLanguage: " + result.language +
+        "\nDuration: " + result.duration + " seconds";
+
+      captions.textContent = JSON.stringify(
+        result.captions,
+        null,
+        2
+      );
+
+      captions.hidden = false;
+
+    } catch (error) {
+      status.textContent = "Error: " + error.message;
+    } finally {
+      transcribeButton.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>
