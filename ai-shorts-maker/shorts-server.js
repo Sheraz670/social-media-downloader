@@ -9,6 +9,7 @@ const { spawn } = require("child_process");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const MAX_DURATION = 20 * 60;
 
 const uploadDir = path.join(__dirname, "uploads");
 const clipsDir = path.join(__dirname, "clips");
@@ -19,13 +20,12 @@ fs.mkdirSync(clipsDir, { recursive: true });
 const upload = multer({
   dest: uploadDir,
   limits: {
-    fileSize: 500 * 1024 * 1024
+    files: 1
   },
   fileFilter: (req, file, callback) => {
     if (!file.mimetype || !file.mimetype.startsWith("video/")) {
       return callback(new Error("Please upload a video file."));
     }
-
     callback(null, true);
   }
 });
@@ -75,15 +75,83 @@ function runCommand(command, args, maxBuffer = 10 * 1024 * 1024) {
       settled = true;
 
       if (code !== 0) {
-        reject(
-          new Error(stderr.slice(-3000) || "Command failed.")
-        );
+        reject(new Error(stderr.slice(-3000) || "Command failed."));
         return;
       }
 
       resolve({ stdout, stderr });
     });
   });
+}
+
+async function getDuration(mediaPath) {
+  const result = await runCommand("ffprobe", [
+    "-v", "error",
+    "-show_entries", "format=duration",
+    "-of", "default=noprint_wrappers=1:nokey=1",
+    mediaPath
+  ]);
+
+  const duration = Number(result.stdout.trim());
+
+  if (!Number.isFinite(duration) || duration <= 0) {
+    throw new Error("Could not determine video duration.");
+  }
+
+  if (duration > MAX_DURATION) {
+    throw new Error("Video must be 20 minutes or shorter.");
+  }
+
+  return duration;
+}
+
+/*
+  Compress video using FFmpeg.
+  Limit output width to 720 pixels.
+  Use one CPU thread to reduce memory pressure.
+*/
+async function compressVideo(inputPath, outputPath) {
+  await getDuration(inputPath);
+
+  await runCommand("ffmpeg", [
+    "-y",
+    "-nostdin",
+    "-threads", "1",
+    "-i", inputPath,
+    "-map", "0:v:0",
+    "-map", "0:a?",
+    "-vf", "scale=w='min(720,iw)':h=-2",
+    "-c:v", "libx264",
+    "-preset", "ultrafast",
+    "-crf", "28",
+    "-threads", "1",
+    "-pix_fmt", "yuv420p",
+    "-c:a", "aac",
+    "-b:a", "96k",
+    "-ac", "2",
+    "-movflags", "+faststart",
+    "-f", "mp4",
+    outputPath
+  ]);
+
+  if (!fs.existsSync(outputPath) ||
+      fs.statSync(outputPath).size === 0) {
+    throw new Error("Video compression did not produce a file.");
+  }
+}
+
+async function compressAndReplace(mediaPath) {
+  const compressedPath = mediaPath + ".compressed.mp4";
+
+  try {
+    await compressVideo(mediaPath, compressedPath);
+    fs.renameSync(compressedPath, mediaPath);
+  } catch (error) {
+    try {
+      fs.rmSync(compressedPath, { force: true });
+    } catch {}
+    throw error;
+  }
 }
 
 function getMediaPath(uploadId) {
@@ -124,18 +192,10 @@ async function transcribeMedia(mediaPath) {
 }
 
 function formatSrtTime(seconds) {
-  const milliseconds = Math.max(
-    0,
-    Math.round(seconds * 1000)
-  );
-
+  const milliseconds = Math.max(0, Math.round(seconds * 1000));
   const hours = Math.floor(milliseconds / 3600000);
-  const minutes = Math.floor(
-    (milliseconds % 3600000) / 60000
-  );
-  const secs = Math.floor(
-    (milliseconds % 60000) / 1000
-  );
+  const minutes = Math.floor((milliseconds % 3600000) / 60000);
+  const secs = Math.floor((milliseconds % 60000) / 1000);
   const ms = milliseconds % 1000;
 
   return (
@@ -154,9 +214,7 @@ function makeClipSrt(captions, clipStart, clipEnd) {
     const start = Math.max(caption.start, clipStart);
     const end = Math.min(caption.end, clipEnd);
 
-    if (end <= start || !caption.text) {
-      continue;
-    }
+    if (end <= start || !caption.text) continue;
 
     lines.push(
       String(number++),
@@ -178,12 +236,10 @@ function escapeFilterPath(filePath) {
     .replace(/'/g, "\\'");
 }
 
-/* ---------------------------------
-   STEP 1: UPLOAD VIDEO FILE
----------------------------------- */
+/* STEP 1: UPLOAD AND COMPRESS VIDEO */
 
 app.post("/api/shorts/upload", (req, res) => {
-  upload.single("video")(req, res, err => {
+  upload.single("video")(req, res, async err => {
     if (err) {
       return res.status(400).json({
         error: err.message || "Video upload failed."
@@ -196,19 +252,32 @@ app.post("/api/shorts/upload", (req, res) => {
       });
     }
 
-    res.json({
-      message: "Video uploaded successfully.",
-      fileName: req.file.originalname,
-      fileSize: req.file.size,
-      uploadId: req.file.filename
-    });
+    const mediaPath = req.file.path;
+
+    try {
+      await compressAndReplace(mediaPath);
+
+      res.json({
+        message: "Video uploaded and compressed successfully.",
+        fileName: req.file.originalname,
+        fileSize: fs.statSync(mediaPath).size,
+        uploadId: req.file.filename
+      });
+    } catch (error) {
+      console.error("UPLOAD ERROR:", error.message);
+
+      try {
+        fs.rmSync(mediaPath, { force: true });
+      } catch {}
+
+      res.status(400).json({
+        error: error.message || "Could not compress uploaded video."
+      });
+    }
   });
 });
 
-/* ---------------------------------
-   STEP 2: DOWNLOAD FROM VIDEO LINK
-   Supported: YouTube and Facebook
----------------------------------- */
+/* STEP 2: DOWNLOAD AND COMPRESS VIDEO LINK */
 
 app.post("/api/shorts/from-link", async (req, res) => {
   let uploadId;
@@ -264,14 +333,13 @@ app.post("/api/shorts/from-link", async (req, res) => {
 
     await runCommand(python, [
       "-m", "yt_dlp",
+      "--extractor-args",
+      "youtube:player_client=tv,web_safari",
       "--no-playlist",
-        "--extractor-args",
-  "youtube:player_client=tv,web_safari",
       "--no-warnings",
-      "--max-filesize", "500M",
-      "--match-filter", "duration <= 600",
+      "--match-filter", "duration <= 1200",
       "--merge-output-format", "mp4",
-      "-f", "best[height<=1080]/best",
+      "-f", "best[height<=720]/best",
       "-o", outputTemplate,
       videoUrl
     ]);
@@ -279,7 +347,8 @@ app.post("/api/shorts/from-link", async (req, res) => {
     const downloadedFile = fs.readdirSync(uploadDir).find(name =>
       name.startsWith(uploadId + ".") &&
       !name.endsWith(".part") &&
-      !name.endsWith(".ytdl")
+      !name.endsWith(".ytdl") &&
+      !name.endsWith(".compressed.mp4")
     );
 
     if (!downloadedFile) {
@@ -288,11 +357,15 @@ app.post("/api/shorts/from-link", async (req, res) => {
 
     const downloadedPath = path.join(uploadDir, downloadedFile);
     const mediaPath = path.join(uploadDir, uploadId);
+    const compressedPath = mediaPath + ".compressed.mp4";
 
-    fs.renameSync(downloadedPath, mediaPath);
+    await compressVideo(downloadedPath, compressedPath);
+
+    fs.renameSync(compressedPath, mediaPath);
+    fs.rmSync(downloadedPath, { force: true });
 
     res.json({
-      message: "Video link processed successfully.",
+      message: "Video downloaded and compressed successfully.",
       fileName: "Linked video",
       fileSize: fs.statSync(mediaPath).size,
       uploadId
@@ -311,24 +384,20 @@ app.post("/api/shorts/from-link", async (req, res) => {
           }
         }
 
-        const mediaPath = path.join(uploadDir, uploadId);
-
-        if (fs.existsSync(mediaPath)) {
-          fs.rmSync(mediaPath, { force: true });
-        }
+        fs.rmSync(path.join(uploadDir, uploadId), {
+          force: true
+        });
       } catch {}
     }
 
     res.status(500).json({
       error:
-        "Could not download this video. Check the link and Render logs. Private, restricted, or unsupported videos may not work."
+        "Could not download or compress this video. Check Render logs. The link may be restricted or unsupported."
     });
   }
 });
 
-/* ---------------------------------
-   STEP 3: GENERATE CAPTIONS
----------------------------------- */
+/* STEP 3: GENERATE CAPTIONS */
 
 app.post("/api/shorts/transcribe/:uploadId", async (req, res) => {
   try {
@@ -345,9 +414,7 @@ app.post("/api/shorts/transcribe/:uploadId", async (req, res) => {
   }
 });
 
-/* ---------------------------------
-   STEP 4: CREATE VERTICAL SHORTS
----------------------------------- */
+/* STEP 4: CREATE VERTICAL SHORTS */
 
 app.post("/api/shorts/create-clips/:uploadId", async (req, res) => {
   try {
@@ -422,15 +489,19 @@ app.post("/api/shorts/create-clips/:uploadId", async (req, res) => {
 
       await runCommand("ffmpeg", [
         "-y",
+        "-nostdin",
+        "-threads", "1",
         "-ss", String(clipStart),
         "-i", mediaPath,
         "-t", String(clipEnd - clipStart),
         "-vf", videoFilter,
         "-c:v", "libx264",
-        "-preset", "veryfast",
-        "-crf", "23",
+        "-preset", "ultrafast",
+        "-crf", "28",
+        "-threads", "1",
         "-c:a", "aac",
-        "-b:a", "128k",
+        "-b:a", "96k",
+        "-ac", "2",
         "-movflags", "+faststart",
         outputPath
       ]);
@@ -450,6 +521,7 @@ app.post("/api/shorts/create-clips/:uploadId", async (req, res) => {
       captionsBurnedIn: true,
       clips
     });
+
   } catch (error) {
     console.error("CREATE CLIPS ERROR:", error.message);
 
@@ -459,16 +531,12 @@ app.post("/api/shorts/create-clips/:uploadId", async (req, res) => {
   }
 });
 
-/* ---------------------------------
-   ERROR HANDLER
----------------------------------- */
+/* ERROR HANDLER */
 
 app.use((err, req, res, next) => {
   console.error("AI SHORTS ERROR:", err.message);
 
-  if (res.headersSent) {
-    return next(err);
-  }
+  if (res.headersSent) return next(err);
 
   res.status(500).json({
     error: err.message || "Internal server error."
@@ -478,4 +546,4 @@ app.use((err, req, res, next) => {
 app.listen(PORT, "0.0.0.0", () => {
   console.log("AI Shorts Maker listening on port " + PORT);
 });
-                             
+    
