@@ -87,35 +87,43 @@ function isFacebookUrl(value) {
 function makeDownloadUrl(videoUrl) {
   return API_BASE + "/api/download?url=" + encodeURIComponent(videoUrl);
 }
+
 function startVideoDownload(url) {
   if (!url) {
-    showStatus($("mediaStatus"), "Please process the Facebook URL again.", "error");
+    showStatus(
+      $("mediaStatus"),
+      "Please process the Facebook URL again.",
+      "error"
+    );
     return;
   }
+
   const progress = $("downloadProgress");
   const text = $("downloadProgressText");
   const percent = $("downloadProgressPercent");
-  if (progress) progress.classList.add("show");
-  if (text) text.textContent = "Starting browser download...";
-  if (percent) percent.textContent = "…";
 
-  // Do not fetch the complete video into a JavaScript Blob.
-  // Let the browser stream the backend's attachment response directly.
+  if (progress) progress.classList.add("show");
+  if (text) text.textContent = "Starting video download...";
+  if (percent) percent.textContent = "";
+
   const link = document.createElement("a");
   link.href = url;
-  link.target = "_blank";
-  link.rel = "noopener";
+  link.setAttribute("download", "facebook-video.mp4");
   link.style.display = "none";
+
   document.body.appendChild(link);
   link.click();
   link.remove();
 
-  if (text) text.textContent = "Download requested. Check your browser downloads.";
+  if (text) {
+    text.textContent = "Download requested. Check your Downloads.";
+  }
+
   window.setTimeout(() => {
     if (progress) progress.classList.remove("show");
   }, 6000);
 }
-
+  
 async function downloadMedia(event) {
   if (event) event.preventDefault();
   const input = $("mediaUrlInput");
