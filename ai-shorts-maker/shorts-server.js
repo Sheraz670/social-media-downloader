@@ -1,8 +1,10 @@
+
 const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const crypto = require("crypto");
 const { spawn } = require("child_process");
 
 const app = express();
@@ -29,7 +31,7 @@ const upload = multer({
 });
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
 app.use("/clips", express.static(clipsDir));
 
 app.get("/", (req, res) => {
@@ -176,6 +178,10 @@ function escapeFilterPath(filePath) {
     .replace(/'/g, "\\'");
 }
 
+/* ---------------------------------
+   STEP 1: UPLOAD VIDEO FILE
+---------------------------------- */
+
 app.post("/api/shorts/upload", (req, res) => {
   upload.single("video")(req, res, err => {
     if (err) {
@@ -199,6 +205,129 @@ app.post("/api/shorts/upload", (req, res) => {
   });
 });
 
+/* ---------------------------------
+   STEP 2: DOWNLOAD FROM VIDEO LINK
+   Supported: YouTube and Facebook
+---------------------------------- */
+
+app.post("/api/shorts/from-link", async (req, res) => {
+  let uploadId;
+
+  try {
+    const videoUrl = String(req.body.url || "").trim();
+
+    if (!videoUrl) {
+      return res.status(400).json({
+        error: "Please paste a video link."
+      });
+    }
+
+    let parsedUrl;
+
+    try {
+      parsedUrl = new URL(videoUrl);
+    } catch {
+      return res.status(400).json({
+        error: "Please enter a valid video URL."
+      });
+    }
+
+    const host = parsedUrl.hostname.toLowerCase();
+
+    const allowedHost =
+      host === "youtu.be" ||
+      host === "youtube.com" ||
+      host.endsWith(".youtube.com") ||
+      host === "facebook.com" ||
+      host.endsWith(".facebook.com") ||
+      host === "fb.watch";
+
+    if (
+      parsedUrl.protocol !== "https:" ||
+      !allowedHost ||
+      parsedUrl.username ||
+      parsedUrl.password
+    ) {
+      return res.status(400).json({
+        error: "Use an HTTPS YouTube or Facebook video link."
+      });
+    }
+
+    uploadId = crypto.randomBytes(16).toString("hex");
+
+    const outputTemplate = path.join(
+      uploadDir,
+      uploadId + ".%(ext)s"
+    );
+
+    const python = process.env.PYTHON || "python3";
+
+    await runCommand(python, [
+      "-m", "yt_dlp",
+      "--no-playlist",
+      "--no-warnings",
+      "--max-filesize", "500M",
+      "--match-filter", "duration <= 600",
+      "--merge-output-format", "mp4",
+      "-f", "best[height<=1080]/best",
+      "-o", outputTemplate,
+      videoUrl
+    ]);
+
+    const downloadedFile = fs.readdirSync(uploadDir).find(name =>
+      name.startsWith(uploadId + ".") &&
+      !name.endsWith(".part") &&
+      !name.endsWith(".ytdl")
+    );
+
+    if (!downloadedFile) {
+      throw new Error("Video download did not produce a file.");
+    }
+
+    const downloadedPath = path.join(uploadDir, downloadedFile);
+    const mediaPath = path.join(uploadDir, uploadId);
+
+    fs.renameSync(downloadedPath, mediaPath);
+
+    res.json({
+      message: "Video link processed successfully.",
+      fileName: "Linked video",
+      fileSize: fs.statSync(mediaPath).size,
+      uploadId
+    });
+
+  } catch (error) {
+    console.error("LINK VIDEO ERROR:", error.message);
+
+    if (uploadId) {
+      try {
+        for (const name of fs.readdirSync(uploadDir)) {
+          if (name.startsWith(uploadId + ".")) {
+            fs.rmSync(path.join(uploadDir, name), {
+              force: true
+            });
+          }
+        }
+
+        const mediaPath = path.join(uploadDir, uploadId);
+
+        if (fs.existsSync(mediaPath)) {
+          fs.rmSync(mediaPath, { force: true });
+        }
+      } catch {}
+    }
+
+    res.status(500).json({
+      error:
+        "Could not download this video. Check the link and Render logs. Private, restricted, or unsupported videos may not work."
+    });
+  }
+});
+
+/* ---------------------------------
+   STEP 3: GENERATE CAPTIONS
+---------------------------------- */
+
 app.post("/api/shorts/transcribe/:uploadId", async (req, res) => {
   try {
     const mediaPath = getMediaPath(req.params.uploadId);
@@ -214,14 +343,9 @@ app.post("/api/shorts/transcribe/:uploadId", async (req, res) => {
   }
 });
 
-/*
-  Create vertical Shorts clips with burned-in captions.
-  Request JSON:
-  {
-    "clipDuration": 60,
-    "clipCount": 5
-  }
-*/
+/* ---------------------------------
+   STEP 4: CREATE VERTICAL SHORTS
+---------------------------------- */
 
 app.post("/api/shorts/create-clips/:uploadId", async (req, res) => {
   try {
@@ -333,6 +457,10 @@ app.post("/api/shorts/create-clips/:uploadId", async (req, res) => {
   }
 });
 
+/* ---------------------------------
+   ERROR HANDLER
+---------------------------------- */
+
 app.use((err, req, res, next) => {
   console.error("AI SHORTS ERROR:", err.message);
 
@@ -348,3 +476,4 @@ app.use((err, req, res, next) => {
 app.listen(PORT, "0.0.0.0", () => {
   console.log("AI Shorts Maker listening on port " + PORT);
 });
+                             
