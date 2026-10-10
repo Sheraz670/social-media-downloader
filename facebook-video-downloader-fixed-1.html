@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Facebook Video Downloader — SocialToolHub</title>
+<meta name="description" content="Download publicly accessible Facebook videos and create transcripts with SocialToolHub.">
+<meta name="robots" content="index,follow">
+<meta name="theme-color" content="#09090b">
+<style>
+:root{color-scheme:dark;--bg:#09090b;--panel:#18181b;--panel2:#111827;--border:#34343c;--text:#f4f4f5;--muted:#a1a1aa;--primary:#4f46e5;--green:#16a34a;--purple:#7c3aed;--red:#f87171}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at top left,#242052 0,transparent 38%),var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.6}
+header{padding:18px 16px;border-bottom:1px solid #27272a;background:#09090bf2}.nav,main,footer .inner{width:min(960px,100%);margin:auto}.nav{display:flex;justify-content:space-between;align-items:center;gap:12px}.logo{color:#fff;text-decoration:none;font-size:21px;font-weight:800}.logo span{color:#818cf8}.tag{font-size:12px;color:var(--muted)}
+main{padding:38px 16px 60px}.hero{text-align:center;margin-bottom:28px}.hero h1{font-size:clamp(30px,6vw,48px);line-height:1.15;margin:0 0 12px}.gradient{background:linear-gradient(90deg,#818cf8,#c084fc,#f472b6);color:transparent;background-clip:text}.hero p{max-width:700px;margin:0 auto;color:var(--muted)}
+.card{background:linear-gradient(145deg,#18181b,#101521);border:1px solid var(--border);border-radius:18px;padding:20px;margin:18px 0}.card h2{font-size:22px;margin:0 0 8px}.desc{color:var(--muted);font-size:14px;margin:0 0 16px}
+.input-row{display:flex;gap:10px}input,textarea,select{width:100%;min-width:0;background:#09090b;color:#fff;border:1px solid #444451;border-radius:11px;padding:14px;font-size:15px}input:focus,textarea:focus{outline:2px solid #6366f1;outline-offset:1px}
+button,.button{border:0;border-radius:11px;padding:13px 18px;background:var(--primary);color:white;font-weight:700;font-size:14px;cursor:pointer;text-decoration:none;text-align:center;display:inline-flex;align-items:center;justify-content:center;gap:7px}button:disabled{opacity:.55;cursor:wait}.green{background:var(--green)}.purple{background:var(--purple)}.secondary{background:#30303a}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}.actions>*{flex:1}
+.status{display:none;margin-top:14px;padding:10px 12px;border-radius:10px;background:#111827;color:#d4d4d8;overflow-wrap:anywhere}.status.show{display:block}.status.error{color:#fecaca;border:1px solid #7f1d1d}.status.success{color:#bbf7d0;border:1px solid #14532d}
+.result{display:none;margin-top:18px;padding:16px;border:1px solid #34343c;border-radius:14px;background:#09090b}.result.show{display:block}.thumb{display:none;width:100%;max-height:320px;object-fit:cover;border-radius:10px;margin-bottom:12px}.thumb.show{display:block}.media-title{font-size:18px;font-weight:700;margin-bottom:5px;overflow-wrap:anywhere}.meta{font-size:13px;color:var(--muted);margin-bottom:12px;overflow-wrap:anywhere}
+.progress{display:none;margin-top:14px}.progress.show{display:block}.progress-row{display:flex;justify-content:space-between;gap:10px;font-size:13px;color:var(--muted);margin-bottom:7px}.track{height:8px;background:#30303a;border-radius:999px;overflow:hidden}.bar{height:100%;width:35%;background:#22c55e;border-radius:999px;animation:move 1s ease-in-out infinite}@keyframes move{0%{transform:translateX(-120%)}100%{transform:translateX(320%)}}
+textarea{min-height:230px;resize:vertical;line-height:1.6}.note{font-size:13px;color:var(--muted);margin-top:12px}.hidden{display:none!important}footer{border-top:1px solid #27272a;padding:24px 16px;color:var(--muted);font-size:13px;text-align:center}
+@media(max-width:620px){main{padding:26px 12px 45px}.card{padding:16px}.input-row{flex-direction:column}.input-row button{width:100%}.actions{flex-direction:column}.nav{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<header><div class="nav"><a class="logo" href="/">SocialTool<span>Hub</span></a><span class="tag">Facebook Video Downloader</span></div></header>
+<main>
+<section class="hero"><h1>Facebook Video <span class="gradient">Downloader</span></h1><p>Paste a public Facebook video link, process it, then download the video directly through your browser. You can also extract audio and create a transcript.</p></section>
+
+<section class="card" aria-labelledby="mediaHeading">
+<h2 id="mediaHeading">Download Facebook Video</h2>
+<p class="desc">Paste a public Facebook video URL or fb.watch link.</p>
+<form id="mediaForm">
+<div class="input-row"><input id="mediaUrlInput" type="url" inputmode="url" autocomplete="url" placeholder="https://www.facebook.com/..." aria-label="Facebook video URL" required><button id="mediaButton" type="submit">Get Facebook Video</button></div>
+</form>
+<div id="mediaStatus" class="status" role="status" aria-live="polite"></div>
+<div id="mediaResult" class="result">
+<img id="mediaThumbnail" class="thumb" alt="Video thumbnail">
+<div id="mediaTitle" class="media-title">Media ready</div>
+<div id="mediaInfo" class="meta"></div>
+<div id="mediaMeta" class="meta"></div>
+<a id="downloadButton" class="button green" href="#" rel="noopener">Download Video</a>
+<div id="downloadProgress" class="progress" aria-live="polite"><div class="progress-row"><span id="downloadProgressText">Starting browser download...</span><span id="downloadProgressPercent">…</span></div><div class="track"><div id="downloadProgressBar" class="bar"></div></div></div>
+<p class="note">The browser manages the actual download. If it opens a video response instead, use your browser's download menu.</p>
+</div>
+</section>
+
+<section class="card" aria-labelledby="transcriptHeading">
+<h2 id="transcriptHeading">Video Audio &amp; Transcript</h2>
+<p class="desc">Optional: extract audio from a supported public video, generate its transcript, copy the text, or save it as a TXT file.</p>
+<div class="input-row"><input id="scriptUrlInput" type="url" inputmode="url" placeholder="Paste a video URL for transcript"><button id="prepareAudioButton" type="button">Extract Audio</button></div>
+<div id="scriptStatus" class="status" role="status" aria-live="polite"></div>
+<div id="audioResult" class="result"><div id="audioTitle" class="media-title">Audio ready</div><audio id="audioPlayer" controls preload="metadata" style="width:100%"></audio><div class="actions"><button id="transcriptButton" class="purple" type="button">Generate Transcript</button></div></div>
+<div id="languageInfo" class="status"></div>
+<div id="transcriptResult" class="result"><label for="scriptText">Transcript text</label><textarea id="scriptText" placeholder="Your transcript will appear here..."></textarea><div class="actions"><button id="copyScriptButton" type="button" class="secondary">Copy Transcript</button><button id="downloadTranscriptButton" type="button" class="green">Download TXT</button></div></div>
+</section>
+
+<section class="card"><h2>How to use</h2><ol><li>Paste a public Facebook video URL.</li><li>Tap <b>Get Facebook Video</b> and wait for the media details.</li><li>Tap <b>Download Video</b>. Check your browser's Downloads if needed.</li></ol><p class="note">Only download content you own or have permission to save. Private, restricted, or login-only videos may not be available.</p></section>
+</main>
+<footer><div class="inner">© SocialToolHub · Use this tool responsibly.</div></footer>
+<script>
+"use strict";
+const API_BASE = "https://social-media-downloader-f8pv.onrender.com";
+const $ = (id) => document.getElementById(id);
+let currentJobId = null;
+
+function showStatus(element, message, type) {
+  if (!element) return;
+  element.textContent = message || "";
+  element.className = "status show" + (type ? " " + type : "");
+}
+function hideStatus(element) {
+  if (!element) return;
+  element.textContent = "";
+  element.className = "status";
+}
+function showResult(element, visible) {
+  if (element) element.classList.toggle("show", Boolean(visible));
+}
+function isFacebookUrl(value) {
+  try {
+    const host = new URL(value).hostname.toLowerCase();
+    return host === "facebook.com" || host.endsWith(".facebook.com") ||
+      host === "fb.watch" || host.endsWith(".fb.watch");
+  } catch (_) { return false; }
+}
+function makeDownloadUrl(videoUrl) {
+  return API_BASE + "/api/download?url=" + encodeURIComponent(videoUrl);
+}
+function startVideoDownload(url) {
+  if (!url) {
+    showStatus($("mediaStatus"), "Please process the Facebook URL again.", "error");
+    return;
+  }
+  const progress = $("downloadProgress");
+  const text = $("downloadProgressText");
+  const percent = $("downloadProgressPercent");
+  if (progress) progress.classList.add("show");
+  if (text) text.textContent = "Starting browser download...";
+  if (percent) percent.textContent = "…";
+
+  // Do not fetch the complete video into a JavaScript Blob.
+  // Let the browser stream the backend's attachment response directly.
+  const link = document.createElement("a");
+  link.href = url;
+  link.target = "_blank";
+  link.rel = "noopener";
+  link.style.display = "none";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  if (text) text.textContent = "Download requested. Check your browser downloads.";
+  window.setTimeout(() => {
+    if (progress) progress.classList.remove("show");
+  }, 6000);
+}
+
+async function downloadMedia(event) {
+  if (event) event.preventDefault();
+  const input = $("mediaUrlInput");
+  const button = $("mediaButton");
+  const status = $("mediaStatus");
+  const result = $("mediaResult");
+  const videoUrl = input ? input.value.trim() : "";
+
+  if (!videoUrl) {
+    showStatus(status, "Please paste a Facebook video URL.", "error");
+    return;
+  }
+  if (!isFacebookUrl(videoUrl)) {
+    showStatus(status, "This page only accepts Facebook.com or fb.watch links.", "error");
+    return;
+  }
+
+  button.disabled = true;
+  showResult(result, false);
+  showStatus(status, "Processing URL. Please wait...");
+  try {
+    const response = await fetch(API_BASE + "/api/media?url=" + encodeURIComponent(videoUrl));
+    let data = null;
+    try { data = await response.json(); } catch (_) {}
+    if (!response.ok) throw new Error((data && data.error) || "The media request failed.");
+    if (!data) throw new Error("The server returned an empty response.");
+
+    $("mediaTitle").textContent = data.title || "Media ready";
+    const durationValue = data.duration_seconds ?? data.duration ?? data.durationSeconds ?? null;
+    let duration = "Duration unknown";
+    if (typeof durationValue === "number" && Number.isFinite(durationValue)) {
+      const seconds = Math.max(0, Math.round(durationValue));
+      duration = Math.floor(seconds / 60) + ":" + String(seconds % 60).padStart(2, "0");
+    } else if (typeof durationValue === "string" && durationValue.trim()) {
+      duration = durationValue.trim();
+    }
+    $("mediaInfo").textContent = [data.platform || "Facebook", duration].join(" • ");
+
+    const metaItems = [];
+    const uploader = data.uploader || data.channel || data.author || data.creator;
+    const views = data.viewCount ?? data.view_count;
+    const likes = data.likeCount ?? data.likes ?? data.like_count;
+    if (uploader) metaItems.push("Account: " + uploader);
+    if (views != null) metaItems.push("Views: " + Number(views).toLocaleString());
+    if (likes != null) metaItems.push("Likes: " + Number(likes).toLocaleString());
+    $("mediaMeta").textContent = metaItems.join(" • ");
+
+    const thumbnail = $("mediaThumbnail");
+    const thumbnailUrl = data.thumbnail || data.thumbnailUrl || data.thumbnail_url || "";
+    if (thumbnailUrl) {
+      thumbnail.src = thumbnailUrl;
+      thumbnail.classList.add("show");
+      thumbnail.onerror = () => thumbnail.classList.remove("show");
+    } else {
+      thumbnail.removeAttribute("src");
+      thumbnail.classList.remove("show");
+    }
+
+    const downloadButton = $("downloadButton");
+    downloadButton.href = makeDownloadUrl(videoUrl);
+    downloadButton.dataset.downloadUrl = downloadButton.href;
+    showResult(result, true);
+    showStatus(status, "Media is ready.", "success");
+  } catch (error) {
+    console.error("MEDIA DOWNLOAD ERROR:", error);
+    showStatus(status, error.message || "Unable to process this URL.", "error");
+  } finally {
+    button.disabled = false;
+  }
+}
+
+async function prepareAudio() {
+  const input = $("scriptUrlInput");
+  const button = $("prepareAudioButton");
+  const videoUrl = input ? input.value.trim() : "";
+  if (!videoUrl) {
+    showStatus($("scriptStatus"), "Please paste a video URL.", "error");
+    return;
+  }
+  button.disabled = true;
+  showResult($("audioResult"), false);
+  showResult($("transcriptResult"), false);
+  hideStatus($("languageInfo"));
+  currentJobId = null;
+  showStatus($("scriptStatus"), "Extracting audio. Please wait...");
+  try {
+    const response = await fetch(API_BASE + "/api/prepare-audio", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({url: videoUrl})
+    });
+    let data = null;
+    try { data = await response.json(); } catch (_) {}
+    if (!response.ok) throw new Error((data && data.error) || "Audio extraction failed.");
+    currentJobId = data && (data.jobId || data.id || data.job_id);
+    if (!currentJobId) throw new Error("The server did not return a job ID.");
+    const audioUrl = data.audioUrl || data.audio_url || (API_BASE + "/api/audio/" + encodeURIComponent(currentJobId));
+    $("audioPlayer").src = audioUrl;
+    $("audioTitle").textContent = data.title || "Audio extracted successfully.";
+    showResult($("audioResult"), true);
+    showStatus($("scriptStatus"), "Audio is ready. You can play it or generate a transcript.", "success");
+    $("audioPlayer").load();
+  } catch (error) {
+    console.error("AUDIO EXTRACTION ERROR:", error);
+    showStatus($("scriptStatus"), error.message || "Unable to extract audio.", "error");
+  } finally {
+    button.disabled = false;
+  }
+}
+
+async function generateTranscript() {
+  if (!currentJobId) {
+    showStatus($("scriptStatus"), "Please extract the audio first.", "error");
+    return;
+  }
+  const button = $("transcriptButton");
+  button.disabled = true;
+  showResult($("transcriptResult"), false);
+  showStatus($("scriptStatus"), "Generating transcript. This may take some time...");
+  try {
+    const response = await fetch(API_BASE + "/api/transcribe/" + encodeURIComponent(currentJobId), {method:"POST"});
+    let data = null;
+    try { data = await response.json(); } catch (_) {}
+    if (!response.ok) throw new Error((data && data.error) || "Transcription failed.");
+    const transcript = data && (data.transcript || data.text || "");
+    if (!transcript.trim()) throw new Error("No transcript was generated.");
+    $("scriptText").value = transcript;
+    const language = data.language || data.detectedLanguage || data.detected_language;
+    if (language) showStatus($("languageInfo"), "Detected language: " + language, "");
+    showResult($("transcriptResult"), true);
+    showStatus($("scriptStatus"), "Transcript generated successfully.", "success");
+  } catch (error) {
+    console.error("TRANSCRIPT ERROR:", error);
+    showStatus($("scriptStatus"), error.message || "Unable to generate transcript.", "error");
+  } finally {
+    button.disabled = false;
+  }
+}
+async function copyTranscript() {
+  const text = $("scriptText").value || "";
+  if (!text.trim()) {
+    showStatus($("scriptStatus"), "There is no transcript to copy.", "error");
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(text);
+    showStatus($("scriptStatus"), "Transcript copied to clipboard.", "success");
+  } catch (error) {
+    $("scriptText").focus();
+    $("scriptText").select();
+    showStatus($("scriptStatus"), "Select the text and use Copy on your device.", "error");
+  }
+}
+function downloadTranscript() {
+  const text = $("scriptText").value || "";
+  if (!text.trim()) {
+    showStatus($("scriptStatus"), "There is no transcript to download.", "error");
+    return;
+  }
+  const blob = new Blob([text], {type:"text/plain;charset=utf-8"});
+  const objectUrl = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = objectUrl;
+  link.download = "socialtoolhub-transcript.txt";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+  showStatus($("scriptStatus"), "Transcript TXT download requested.", "success");
+}
+
+$("mediaForm").addEventListener("submit", downloadMedia);
+$("downloadButton").addEventListener("click", function(event) {
+  event.preventDefault();
+  startVideoDownload(this.dataset.downloadUrl || this.href);
+});
+$("prepareAudioButton").addEventListener("click", prepareAudio);
+$("transcriptButton").addEventListener("click", generateTranscript);
+$("copyScriptButton").addEventListener("click", copyTranscript);
+$("downloadTranscriptButton").addEventListener("click", downloadTranscript);
+$("mediaUrlInput").addEventListener("keydown", function(event) {
+  if (event.key === "Enter") { event.preventDefault(); downloadMedia(event); }
+});
+$("scriptUrlInput").addEventListener("keydown", function(event) {
+  if (event.key === "Enter") { event.preventDefault(); prepareAudio(); }
+});
+</script>
+</body>
+</html>
