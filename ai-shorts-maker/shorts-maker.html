@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,12 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>AI Shorts Maker — SocialToolHub</title>
-  <meta name="description" content="Create vertical video clips with automatic captions from videos you are authorized to use.">
+  <meta name="description" content="Create vertical video clips with captions from videos you are authorized to use.">
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -30,9 +29,7 @@
       font-size: 30px;
     }
 
-    h2 {
-      font-size: 21px;
-    }
+    h2 { font-size: 21px; }
 
     .card {
       background: #18181b;
@@ -48,17 +45,14 @@
       font-weight: bold;
     }
 
-    input,
-    select,
-    button {
+    input, select, button {
       width: 100%;
       padding: 13px;
       border-radius: 8px;
       font-size: 16px;
     }
 
-    input,
-    select {
+    input, select {
       color: white;
       background: #09090b;
       border: 1px solid #52525b;
@@ -134,24 +128,20 @@
       font-weight: bold;
     }
 
-    .hidden {
-      display: none;
-    }
-
     .grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
     }
 
-    @media (max-width: 500px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
+    .divider {
+      border-top: 1px solid #3f3f46;
+      margin: 24px 0;
+    }
 
-      h1 {
-        font-size: 25px;
-      }
+    @media (max-width: 500px) {
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 25px; }
     }
   </style>
 </head>
@@ -161,15 +151,17 @@
   <h1>AI Shorts Maker</h1>
 
   <p class="note">
-    Upload a video you own or have permission to use.
-    Generate captions and create vertical clips with burned-in subtitles.
+    Upload a video you own or have permission to use, or paste a supported
+    public video link. Generate captions and create vertical clips.
   </p>
 
   <section class="card">
-    <h2>1. Upload Your Video</h2>
+    <h2>1. Choose Your Video</h2>
+
+    <h3>Option A — Upload a Video</h3>
 
     <form id="uploadForm">
-      <label for="videoFile">Select video</label>
+      <label for="videoFile">Select video from your device</label>
 
       <input
         id="videoFile"
@@ -184,6 +176,31 @@
       </button>
     </form>
 
+    <div class="divider"></div>
+
+    <h3>Option B — Paste a Video Link</h3>
+
+    <p class="note">
+      Paste a supported public YouTube or Facebook video link.
+      Private, restricted, or login-required videos may not work.
+    </p>
+
+    <form id="linkForm">
+      <label for="videoUrl">Video URL</label>
+
+      <input
+        id="videoUrl"
+        type="url"
+        placeholder="https://www.youtube.com/watch?v=..."
+        autocomplete="url"
+        required
+      >
+
+      <button id="linkButton" type="submit">
+        Process Video Link
+      </button>
+    </form>
+
     <p id="uploadInfo" class="note"></p>
   </section>
 
@@ -191,8 +208,7 @@
     <h2>2. Generate Captions</h2>
 
     <p class="note">
-      AI will listen to the video's audio and generate text.
-      Captions may contain mistakes, so review them when possible.
+      AI will transcribe the video's audio. Captions may contain mistakes.
     </p>
 
     <button id="transcribeButton" disabled>
@@ -244,7 +260,6 @@
     </button>
 
     <p id="createInfo" class="note"></p>
-
     <div id="clipsResult"></div>
   </section>
 
@@ -252,8 +267,7 @@
 
   <p class="note">
     Processing time depends on video length and server capacity.
-    Free hosting may pause when inactive. Only upload content you
-    own or are authorized to process.
+    Only process content you own or are authorized to use.
   </p>
 </main>
 
@@ -263,8 +277,15 @@
   const uploadForm = document.getElementById("uploadForm");
   const videoFile = document.getElementById("videoFile");
   const uploadButton = document.getElementById("uploadButton");
-  const transcribeButton = document.getElementById("transcribeButton");
+
+  const linkForm = document.getElementById("linkForm");
+  const videoUrl = document.getElementById("videoUrl");
+  const linkButton = document.getElementById("linkButton");
+
+  const transcribeButton =
+    document.getElementById("transcribeButton");
   const createButton = document.getElementById("createButton");
+
   const uploadInfo = document.getElementById("uploadInfo");
   const captions = document.getElementById("captions");
   const status = document.getElementById("status");
@@ -290,6 +311,40 @@
     return result;
   }
 
+  function resetProcessing() {
+    currentUploadId = null;
+    captionsReady = false;
+
+    transcribeButton.disabled = true;
+    createButton.disabled = true;
+
+    captions.hidden = true;
+    captions.textContent = "";
+    clipsResult.replaceChildren();
+    createInfo.textContent = "";
+    uploadInfo.textContent = "";
+  }
+
+  function acceptVideo(result) {
+    if (!result.uploadId) {
+      throw new Error("Server did not return a video ID.");
+    }
+
+    currentUploadId = result.uploadId;
+    captionsReady = false;
+
+    uploadInfo.textContent =
+      "Video ready: " + (result.fileName || "Linked video") +
+      "\nFile size: " +
+      (Number(result.fileSize || 0) / (1024 * 1024)).toFixed(2) +
+      " MB";
+
+    transcribeButton.disabled = false;
+
+    status.textContent =
+      "Video is ready. Click Generate Captions.";
+  }
+
   uploadForm.addEventListener("submit", async function(event) {
     event.preventDefault();
 
@@ -300,20 +355,13 @@
       return;
     }
 
+    resetProcessing();
+    uploadButton.disabled = true;
+    linkButton.disabled = true;
+    status.textContent = "Uploading video. Please wait...";
+
     const data = new FormData();
     data.append("video", file);
-
-    uploadButton.disabled = true;
-    transcribeButton.disabled = true;
-    createButton.disabled = true;
-    captionsReady = false;
-    currentUploadId = null;
-
-    captions.hidden = true;
-    clipsResult.replaceChildren();
-    createInfo.textContent = "";
-    status.textContent = "Uploading video. Please wait...";
-    uploadInfo.textContent = "";
 
     try {
       const response = await fetch(API_BASE + "/upload", {
@@ -322,30 +370,55 @@
       });
 
       const result = await readResponse(response);
-
-      currentUploadId = result.uploadId;
-
-      uploadInfo.textContent =
-        "Uploaded: " + result.fileName +
-        "\nFile size: " +
-        (Number(result.fileSize || 0) / (1024 * 1024)).toFixed(2) +
-        " MB";
-
-      transcribeButton.disabled = false;
-
-      status.textContent =
-        "Upload successful. Click Generate Captions.";
-
+      acceptVideo(result);
     } catch (error) {
       status.textContent = "Upload error: " + error.message;
     } finally {
+      uploadButton.disabled = false;
+      linkButton.disabled = false;
+    }
+  });
+
+  linkForm.addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    const url = videoUrl.value.trim();
+
+    if (!url) {
+      status.textContent = "Please paste a video link.";
+      return;
+    }
+
+    resetProcessing();
+    linkButton.disabled = true;
+    uploadButton.disabled = true;
+    status.textContent =
+      "Processing video link. Downloading may take several minutes...";
+
+    try {
+      const response = await fetch(API_BASE + "/from-link", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ url: url })
+      });
+
+      const result = await readResponse(response);
+      acceptVideo(result);
+    } catch (error) {
+      status.textContent =
+        "Link processing error: " + error.message;
+    } finally {
+      linkButton.disabled = false;
       uploadButton.disabled = false;
     }
   });
 
   transcribeButton.addEventListener("click", async function() {
     if (!currentUploadId) {
-      status.textContent = "Please upload a video first.";
+      status.textContent =
+        "Upload a video or process a video link first.";
       return;
     }
 
@@ -384,13 +457,14 @@
     } catch (error) {
       status.textContent = "Caption error: " + error.message;
     } finally {
-      transcribeButton.disabled = false;
+      transcribeButton.disabled = !currentUploadId;
     }
   });
 
   createButton.addEventListener("click", async function() {
     if (!currentUploadId) {
-      status.textContent = "Please upload a video first.";
+      status.textContent =
+        "Upload a video or process a video link first.";
       return;
     }
 
@@ -413,8 +487,7 @@
     clipsResult.replaceChildren();
 
     createInfo.textContent =
-      "Creating clips and adding captions. Please wait. " +
-      "This may take several minutes.";
+      "Creating clips and adding captions. Please wait.";
 
     status.textContent = "Video processing started...";
 
@@ -459,13 +532,16 @@
         video.controls = true;
         video.playsInline = true;
         video.preload = "metadata";
-        video.src = new URL(clip.url, window.location.origin).href;
+        video.src = new URL(
+          clip.url,
+          window.location.origin
+        ).href;
 
         const download = document.createElement("a");
         download.className = "download-link";
         download.href = video.src;
-        download.download = "socialtoolhub-short-" +
-          clip.number + ".mp4";
+        download.download =
+          "socialtoolhub-short-" + clip.number + ".mp4";
         download.textContent = "Download Clip " + clip.number;
 
         card.appendChild(heading);
@@ -484,8 +560,8 @@
       createInfo.textContent =
         "If processing failed, check the Render service logs.";
     } finally {
-      createButton.disabled = false;
-      transcribeButton.disabled = false;
+      createButton.disabled = !captionsReady;
+      transcribeButton.disabled = !currentUploadId;
     }
   });
 </script>
