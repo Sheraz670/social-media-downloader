@@ -1,10 +1,11 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>AI Shorts Maker — SocialToolHub</title>
+  <meta name="description" content="Create vertical video clips with automatic captions from videos you are authorized to use.">
 
   <style>
     * {
@@ -13,19 +14,24 @@
 
     body {
       margin: 0;
-      padding: 24px 16px;
+      padding: 22px 14px;
       background: #09090b;
       color: #f4f4f5;
       font-family: Arial, sans-serif;
     }
 
     main {
-      max-width: 720px;
+      max-width: 760px;
       margin: auto;
     }
 
     h1 {
       color: #a5b4fc;
+      font-size: 30px;
+    }
+
+    h2 {
+      font-size: 21px;
     }
 
     .card {
@@ -39,9 +45,11 @@
     label {
       display: block;
       margin: 16px 0 8px;
+      font-weight: bold;
     }
 
     input,
+    select,
     button {
       width: 100%;
       padding: 13px;
@@ -49,7 +57,8 @@
       font-size: 16px;
     }
 
-    input {
+    input,
+    select {
       color: white;
       background: #09090b;
       border: 1px solid #52525b;
@@ -65,18 +74,24 @@
     }
 
     button:disabled {
-      opacity: 0.6;
+      opacity: 0.55;
+      cursor: not-allowed;
     }
 
-    #status {
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-      line-height: 1.5;
+    .secondary {
+      background: #27272a;
+      border: 1px solid #52525b;
     }
 
     .note {
       color: #a1a1aa;
       font-size: 14px;
+      line-height: 1.6;
+    }
+
+    #status {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
       line-height: 1.6;
     }
 
@@ -86,6 +101,57 @@
       background: #09090b;
       padding: 12px;
       border-radius: 8px;
+      max-height: 400px;
+      overflow: auto;
+    }
+
+    .clip {
+      border: 1px solid #3f3f46;
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 18px;
+      background: #09090b;
+    }
+
+    .clip video {
+      width: 100%;
+      max-height: 520px;
+      background: #000;
+      border-radius: 8px;
+      display: block;
+      margin-top: 10px;
+    }
+
+    .download-link {
+      display: block;
+      text-align: center;
+      background: #16a34a;
+      color: white;
+      padding: 13px;
+      margin-top: 12px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 500px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 25px;
+      }
     }
   </style>
 </head>
@@ -95,14 +161,15 @@
   <h1>AI Shorts Maker</h1>
 
   <p class="note">
-    Create captions from videos you own or have permission to use.
+    Upload a video you own or have permission to use.
+    Generate captions and create vertical clips with burned-in subtitles.
   </p>
 
   <section class="card">
-    <h2>Upload Your Video</h2>
+    <h2>1. Upload Your Video</h2>
 
     <form id="uploadForm">
-      <label for="videoFile">Select video file</label>
+      <label for="videoFile">Select video</label>
 
       <input
         id="videoFile"
@@ -117,33 +184,116 @@
       </button>
     </form>
 
-    <button id="transcribeButton" type="button" disabled>
+    <p id="uploadInfo" class="note"></p>
+  </section>
+
+  <section class="card">
+    <h2>2. Generate Captions</h2>
+
+    <p class="note">
+      AI will listen to the video's audio and generate text.
+      Captions may contain mistakes, so review them when possible.
+    </p>
+
+    <button id="transcribeButton" disabled>
       Generate Captions
     </button>
 
-    <p id="status" role="status" aria-live="polite"></p>
-
     <pre id="captions" hidden></pre>
   </section>
+
+  <section class="card">
+    <h2>3. Create Vertical Shorts</h2>
+
+    <p class="note">
+      Clips are cut sequentially from the beginning of the video.
+      Automatic viral-moment detection is not included yet.
+    </p>
+
+    <div class="grid">
+      <div>
+        <label for="clipDuration">Clip duration</label>
+
+        <select id="clipDuration">
+          <option value="30">30 seconds</option>
+          <option value="60" selected>60 seconds</option>
+          <option value="120">120 seconds</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="clipCount">Number of clips</label>
+
+        <select id="clipCount">
+          <option value="1">1 clip</option>
+          <option value="2">2 clips</option>
+          <option value="3">3 clips</option>
+          <option value="4">4 clips</option>
+          <option value="5" selected>5 clips</option>
+          <option value="6">6 clips</option>
+          <option value="7">7 clips</option>
+          <option value="8">8 clips</option>
+          <option value="9">9 clips</option>
+          <option value="10">10 clips</option>
+        </select>
+      </div>
+    </div>
+
+    <button id="createButton" disabled>
+      Create Shorts
+    </button>
+
+    <p id="createInfo" class="note"></p>
+
+    <div id="clipsResult"></div>
+  </section>
+
+  <p id="status" role="status" aria-live="polite"></p>
+
+  <p class="note">
+    Processing time depends on video length and server capacity.
+    Free hosting may pause when inactive. Only upload content you
+    own or are authorized to process.
+  </p>
 </main>
 
 <script>
   const API_BASE = "/api/shorts";
 
-  const form = document.getElementById("uploadForm");
-  const fileInput = document.getElementById("videoFile");
+  const uploadForm = document.getElementById("uploadForm");
+  const videoFile = document.getElementById("videoFile");
   const uploadButton = document.getElementById("uploadButton");
-  const transcribeButton =
-    document.getElementById("transcribeButton");
-  const status = document.getElementById("status");
+  const transcribeButton = document.getElementById("transcribeButton");
+  const createButton = document.getElementById("createButton");
+  const uploadInfo = document.getElementById("uploadInfo");
   const captions = document.getElementById("captions");
+  const status = document.getElementById("status");
+  const createInfo = document.getElementById("createInfo");
+  const clipsResult = document.getElementById("clipsResult");
 
   let currentUploadId = null;
+  let captionsReady = false;
 
-  form.addEventListener("submit", async function(event) {
+  async function readResponse(response) {
+    let result;
+
+    try {
+      result = await response.json();
+    } catch {
+      throw new Error("Server returned an unreadable response.");
+    }
+
+    if (!response.ok) {
+      throw new Error(result.error || "Request failed.");
+    }
+
+    return result;
+  }
+
+  uploadForm.addEventListener("submit", async function(event) {
     event.preventDefault();
 
-    const file = fileInput.files[0];
+    const file = videoFile.files[0];
 
     if (!file) {
       status.textContent = "Please select a video first.";
@@ -155,31 +305,36 @@
 
     uploadButton.disabled = true;
     transcribeButton.disabled = true;
-    status.textContent = "Uploading video...";
+    createButton.disabled = true;
+    captionsReady = false;
+    currentUploadId = null;
+
     captions.hidden = true;
+    clipsResult.replaceChildren();
+    createInfo.textContent = "";
+    status.textContent = "Uploading video. Please wait...";
+    uploadInfo.textContent = "";
 
     try {
-      const response = await fetch(
-        API_BASE + "/upload",
-        {
-          method: "POST",
-          body: data
-        }
-      );
+      const response = await fetch(API_BASE + "/upload", {
+        method: "POST",
+        body: data
+      });
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || "Upload failed.");
-      }
+      const result = await readResponse(response);
 
       currentUploadId = result.uploadId;
 
-      status.textContent =
-        "Video uploaded: " + result.fileName +
-        "\nClick Generate Captions to continue.";
+      uploadInfo.textContent =
+        "Uploaded: " + result.fileName +
+        "\nFile size: " +
+        (Number(result.fileSize || 0) / (1024 * 1024)).toFixed(2) +
+        " MB";
 
       transcribeButton.disabled = false;
+
+      status.textContent =
+        "Upload successful. Click Generate Captions.";
 
     } catch (error) {
       status.textContent = "Upload error: " + error.message;
@@ -189,11 +344,16 @@
   });
 
   transcribeButton.addEventListener("click", async function() {
-    if (!currentUploadId) return;
+    if (!currentUploadId) {
+      status.textContent = "Please upload a video first.";
+      return;
+    }
 
     transcribeButton.disabled = true;
-    status.textContent = "Generating captions. Please wait...";
+    createButton.disabled = true;
     captions.hidden = true;
+    status.textContent =
+      "Generating captions. This can take several minutes...";
 
     try {
       const response = await fetch(
@@ -202,28 +362,129 @@
         { method: "POST" }
       );
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || "Caption generation failed.");
-      }
-
-      status.textContent =
-        "Captions generated successfully." +
-        "\nLanguage: " + result.language +
-        "\nDuration: " + result.duration + " seconds";
+      const result = await readResponse(response);
 
       captions.textContent = JSON.stringify(
-        result.captions,
+        result.captions || [],
         null,
         2
       );
 
       captions.hidden = false;
+      captionsReady = true;
+      createButton.disabled = false;
+
+      status.textContent =
+        "Captions generated successfully." +
+        "\nLanguage: " + (result.language || "Unknown") +
+        "\nVideo duration: " + result.duration + " seconds" +
+        "\nCaption segments: " +
+        (result.captions || []).length;
 
     } catch (error) {
-      status.textContent = "Error: " + error.message;
+      status.textContent = "Caption error: " + error.message;
     } finally {
+      transcribeButton.disabled = false;
+    }
+  });
+
+  createButton.addEventListener("click", async function() {
+    if (!currentUploadId) {
+      status.textContent = "Please upload a video first.";
+      return;
+    }
+
+    if (!captionsReady) {
+      status.textContent =
+        "Please generate captions before creating clips.";
+      return;
+    }
+
+    const clipDuration = Number(
+      document.getElementById("clipDuration").value
+    );
+
+    const clipCount = Number(
+      document.getElementById("clipCount").value
+    );
+
+    createButton.disabled = true;
+    transcribeButton.disabled = true;
+    clipsResult.replaceChildren();
+
+    createInfo.textContent =
+      "Creating clips and adding captions. Please wait. " +
+      "This may take several minutes.";
+
+    status.textContent = "Video processing started...";
+
+    try {
+      const response = await fetch(
+        API_BASE + "/create-clips/" +
+        encodeURIComponent(currentUploadId),
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            clipDuration: clipDuration,
+            clipCount: clipCount
+          })
+        }
+      );
+
+      const result = await readResponse(response);
+
+      if (!Array.isArray(result.clips) || result.clips.length === 0) {
+        throw new Error("Server did not return any clips.");
+      }
+
+      createInfo.textContent =
+        "Created " + result.totalClips +
+        " clip(s). Format: " + result.format +
+        ". Captions burned in: " +
+        (result.captionsBurnedIn ? "Yes" : "No") + ".";
+
+      result.clips.forEach(function(clip) {
+        const card = document.createElement("article");
+        card.className = "clip";
+
+        const heading = document.createElement("h3");
+        heading.textContent =
+          "Clip " + clip.number + " — " +
+          clip.duration + " seconds";
+
+        const video = document.createElement("video");
+        video.controls = true;
+        video.playsInline = true;
+        video.preload = "metadata";
+        video.src = new URL(clip.url, window.location.origin).href;
+
+        const download = document.createElement("a");
+        download.className = "download-link";
+        download.href = video.src;
+        download.download = "socialtoolhub-short-" +
+          clip.number + ".mp4";
+        download.textContent = "Download Clip " + clip.number;
+
+        card.appendChild(heading);
+        card.appendChild(video);
+        card.appendChild(download);
+        clipsResult.appendChild(card);
+      });
+
+      status.textContent =
+        "Success! Your Shorts clips are ready below.";
+
+    } catch (error) {
+      status.textContent =
+        "Clip creation error: " + error.message;
+
+      createInfo.textContent =
+        "If processing failed, check the Render service logs.";
+    } finally {
+      createButton.disabled = false;
       transcribeButton.disabled = false;
     }
   });
