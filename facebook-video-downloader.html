@@ -3279,19 +3279,24 @@ function setupButtons() {
   );
 
   $("downloadButton")?.addEventListener(
-    "click",
-    function(event) {
-      event.preventDefault();
+  "click",
+  function(event) {
+    event.preventDefault();
 
-      const url =
-        $("downloadButton")?.dataset.downloadUrl;
+    const url =
+      $("downloadButton")?.dataset.downloadUrl;
 
-      if (url) {
-        showDownloadConfirm(url);
-      }
+    if (url) {
+      startVideoDownload(url);
+    } else {
+      showStatus(
+        $("mediaStatus"),
+        "Please process the Facebook URL again.",
+        "error"
+      );
     }
-  );
-
+  }
+);
   $("downloadCancelButton")?.addEventListener(
     "click",
     function() {
