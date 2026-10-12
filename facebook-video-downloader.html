@@ -407,183 +407,120 @@ const input = document.getElementById('videoUrl');
 const status = document.getElementById('status');
 const button = document.getElementById('submitButton');
 
-/*
-  IMPORTANT:
-  Apne Render backend ka asli URL yahan likhein.
-  Neeche API route ko bhi server.js ke route se match karna hoga.
-*/
+// Yahan apna asli Render backend URL likhein.
 const API_BASE = 'https://YOUR-RENDER-BACKEND.onrender.com';
-const API_ENDPOINT = '/api/facebook-download';
 
-form.addEventListener('submit', async function (event) {
+form.addEventListener('submit', async (event) => {
   event.preventDefault();
 
-  const enteredUrl = input.value.trim();
-  status.textContent = '';
+  status.replaceChildren();
 
-  let videoUrl;
+  let video;
 
   try {
-    videoUrl = new URL(enteredUrl);
+    video = new URL(input.value.trim());
   } catch {
-    status.textContent = 'Please enter a valid video URL.';
+    status.textContent = 'Please enter a valid Facebook video URL.';
     return;
   }
 
-  const host = videoUrl.hostname.toLowerCase();
+  const host = video.hostname.toLowerCase();
 
-  const isFacebook =
+  const validHost =
     host === 'facebook.com' ||
-    host.endsWith('.facebook.com');
-
-  const isFbWatch =
-    host === 'fb.watch' ||
-    host.endsWith('.fb.watch');
+    host.endsWith('.facebook.com') ||
+    host === 'fb.watch';
 
   if (
-    videoUrl.protocol !== 'https:' ||
-    (!isFacebook && !isFbWatch) ||
-    videoUrl.username ||
-    videoUrl.password
+    video.protocol !== 'https:' ||
+    !validHost ||
+    video.username ||
+    video.password
   ) {
     status.textContent =
-      'Please enter a valid HTTPS Facebook or fb.watch link.';
+      'Please enter a valid HTTPS Facebook or fb.watch URL.';
     return;
   }
 
   if (API_BASE.includes('YOUR-RENDER-BACKEND')) {
     status.textContent =
-      'Backend URL set nahi hai. API_BASE mein apne backend ka URL likhein.';
+      'Please set your actual Render backend URL in API_BASE.';
     return;
   }
 
   button.disabled = true;
-  button.textContent = 'Processing...';
-  status.textContent = 'Connecting to video service...';
+  button.textContent = 'Checking...';
+  status.textContent = 'Connecting to the video service...';
 
   try {
-    const response = await fetch(
-      API_BASE.replace(/\/+$/, '') + API_ENDPOINT,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({ url: enteredUrl })
-      }
-    );
+    const endpoint =
+      API_BASE.replace(/\/+$/, '') +
+      '/api/media?url=' +
+      encodeURIComponent(video.href);
 
-    const contentType =
-      response.headers.get('content-type') || '';
-
-    if (!response.ok) {
-      let message = 'Video service request failed.';
-
-      if (contentType.includes('application/json')) {
-        const errorData = await response.json();
-        message =
-          errorData.error ||
-          errorData.message ||
-          message;
-      } else {
-        const errorText = await response.text();
-        if (errorText) {
-          message = errorText.slice(0, 250);
-        }
-      }
-
-      throw new Error(message);
-    }
-
-    // Agar backend actual video file bhejta hai.
-    if (
-      contentType.startsWith('video/') ||
-      contentType.includes('application/octet-stream')
-    ) {
-      const blob = await response.blob();
-      const objectUrl = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-
-      link.href = objectUrl;
-      link.download = 'facebook-video.mp4';
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-
-      setTimeout(() => URL.revokeObjectURL(objectUrl), 60000);
-
-      status.textContent = 'Video download started.';
-      return;
-    }
-
-    if (!contentType.includes('application/json')) {
-      throw new Error(
-        'Backend ne unexpected response bheja. API route check karein.'
-      );
-    }
+    const response = await fetch(endpoint);
 
     const data = await response.json();
 
-    const downloadUrl =
-      data.downloadUrl ||
-      data.download_url ||
-      data.videoUrl ||
-      data.video_url ||
-      data.download;
-
-    if (data.success === false) {
-      throw new Error(
-        data.error || data.message || 'Video process nahi hui.'
-      );
+    if (!response.ok) {
+      throw new Error(data.error || 'Unable to process this video.');
     }
 
-    if (downloadUrl) {
-      let safeUrl;
+    status.replaceChildren();
+
+    const title = document.createElement('p');
+    title.textContent = 'Video: ' + (data.title || 'Facebook video');
+    status.appendChild(title);
+
+    // Direct video URL tabhi chalega jab backend waqai URL return kare.
+    const directUrl =
+      data.url ||
+      data.downloadUrl ||
+      data.download_url ||
+      data.video_url;
+
+    if (directUrl) {
+      let downloadUrl;
 
       try {
-        safeUrl = new URL(downloadUrl, API_BASE);
+        downloadUrl = new URL(directUrl);
       } catch {
-        throw new Error('Backend ne invalid download URL bheja.');
+        throw new Error('Backend returned an invalid video URL.');
       }
 
       if (
-        !['https:', 'http:'].includes(safeUrl.protocol) ||
-        safeUrl.username ||
-        safeUrl.password
+        downloadUrl.protocol !== 'https:' &&
+        downloadUrl.protocol !== 'http:'
       ) {
-        throw new Error('Backend ka download URL safe nahi hai.');
+        throw new Error('Invalid download URL.');
       }
 
-      status.replaceChildren();
-
-      const message = document.createElement('span');
-      message.textContent = 'Video ready hai: ';
-
       const link = document.createElement('a');
-      link.href = safeUrl.href;
-      link.textContent = 'Download Video';
+      link.href = downloadUrl.href;
+      link.textContent = 'Open / Download Video';
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
 
-      status.append(message, link);
-      return;
-    }
+      status.appendChild(link);
+    } else {
+      const message = document.createElement('p');
 
-    throw new Error(
-      data.message ||
-      'Backend se download link nahi mila. API response check karein.'
-    );
+      message.textContent =
+        'Link checked successfully, but the backend did not return a video download URL. A download API route is required.';
+
+      status.appendChild(message);
+    }
 
   } catch (error) {
     status.textContent =
-      'Error: ' + (error.message || 'Video process nahi hui.');
+      'Error: ' + (error.message || 'Could not connect to the backend.');
   } finally {
     button.disabled = false;
     button.textContent = 'Check Video Link';
   }
 });
 </script>
+  
   
 </body>
 </html>
