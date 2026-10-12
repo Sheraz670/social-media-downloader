@@ -1174,6 +1174,43 @@ Get Audio
 
 
 <div id="audioResult" class="result">
+  
+<!-- UPLOAD VIDEO OPTION -->
+
+<div id="uploadVideoSection" style="margin-top:22px;padding-top:20px;border-top:1px solid #3f3f46;">
+
+  <h3 style="margin-bottom:8px;">Or Upload a Video</h3>
+
+  <p class="card-description">
+    Upload a video to extract its original speech and generate a transcript.
+    Supported formats: MP4, MOV, WebM, MKV, M4V. Maximum size: 300 MB.
+  </p>
+
+  <input
+    type="file"
+    id="scriptVideoFile"
+    accept=".mp4,.mov,.webm,.mkv,.m4v,video/mp4,video/quicktime,video/webm,video/x-matroska"
+  >
+
+  <button
+    type="button"
+    id="uploadVideoButton"
+    class="script-button"
+    style="width:100%;margin-top:12px;"
+  >
+    Upload Video
+  </button>
+
+  <p
+    id="uploadVideoStatus"
+    role="status"
+    style="margin-top:12px;color:#a1a1aa;overflow-wrap:anywhere;"
+  ></p>
+
+</div>
+
+<!-- END UPLOAD VIDEO OPTION -->
+  
 
 <div class="script-card">
 
