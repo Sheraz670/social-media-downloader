@@ -1231,6 +1231,111 @@ app.post(
 
 /*
 ==================================================
+STEP 1B:
+UPLOADED VIDEO -> AUDIO FILE
+==================================================
+*/
+
+app.post(
+  "/api/prepare-audio-upload",
+  (req, res, next) => {
+    uploadVideo.single("video")(req, res, (error) => {
+      if (error) {
+        const message =
+          error.code === "LIMIT_FILE_SIZE"
+            ? "Video must be 300 MB or smaller."
+            : error.message;
+
+        return res.status(400).json({
+          error: message
+        });
+      }
+
+      next();
+    });
+  },
+  async (req, res) => {
+    let tempDir = null;
+
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          error: "Please select a video file."
+        });
+      }
+
+      const uploadedFile = req.file.path;
+
+      tempDir = mkdtempSync(
+        path.join(os.tmpdir(), "socialtoolhub-upload-")
+      );
+
+      const finalAudio = path.join(tempDir, "speech.mp3");
+
+      console.log("Preparing audio from uploaded video.");
+
+      await runFfmpeg(uploadedFile, finalAudio);
+
+      if (!existsSync(finalAudio)) {
+        throw new Error("Audio extraction failed.");
+      }
+
+      const jobId = createJobId();
+
+      const title =
+        path.basename(req.file.originalname, path.extname(req.file.originalname)) ||
+        "Uploaded video";
+
+      saveAudioJob(jobId, {
+        title,
+        audioFile: finalAudio,
+        tempDir
+      });
+
+      tempDir = null;
+
+      return res.json({
+        success: true,
+        jobId,
+        title,
+        audioUrl: `/api/audio/${jobId}`,
+        transcriptUrl: `/api/transcribe/${jobId}`,
+        message: "Audio is ready. Generate the transcript."
+      });
+    } catch (error) {
+      console.error("UPLOAD AUDIO ERROR:", error);
+
+      return res.status(500).json({
+        error: error.message || "Unable to process uploaded video."
+      });
+    } finally {
+      if (req.file?.path) {
+        try {
+          if (existsSync(req.file.path)) {
+            await unlinkAsync(req.file.path);
+          }
+        } catch (error) {
+          console.error("UPLOAD CLEANUP ERROR:", error);
+        }
+      }
+
+      if (tempDir) {
+        try {
+          rmSync(tempDir, {
+            recursive: true,
+            force: true
+          });
+        } catch (error) {
+          console.error("TEMP CLEANUP ERROR:", error);
+        }
+      }
+    }
+  }
+);
+
+
+/*
+==================================================
 STEP 2:
 SERVE AUDIO FILE
 ==================================================
