@@ -3491,33 +3491,109 @@ updateUrlClearButton();
 /* =========================================================
    END
 ========================================================= */
+<script>
+(() => {
+  const API = "https://social-media-downloader-f8pv.onrender.com";
 
+  const fileInput = document.getElementById("scriptVideoFile");
+  const button = document.getElementById("uploadVideoButton");
+  const status = document.getElementById("uploadVideoStatus");
+  const scriptText = document.getElementById("scriptText");
+  const transcriptResult = document.getElementById("transcriptResult");
+  const languageInfo = document.getElementById("languageInfo");
+
+  if (!fileInput || !button || !status) return;
+
+  button.addEventListener("click", async () => {
+    const file = fileInput.files[0];
+
+    if (!file) {
+      status.textContent = "Pehle video select karein.";
+      return;
+    }
+
+    if (file.size > 300 * 1024 * 1024) {
+      status.textContent = "Video 300 MB se bari nahi honi chahiye.";
+      return;
+    }
+
+    const allowed = [".mp4", ".mov", ".webm", ".mkv", ".m4v"];
+    if (!allowed.some(ext => file.name.toLowerCase().endsWith(ext))) {
+      status.textContent = "MP4, MOV, WebM, MKV ya M4V video select karein.";
+      return;
+    }
+
+    button.disabled = true;
+    status.className = "";
+    status.textContent = "Video upload ho rahi hai...";
+
+    if (scriptText) scriptText.value = "";
+    if (transcriptResult) transcriptResult.style.display = "none";
+
+    try {
+      const form = new FormData();
+      form.append("video", file);
+
+      const uploadResponse = await fetch(
+        API + "/api/prepare-audio-upload",
+        { method: "POST", body: form }
+      );
+
+      const upload = await uploadResponse.json();
+
+      if (!uploadResponse.ok) {
+        throw new Error(upload.error || "Video upload fail ho gayi.");
+      }
+
+      if (!upload.jobId) {
+        throw new Error("Backend se job ID nahi mili.");
+      }
+
+      status.textContent = "Audio tayyar hai. Transcript likha ja raha hai...";
+
+      const response = await fetch(
+        API + "/api/transcribe/" + encodeURIComponent(upload.jobId),
+        { method: "POST" }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Transcript generate nahi hua.");
+      }
+
+      const transcript = data.transcript || data.text || data.result;
+
+      if (typeof transcript !== "string" || !transcript.trim()) {
+        throw new Error("Backend ne transcript text return nahi kiya.");
+      }
+
+      if (scriptText) scriptText.value = transcript;
+      if (transcriptResult) transcriptResult.style.display = "block";
+
+      if (languageInfo) {
+        languageInfo.textContent = "Original video ki spoken audio ka transcript.";
+        languageInfo.style.display = "block";
+      }
+
+      status.className = "success";
+      status.textContent = "Transcript tayyar hai!";
+
+      if (transcriptResult) {
+        transcriptResult.scrollIntoView({ behavior: "smooth" });
+      }
+    } catch (error) {
+      status.className = "error";
+      status.textContent = "Error: " + error.message;
+    } finally {
+      button.disabled = false;
+    }
+  });
+})();
 </script>
+</body>
+</html>
 
-
-<div id="downloadConfirmModal" class="confirm-backdrop" role="dialog" aria-modal="true" aria-labelledby="downloadConfirmTitle">
-  <div class="confirm-box">
-    <h3 id="downloadConfirmTitle">Confirm video download</h3>
-    <p>Are you sure you want to download this video?</p>
-    <div class="confirm-actions">
-      <button id="downloadCancelButton" class="confirm-cancel" type="button">Cancel</button>
-      <button id="downloadConfirmButton" class="confirm-download" type="button">Download</button>
-    </div>
-  </div>
-</div>
-  <a href="/movie-explainer.html" style="
-  display:block;
-  width:fit-content;
-  margin:20px auto;
-  padding:12px 20px;
-  background:#111;
-  color:white;
-  text-decoration:none;
-  border-radius:8px;
-  font-weight:bold;
-">
-  🎬 AI Movie Explainer
-  </a>
 
 </body>
 </html>
