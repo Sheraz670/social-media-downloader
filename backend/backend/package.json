@@ -12,6 +12,7 @@
   "dependencies": {
     "express": "^5.1.0",
     "cors": "^2.8.5",
-    "youtube-dl-exec": "^3.1.15"
+    "youtube-dl-exec": "^3.1.15",
+    "multer": "^2.0.2"
   }
 }
