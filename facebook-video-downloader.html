@@ -399,6 +399,7 @@
   </footer>
 
   
+
 <script>
 'use strict';
 
@@ -407,29 +408,27 @@ const input = document.getElementById('videoUrl');
 const status = document.getElementById('status');
 const button = document.getElementById('submitButton');
 
-// Yahan apna asli Render backend URL likhein.
 const API_BASE = 'https://social-media-downloader-f8pv.onrender.com';
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
 
-  status.replaceChildren();
-
+  const rawUrl = input.value.trim();
   let video;
 
   try {
-    video = new URL(input.value.trim());
+    video = new URL(rawUrl);
   } catch {
     status.textContent = 'Please enter a valid Facebook video URL.';
     return;
   }
 
   const host = video.hostname.toLowerCase();
-
   const validHost =
     host === 'facebook.com' ||
     host.endsWith('.facebook.com') ||
-    host === 'fb.watch';
+    host === 'fb.watch' ||
+    host.endsWith('.fb.watch');
 
   if (
     video.protocol !== 'https:' ||
@@ -437,89 +436,63 @@ form.addEventListener('submit', async (event) => {
     video.username ||
     video.password
   ) {
-    status.textContent =
-      'Please enter a valid HTTPS Facebook or fb.watch URL.';
-    return;
-  }
-
-  if (API_BASE.includes('YOUR-RENDER-BACKEND')) {
-    status.textContent =
-      'Please set your actual Render backend URL in API_BASE.';
+    status.textContent = 'Please enter a valid HTTPS Facebook video link.';
     return;
   }
 
   button.disabled = true;
-  button.textContent = 'Checking...';
-  status.textContent = 'Connecting to the video service...';
+  button.textContent = 'Processing...';
+  status.textContent = 'Connecting to the video service. Please wait...';
 
   try {
     const endpoint =
       API_BASE.replace(/\/+$/, '') +
-      '/api/media?url=' +
+      '/api/download?url=' +
       encodeURIComponent(video.href);
 
     const response = await fetch(endpoint);
 
-    const data = await response.json();
+    const contentType = response.headers.get('content-type') || '';
 
-    if (!response.ok) {
-      throw new Error(data.error || 'Unable to process this video.');
-    }
-
-    status.replaceChildren();
-
-    const title = document.createElement('p');
-    title.textContent = 'Video: ' + (data.title || 'Facebook video');
-    status.appendChild(title);
-
-    // Direct video URL tabhi chalega jab backend waqai URL return kare.
-    const directUrl =
-      data.url ||
-      data.downloadUrl ||
-      data.download_url ||
-      data.video_url;
-
-    if (directUrl) {
-      let downloadUrl;
-
+    if (!response.ok || contentType.includes('application/json')) {
+      let message = 'Download failed. Please try again.';
       try {
-        downloadUrl = new URL(directUrl);
-      } catch {
-        throw new Error('Backend returned an invalid video URL.');
-      }
-
-      if (
-        downloadUrl.protocol !== 'https:' &&
-        downloadUrl.protocol !== 'http:'
-      ) {
-        throw new Error('Invalid download URL.');
-      }
-
-      const link = document.createElement('a');
-      link.href = downloadUrl.href;
-      link.textContent = 'Open / Download Video';
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-
-      status.appendChild(link);
-    } else {
-      const message = document.createElement('p');
-
-      message.textContent =
-        'Link checked successfully, but the backend did not return a video download URL. A download API route is required.';
-
-      status.appendChild(message);
+        const data = await response.json();
+        message = data.error || message;
+      } catch {}
+      throw new Error(message);
     }
+
+    const blob = await response.blob();
+
+    if (!blob.size) {
+      throw new Error('The downloaded file is empty.');
+    }
+
+    const objectUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = objectUrl;
+    link.download = 'facebook-video.mp4';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    status.textContent = 'Download started. Check your phone Downloads folder.';
+
+    setTimeout(() => URL.revokeObjectURL(objectUrl), 60000);
 
   } catch (error) {
     status.textContent =
-      'Error: ' + (error.message || 'Could not connect to the backend.');
+      'Error: ' + (error.message || 'Unable to download this video.');
   } finally {
     button.disabled = false;
-    button.textContent = 'Check Video Link';
+    button.textContent = 'Download Facebook Video';
   }
 });
+
+button.textContent = 'Download Facebook Video';
 </script>
+  
   
   
 </body>
