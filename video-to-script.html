@@ -1172,24 +1172,21 @@ Get Audio
 
 <div id="scriptStatus"></div>
 
-
-<div id="audioResult" class="result">
-  
-<!-- UPLOAD VIDEO OPTION -->
-
-<div id="uploadVideoSection" style="margin-top:22px;padding-top:20px;border-top:1px solid #3f3f46;">
+<!-- VIDEO UPLOAD OPTION -->
+<div id="uploadVideoSection" style="margin-top:22px;padding-top:20px;border-top:1px solid #334155;">
 
   <h3 style="margin-bottom:8px;">Or Upload a Video</h3>
 
   <p class="card-description">
-    Upload a video to extract its original speech and generate a transcript.
-    Supported formats: MP4, MOV, WebM, MKV, M4V. Maximum size: 300 MB.
+    Upload a video to extract its original spoken words into text.
+    Supported formats: MP4, MOV, WebM, MKV, M4V.
+    Maximum size: 300 MB.
   </p>
 
   <input
     type="file"
     id="scriptVideoFile"
-    accept=".mp4,.mov,.webm,.mkv,.m4v,video/mp4,video/quicktime,video/webm,video/x-matroska"
+    accept=".mp4,.mov,.webm,.mkv,.m4v,video/*"
   >
 
   <button
@@ -1198,18 +1195,20 @@ Get Audio
     class="script-button"
     style="width:100%;margin-top:12px;"
   >
-    Upload Video
+    Upload Video & Generate Transcript
   </button>
 
   <p
     id="uploadVideoStatus"
     role="status"
-    style="margin-top:12px;color:#a1a1aa;overflow-wrap:anywhere;"
+    aria-live="polite"
+    style="margin-top:12px;overflow-wrap:anywhere;"
   ></p>
-
 </div>
+<!-- END VIDEO UPLOAD OPTION -->
+  
 
-<!-- END UPLOAD VIDEO OPTION -->
+<div id="audioResult" class="result">
   
 
 <div class="script-card">
@@ -3492,7 +3491,7 @@ updateUrlClearButton();
    END
 ========================================================= */
 <script>
-(() => {
+
   const API = "https://social-media-downloader-f8pv.onrender.com";
 
   const fileInput = document.getElementById("scriptVideoFile");
@@ -3589,10 +3588,9 @@ updateUrlClearButton();
       button.disabled = false;
     }
   });
-})();
+})
 </script>
-</body>
-</html>
+
 
 
 </body>
