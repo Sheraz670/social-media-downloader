@@ -6,74 +6,252 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>Facebook Video Downloader | SocialToolHub</title>
-  <meta name="description" content="Use SocialToolHub to access publicly available Facebook video links. Paste a video URL and use our video tools.">
-  <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://social-media-downloader.afzainkhan90.workers.dev/facebook-video-downloader">
 
+  <meta name="description" content="Check publicly accessible Facebook video links with SocialToolHub. Paste a Facebook video URL and validate the link before using a compatible video service.">
+
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#1877f2">
+
+  <!-- Canonical URL: matches the actual .html page -->
+  <link rel="canonical" href="https://social-media-downloader.afzainkhan90.workers.dev/facebook-video-downloader.html">
+
+  <!-- Open Graph -->
   <meta property="og:type" content="website">
+  <meta property="og:site_name" content="SocialToolHub">
   <meta property="og:title" content="Facebook Video Downloader | SocialToolHub">
-  <meta property="og:description" content="Facebook video tools for publicly accessible video links.">
-  <meta property="og:url" content="https://social-media-downloader.afzainkhan90.workers.dev/facebook-video-downloader">
+  <meta property="og:description" content="Validate publicly accessible Facebook video links with SocialToolHub.">
+  <meta property="og:url" content="https://social-media-downloader.afzainkhan90.workers.dev/facebook-video-downloader.html">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Facebook Video Downloader | SocialToolHub">
+  <meta name="twitter:description" content="Check publicly accessible Facebook video links with SocialToolHub.">
 
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      line-height: 1.6;
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.7;
       color: #202124;
       background: #f4f7fb;
     }
-    header, footer { background: #fff; padding: 18px; }
-    .nav, main { max-width: 950px; margin: auto; }
-    .nav { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; }
-    .logo { font-size: 22px; font-weight: bold; color: #1877f2; text-decoration: none; }
-    nav, .links { display: flex; flex-wrap: wrap; gap: 14px; }
-    a { color: #1877f2; }
-    nav a, .logo { text-decoration: none; }
-    main { padding: 22px 15px; }
-    section {
+
+    a {
+      color: #1877f2;
+    }
+
+    header {
       background: #fff;
-      padding: 24px;
-      border-radius: 12px;
-      margin-bottom: 20px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .nav {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .logo {
+      color: #1877f2;
+      font-size: 22px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    nav,
+    .links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 18px;
+    }
+
+    nav a {
+      color: #30343b;
+      text-decoration: none;
+    }
+
+    nav a:hover,
+    nav a[aria-current="page"] {
+      color: #1877f2;
+      text-decoration: underline;
+    }
+
+    main {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+
+    section {
+      margin-bottom: 22px;
+      padding: 25px;
+      background: #fff;
+      border: 1px solid #e8ebf0;
+      border-radius: 14px;
       overflow-wrap: anywhere;
     }
-    h1 { font-size: clamp(27px, 5vw, 38px); line-height: 1.2; }
+
+    h1 {
+      margin-top: 0;
+      font-size: clamp(28px, 5vw, 40px);
+      line-height: 1.2;
+    }
+
+    h2 {
+      line-height: 1.3;
+    }
+
+    .intro {
+      color: #4b5563;
+    }
+
+    .tool-box {
+      margin-top: 22px;
+      padding: 20px;
+      background: #f8fafc;
+      border-radius: 10px;
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
     input {
       display: block;
       width: 100%;
+      min-width: 0;
       padding: 14px;
       font-size: 16px;
-      border: 1px solid #bbb;
+      border: 1px solid #b8c0cc;
       border-radius: 8px;
-      margin-top: 8px;
+      background: #fff;
+      color: #202124;
     }
+
+    input:focus {
+      outline: 2px solid #1877f2;
+      outline-offset: 2px;
+    }
+
     button {
-      padding: 13px 18px;
-      margin-top: 12px;
+      display: inline-block;
+      width: 100%;
+      padding: 14px 18px;
+      margin-top: 14px;
       border: 0;
       border-radius: 8px;
       background: #1877f2;
       color: #fff;
       font-size: 16px;
+      font-weight: 700;
       cursor: pointer;
     }
-    #status { overflow-wrap: anywhere; }
-    footer { text-align: center; }
-    footer a { margin: 0 8px; }
+
+    button:hover {
+      background: #1264cf;
+    }
+
+    button:focus-visible {
+      outline: 3px solid #202124;
+      outline-offset: 3px;
+    }
+
+    #status {
+      margin-bottom: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .note {
+      color: #596273;
+      font-size: 14px;
+    }
+
+    .links a {
+      display: inline-block;
+      padding: 9px 12px;
+      background: #f0f5ff;
+      border-radius: 8px;
+      text-decoration: none;
+    }
+
+    .links a:hover {
+      background: #e0ebff;
+      text-decoration: underline;
+    }
+
+    footer {
+      padding: 25px 16px;
+      background: #fff;
+      border-top: 1px solid #e5e7eb;
+      text-align: center;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px 18px;
+      margin-top: 12px;
+    }
+
+    footer p {
+      margin: 6px 0;
+    }
+
+    @media (max-width: 650px) {
+      .nav {
+        align-items: flex-start;
+      }
+
+      nav {
+        width: 100%;
+        gap: 10px 14px;
+      }
+
+      main {
+        padding: 16px 12px;
+      }
+
+      section {
+        padding: 18px;
+      }
+
+      .tool-box {
+        padding: 14px;
+      }
+    }
   </style>
 </head>
+
 <body>
   <header>
     <div class="nav">
-      <a class="logo" href="/">SocialToolHub</a>
+      <a class="logo" href="/" aria-label="SocialToolHub Home">
+        SocialToolHub
+      </a>
+
       <nav aria-label="Main navigation">
         <a href="/">Home</a>
-        <a href="/tiktok-video-downloader">TikTok</a>
-        <a href="/instagram-video-downloader">Instagram</a>
-        <a href="/youtube-video-downloader">YouTube</a>
-        <a href="/video-to-script">Video to Script</a>
+        <a href="/tiktok-video-downloader.html">TikTok</a>
+        <a href="/instagram-video-downloader.html">Instagram</a>
+        <a href="/youtube-video-downloader.html">YouTube</a>
+        <a href="/facebook-video-downloader.html"
+           aria-current="page">Facebook</a>
+        <a href="/video-to-script.html">Video to Script</a>
       </nav>
     </div>
   </header>
@@ -81,92 +259,195 @@
   <main>
     <section>
       <h1>Facebook Video Downloader</h1>
-      <p>
-        Enter a publicly accessible Facebook video link.
-        Only save content you own or have permission to download.
+
+      <p class="intro">
+        Enter a publicly accessible Facebook video URL to check
+        whether its link format is valid. Video processing requires
+        a compatible backend service.
       </p>
 
-      <form id="facebookForm">
-        <label for="videoUrl"><strong>Facebook video URL</strong></label>
-        <input id="videoUrl" type="url"
-          placeholder="https://www.facebook.com/..."
-          autocomplete="url" required>
-        <button id="submitButton" type="submit">Check Video Link</button>
-        <p id="status" role="status" aria-live="polite"></p>
-      </form>
+      <div class="tool-box">
+        <form id="facebookForm">
+          <label for="videoUrl">Facebook video URL</label>
 
-      <p>
-        Private videos and videos restricted by their owners may not be accessible.
+          <input
+            id="videoUrl"
+            name="videoUrl"
+            type="url"
+            placeholder="https://www.facebook.com/..."
+            autocomplete="url"
+            inputmode="url"
+            aria-describedby="urlHelp status"
+            required
+          >
+
+          <p id="urlHelp" class="note">
+            Enter a Facebook video link or an fb.watch link.
+          </p>
+
+          <button id="submitButton" type="submit">
+            Check Video Link
+          </button>
+
+          <p id="status" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+
+      <p class="note">
+        Private, deleted or restricted videos may not be accessible.
+        Only download content you own or have permission to save.
       </p>
     </section>
 
     <section>
-      <h2>How to Use</h2>
+      <h2>How to Use the Facebook Video Tool</h2>
+
       <ol>
-        <li>Open the Facebook video you have permission to save.</li>
-        <li>Copy its link.</li>
-        <li>Paste the link in the box above.</li>
-        <li>Use the connected video service to process the link.</li>
+        <li>Open a Facebook video you have permission to save.</li>
+        <li>Copy the video's URL.</li>
+        <li>Paste the link into the input box above.</li>
+        <li>Press Check Video Link to validate the URL format.</li>
+        <li>Use a compatible download service when one is connected.</li>
       </ol>
     </section>
 
     <section>
       <h2>More Free Tools</h2>
+
+      <p>
+        Explore other tools available on SocialToolHub.
+      </p>
+
       <div class="links">
-        <a href="/tiktok-video-downloader">TikTok Video Downloader</a>
-        <a href="/instagram-video-downloader">Instagram Video Downloader</a>
-        <a href="/youtube-video-downloader">YouTube Video Downloader</a>
-        <a href="/video-to-script">Video to Script</a>
-        <a href="/movie-explainer">AI Movie Explainer</a>
+        <a href="/tiktok-video-downloader.html">
+          TikTok Video Downloader
+        </a>
+
+        <a href="/instagram-video-downloader.html">
+          Instagram Video Downloader
+        </a>
+
+        <a href="/youtube-video-downloader.html">
+          YouTube Video Downloader
+        </a>
+
+        <a href="/video-to-script.html">
+          Video to Script
+        </a>
+
+        <a href="/movie-explainer.html">
+          AI Movie Explainer
+        </a>
       </div>
     </section>
 
     <section>
       <h2>Frequently Asked Questions</h2>
+
       <h3>Can I access every Facebook video?</h3>
-      <p>No. Access depends on privacy settings, availability and the connected service.</p>
+      <p>
+        No. Availability depends on the video's privacy settings,
+        whether it still exists and the capabilities of the connected
+        service.
+      </p>
+
+      <h3>Does checking a link download the video?</h3>
+      <p>
+        No. This page checks the URL format only. Actual video
+        processing requires a connected and functioning backend.
+      </p>
+
       <h3>Is SocialToolHub an official Facebook service?</h3>
-      <p>No. SocialToolHub is independent and is not affiliated with Meta or Facebook.</p>
+      <p>
+        No. SocialToolHub is an independent website and is not
+        affiliated with Meta or Facebook.
+      </p>
+
+      <h3>Why might a video link fail?</h3>
+      <p>
+        The link may be incorrect, the video may have been removed,
+        or the video may not be publicly accessible.
+      </p>
     </section>
   </main>
 
   <footer>
-    <p>SocialToolHub</p>
-    <a href="/">Home</a>
-    <a href="/about">About</a>
-    <a href="/contact">Contact</a>
-    <a href="/disclaimer">Disclaimer</a>
+    <p><strong>SocialToolHub</strong></p>
+    <p>Online tools for working with supported media links.</p>
+
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/about.html">About</a>
+      <a href="/contact.html">Contact</a>
+      <a href="/disclaimer.html">Disclaimer</a>
+      <a href="/privacy-policy.html">Privacy Policy</a>
+      <a href="/terms.html">Terms</a>
+    </div>
+
+    <p class="note">
+      Respect content ownership and each platform's terms of service.
+    </p>
   </footer>
 
   <script>
+    'use strict';
+
     const form = document.getElementById('facebookForm');
     const input = document.getElementById('videoUrl');
     const status = document.getElementById('status');
+    const submitButton = document.getElementById('submitButton');
 
     form.addEventListener('submit', function (event) {
       event.preventDefault();
 
+      status.textContent = '';
+
+      const enteredValue = input.value.trim();
+
+      if (!enteredValue) {
+        status.textContent = 'Please enter a Facebook video URL.';
+        input.focus();
+        return;
+      }
+
       let url;
+
       try {
-        url = new URL(input.value.trim());
+        url = new URL(enteredValue);
       } catch {
-        status.textContent = 'Please enter a valid Facebook video URL.';
+        status.textContent =
+          'Please enter a valid URL, including https://.';
+        input.focus();
         return;
       }
 
       const host = url.hostname.toLowerCase();
-      const validHost =
-        host === 'facebook.com' ||
-        host.endsWith('.facebook.com') ||
-        host === 'fb.watch';
 
-      if (url.protocol !== 'https:' || !validHost) {
-        status.textContent = 'Please enter a valid HTTPS Facebook video link.';
+      const isFacebook =
+        host === 'facebook.com' ||
+        host.endsWith('.facebook.com');
+
+      const isFbWatch =
+        host === 'fb.watch' ||
+        host.endsWith('.fb.watch');
+
+      if (
+        url.protocol !== 'https:' ||
+        (!isFacebook && !isFbWatch) ||
+        url.username ||
+        url.password
+      ) {
+        status.textContent =
+          'Please enter a valid HTTPS Facebook or fb.watch link.';
+        input.focus();
         return;
       }
 
       status.textContent =
-        'The link format is valid. Video downloading requires your existing backend API to be connected.';
+        'The URL format is valid. Video processing is not connected to this form yet.';
+
+      // Connect your actual backend API here to process videos.
+      // Do not expose private API keys or secrets in frontend code.
     });
   </script>
 </body>
