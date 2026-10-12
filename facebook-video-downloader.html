@@ -398,66 +398,192 @@
     </p>
   </footer>
 
-  <script>
-    'use strict';
+  
+<script>
+'use strict';
 
-    const form = document.getElementById('facebookForm');
-    const input = document.getElementById('videoUrl');
-    const status = document.getElementById('status');
-    const submitButton = document.getElementById('submitButton');
+const form = document.getElementById('facebookForm');
+const input = document.getElementById('videoUrl');
+const status = document.getElementById('status');
+const button = document.getElementById('submitButton');
 
-    form.addEventListener('submit', function (event) {
-      event.preventDefault();
+/*
+  IMPORTANT:
+  Apne Render backend ka asli URL yahan likhein.
+  Neeche API route ko bhi server.js ke route se match karna hoga.
+*/
+const API_BASE = 'https://YOUR-RENDER-BACKEND.onrender.com';
+const API_ENDPOINT = '/api/facebook-download';
 
-      status.textContent = '';
+form.addEventListener('submit', async function (event) {
+  event.preventDefault();
 
-      const enteredValue = input.value.trim();
+  const enteredUrl = input.value.trim();
+  status.textContent = '';
 
-      if (!enteredValue) {
-        status.textContent = 'Please enter a Facebook video URL.';
-        input.focus();
-        return;
+  let videoUrl;
+
+  try {
+    videoUrl = new URL(enteredUrl);
+  } catch {
+    status.textContent = 'Please enter a valid video URL.';
+    return;
+  }
+
+  const host = videoUrl.hostname.toLowerCase();
+
+  const isFacebook =
+    host === 'facebook.com' ||
+    host.endsWith('.facebook.com');
+
+  const isFbWatch =
+    host === 'fb.watch' ||
+    host.endsWith('.fb.watch');
+
+  if (
+    videoUrl.protocol !== 'https:' ||
+    (!isFacebook && !isFbWatch) ||
+    videoUrl.username ||
+    videoUrl.password
+  ) {
+    status.textContent =
+      'Please enter a valid HTTPS Facebook or fb.watch link.';
+    return;
+  }
+
+  if (API_BASE.includes('YOUR-RENDER-BACKEND')) {
+    status.textContent =
+      'Backend URL set nahi hai. API_BASE mein apne backend ka URL likhein.';
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = 'Processing...';
+  status.textContent = 'Connecting to video service...';
+
+  try {
+    const response = await fetch(
+      API_BASE.replace(/\/+$/, '') + API_ENDPOINT,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ url: enteredUrl })
+      }
+    );
+
+    const contentType =
+      response.headers.get('content-type') || '';
+
+    if (!response.ok) {
+      let message = 'Video service request failed.';
+
+      if (contentType.includes('application/json')) {
+        const errorData = await response.json();
+        message =
+          errorData.error ||
+          errorData.message ||
+          message;
+      } else {
+        const errorText = await response.text();
+        if (errorText) {
+          message = errorText.slice(0, 250);
+        }
       }
 
-      let url;
+      throw new Error(message);
+    }
+
+    // Agar backend actual video file bhejta hai.
+    if (
+      contentType.startsWith('video/') ||
+      contentType.includes('application/octet-stream')
+    ) {
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+
+      link.href = objectUrl;
+      link.download = 'facebook-video.mp4';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 60000);
+
+      status.textContent = 'Video download started.';
+      return;
+    }
+
+    if (!contentType.includes('application/json')) {
+      throw new Error(
+        'Backend ne unexpected response bheja. API route check karein.'
+      );
+    }
+
+    const data = await response.json();
+
+    const downloadUrl =
+      data.downloadUrl ||
+      data.download_url ||
+      data.videoUrl ||
+      data.video_url ||
+      data.download;
+
+    if (data.success === false) {
+      throw new Error(
+        data.error || data.message || 'Video process nahi hui.'
+      );
+    }
+
+    if (downloadUrl) {
+      let safeUrl;
 
       try {
-        url = new URL(enteredValue);
+        safeUrl = new URL(downloadUrl, API_BASE);
       } catch {
-        status.textContent =
-          'Please enter a valid URL, including https://.';
-        input.focus();
-        return;
+        throw new Error('Backend ne invalid download URL bheja.');
       }
-
-      const host = url.hostname.toLowerCase();
-
-      const isFacebook =
-        host === 'facebook.com' ||
-        host.endsWith('.facebook.com');
-
-      const isFbWatch =
-        host === 'fb.watch' ||
-        host.endsWith('.fb.watch');
 
       if (
-        url.protocol !== 'https:' ||
-        (!isFacebook && !isFbWatch) ||
-        url.username ||
-        url.password
+        !['https:', 'http:'].includes(safeUrl.protocol) ||
+        safeUrl.username ||
+        safeUrl.password
       ) {
-        status.textContent =
-          'Please enter a valid HTTPS Facebook or fb.watch link.';
-        input.focus();
-        return;
+        throw new Error('Backend ka download URL safe nahi hai.');
       }
 
-      status.textContent =
-        'The URL format is valid. Video processing is not connected to this form yet.';
+      status.replaceChildren();
 
-      // Connect your actual backend API here to process videos.
-      // Do not expose private API keys or secrets in frontend code.
-    });
-  </script>
+      const message = document.createElement('span');
+      message.textContent = 'Video ready hai: ';
+
+      const link = document.createElement('a');
+      link.href = safeUrl.href;
+      link.textContent = 'Download Video';
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+
+      status.append(message, link);
+      return;
+    }
+
+    throw new Error(
+      data.message ||
+      'Backend se download link nahi mila. API response check karein.'
+    );
+
+  } catch (error) {
+    status.textContent =
+      'Error: ' + (error.message || 'Video process nahi hui.');
+  } finally {
+    button.disabled = false;
+    button.textContent = 'Check Video Link';
+  }
+});
+</script>
+  
 </body>
 </html>
