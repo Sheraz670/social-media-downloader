@@ -20,6 +20,39 @@ const youtubedl = require("youtube-dl-exec");
 
 const unlinkAsync = promisify(unlink);
 
+const uploadVideo = multer({
+  dest: os.tmpdir(),
+  limits: {
+    fileSize: 300 * 1024 * 1024,
+    files: 1
+  },
+  fileFilter(req, file, callback) {
+    const ext = path.extname(file.originalname).toLowerCase();
+
+    const allowed = [
+      ".mp4",
+      ".mov",
+      ".webm",
+      ".mkv",
+      ".m4v"
+    ];
+
+    if (
+      file.mimetype.startsWith("video/") ||
+      allowed.includes(ext)
+    ) {
+      return callback(null, true);
+    }
+
+    callback(
+      new Error(
+        "Supported formats: MP4, MOV, WebM, MKV, M4V."
+      )
+    );
+  }
+});
+
+
 const YOUTUBE_COOKIES_SOURCE =
   "/etc/secrets/youtube-cookies.txt";
 
