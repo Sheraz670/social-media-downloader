@@ -3490,8 +3490,9 @@ updateUrlClearButton();
 /* =========================================================
    END
 ========================================================= */
-<script>
 
+<script>
+(() => {
   const API = "https://social-media-downloader-f8pv.onrender.com";
 
   const fileInput = document.getElementById("scriptVideoFile");
@@ -3507,24 +3508,30 @@ updateUrlClearButton();
     const file = fileInput.files[0];
 
     if (!file) {
-      status.textContent = "Pehle video select karein.";
+      status.textContent = "Please select a video first.";
+      status.className = "error";
       return;
     }
 
     if (file.size > 300 * 1024 * 1024) {
-      status.textContent = "Video 300 MB se bari nahi honi chahiye.";
+      status.textContent = "Video must be 300 MB or smaller.";
+      status.className = "error";
       return;
     }
 
     const allowed = [".mp4", ".mov", ".webm", ".mkv", ".m4v"];
-    if (!allowed.some(ext => file.name.toLowerCase().endsWith(ext))) {
-      status.textContent = "MP4, MOV, WebM, MKV ya M4V video select karein.";
+    const filename = file.name.toLowerCase();
+
+    if (!allowed.some(ext => filename.endsWith(ext))) {
+      status.textContent = "Please select MP4, MOV, WebM, MKV or M4V.";
+      status.className = "error";
       return;
     }
 
     button.disabled = true;
+    button.textContent = "Processing...";
     status.className = "";
-    status.textContent = "Video upload ho rahi hai...";
+    status.textContent = "Uploading video...";
 
     if (scriptText) scriptText.value = "";
     if (transcriptResult) transcriptResult.style.display = "none";
@@ -3535,64 +3542,82 @@ updateUrlClearButton();
 
       const uploadResponse = await fetch(
         API + "/api/prepare-audio-upload",
-        { method: "POST", body: form }
+        {
+          method: "POST",
+          body: form
+        }
       );
 
       const upload = await uploadResponse.json();
 
       if (!uploadResponse.ok) {
-        throw new Error(upload.error || "Video upload fail ho gayi.");
+        throw new Error(upload.error || "Video upload failed.");
       }
 
       if (!upload.jobId) {
-        throw new Error("Backend se job ID nahi mili.");
+        throw new Error("Backend did not return a job ID.");
       }
 
-      status.textContent = "Audio tayyar hai. Transcript likha ja raha hai...";
+      status.textContent = "Video uploaded. Generating transcript...";
 
       const response = await fetch(
         API + "/api/transcribe/" + encodeURIComponent(upload.jobId),
-        { method: "POST" }
+        {
+          method: "POST"
+        }
       );
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Transcript generate nahi hua.");
+        throw new Error(data.error || "Transcript generation failed.");
       }
 
-      const transcript = data.transcript || data.text || data.result;
+      const transcript =
+        data.transcript || data.text || data.result;
 
       if (typeof transcript !== "string" || !transcript.trim()) {
-        throw new Error("Backend ne transcript text return nahi kiya.");
+        throw new Error(
+          "No transcript text received. Backend response needs checking."
+        );
       }
 
-      if (scriptText) scriptText.value = transcript;
-      if (transcriptResult) transcriptResult.style.display = "block";
+      if (!scriptText) {
+        throw new Error("Transcript text area was not found in the HTML.");
+      }
+
+      scriptText.value = transcript;
+
+      if (transcriptResult) {
+        transcriptResult.style.display = "block";
+      }
 
       if (languageInfo) {
-        languageInfo.textContent = "Original video ki spoken audio ka transcript.";
+        languageInfo.textContent =
+          "Transcript extracted from the video's original spoken audio.";
         languageInfo.style.display = "block";
       }
 
       status.className = "success";
-      status.textContent = "Transcript tayyar hai!";
+      status.textContent = "Transcript generated successfully!";
 
       if (transcriptResult) {
-        transcriptResult.scrollIntoView({ behavior: "smooth" });
+        transcriptResult.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
       }
     } catch (error) {
       status.className = "error";
       status.textContent = "Error: " + error.message;
     } finally {
       button.disabled = false;
+      button.textContent = "Upload Video & Generate Transcript";
     }
   });
-})
+})();
 </script>
-
-
-
+  
 </body>
 </html>
 
