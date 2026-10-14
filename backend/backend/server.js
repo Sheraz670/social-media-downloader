@@ -3861,219 +3861,111 @@ else {
       ==================================================
       */
 
-      const captionText =
-        String(
-          script || ""
-        )
-          .replace(
-            /\s+/g,
-            " "
-          )
-          .trim();
+const transcribeFile = path.join(__dirname, "transcribe.py");
 
+if (!existsSync(transcribeFile)) {
+  throw new Error("transcribe.py was not found.");
+}
 
-      const words =
-        captionText
-          .split(" ");
+const transcription = await new Promise((resolve, reject) => {
+  const process = spawn("python3", [transcribeFile, audioFile]);
 
+  let stdout = "";
+  let stderr = "";
 
-      const captionChunks =
-        [];
+  process.stdout.on("data", data => {
+    stdout += data.toString();
+  });
 
+  process.stderr.on("data", data => {
+    stderr += data.toString();
+  });
 
-      let currentChunk =
-        [];
+  process.on("error", reject);
 
-
-      const MAX_WORDS =
-        10;
-
-
-      for (
-        const word of words
-      ) {
-
-        currentChunk.push(
-          word
-        );
-
-
-        if (
-          currentChunk.length >=
-          MAX_WORDS
-        ) {
-
-          captionChunks.push(
-            currentChunk.join(" ")
-          );
-
-          currentChunk = [];
-
-        }
-
-      }
-
-
-      if (
-        currentChunk.length
-      ) {
-
-        captionChunks.push(
-          currentChunk.join(" ")
-        );
-
-      }
-
-
-      const captionEntries =
-        [];
-
-
-      const chunkDuration =
-        audioDuration /
-        Math.max(
-          captionChunks.length,
-          1
-        );
-
-
-      for (
-        let i = 0;
-        i < captionChunks.length;
-        i++
-      ) {
-
-        const start =
-          i *
-          chunkDuration;
-
-
-        const end =
-          Math.min(
-            audioDuration,
-            start +
-            chunkDuration
-          );
-
-
-        captionEntries.push({
-
-          index:
-            i + 1,
-
-          start,
-
-          end,
-
-          text:
-            captionChunks[i]
-
-        });
-
-      }
-
-
-      function srtTime(
-        seconds
-      ) {
-
-        seconds =
-          Math.max(
-            0,
-            Number(seconds) || 0
-          );
-
-
-        const hours =
-          Math.floor(
-            seconds / 3600
-          );
-
-
-        const minutes =
-          Math.floor(
-            (
-              seconds % 3600
-            ) / 60
-          );
-
-
-        const secs =
-          Math.floor(
-            seconds % 60
-          );
-
-
-        const millis =
-          Math.floor(
-            (
-              seconds -
-              Math.floor(seconds)
-            ) *
-            1000
-          );
-
-
-        return (
-          String(hours).padStart(
-            2,
-            "0"
-          ) +
-          ":" +
-          String(minutes).padStart(
-            2,
-            "0"
-          ) +
-          ":" +
-          String(secs).padStart(
-            2,
-            "0"
-          ) +
-          "," +
-          String(millis).padStart(
-            3,
-            "0"
-          )
-        );
-
-      }
-
-
-      const srtContent =
-        captionEntries
-          .map(
-            (entry) => {
-
-              return (
-                `${entry.index}\n` +
-                `${srtTime(entry.start)} --> ${srtTime(entry.end)}\n` +
-                `${entry.text}\n\n`
-              );
-
-            }
-          )
-          .join("");
-
-
-      require("fs").writeFileSync(
-        captionFile,
-        srtContent,
-        "utf8"
+  process.on("close", code => {
+    if (code !== 0) {
+      return reject(
+        new Error(stderr.trim() || "Audio transcription failed.")
       );
+    }
 
+    try {
+      resolve(JSON.parse(stdout));
+    } catch {
+      reject(new Error("Invalid transcription response."));
+    }
+  });
+});
 
-      if (
-        !existsSync(
-          captionFile
-        )
-      ) {
+const timedWords = Array.isArray(transcription.words)
+  ? transcription.words.filter(
+      word =>
+        typeof word.start === "number" &&
+        typeof word.end === "number" &&
+        word.end > word.start &&
+        word.text
+    )
+  : [];
 
-        throw new Error(
-          "Caption file was not created."
-        );
+if (!timedWords.length) {
+  throw new Error("No timed caption words were returned.");
+}
 
-      }
+// Shorts/Reels/TikTok: 2 words per caption.
+// YouTube Long/Square: 3 words per caption.
+const wordsPerCaption =
+  ["youtube-shorts", "shorts", "tiktok", "instagram-reels", "reels", "square"]
+    .includes(format)
+    ? 2
+    : 3;
 
+const captionEntries = [];
+
+for (let i = 0; i < timedWords.length; i += wordsPerCaption) {
+  const group = timedWords.slice(i, i + wordsPerCaption);
+
+  captionEntries.push({
+    index: captionEntries.length + 1,
+    start: Math.max(0, group[0].start),
+    end: Math.min(
+      audioDuration,
+      Math.max(group[group.length - 1].end, group[0].start + 0.08)
+    ),
+    text: group.map(word => word.text).join(" ").trim()
+  });
+}
+
+function srtTime(seconds) {
+  seconds = Math.max(0, Number(seconds) || 0);
+
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = Math.floor(seconds % 60);
+  const millis = Math.floor((seconds - Math.floor(seconds)) * 1000);
+
+  return (
+    String(hours).padStart(2, "0") + ":" +
+    String(minutes).padStart(2, "0") + ":" +
+    String(secs).padStart(2, "0") + "," +
+    String(millis).padStart(3, "0")
+  );
+}
+
+const srtContent = captionEntries.map(entry =>
+  `${entry.index}\n` +
+  `${srtTime(entry.start)} --> ${srtTime(entry.end)}\n` +
+  `${entry.text}\n\n`
+).join("");
+
+require("fs").writeFileSync(captionFile, srtContent, "utf8");
+
+if (!existsSync(captionFile)) {
+  throw new Error("Caption file was not created.");
+}
+      
+      
+      
 
       /*
       ==================================================
