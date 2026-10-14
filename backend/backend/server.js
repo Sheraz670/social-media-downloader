@@ -3093,97 +3093,46 @@ console.log(
       }
 
 
-      /*
-==================================================
-FORMAT SETTINGS
-==================================================
+    /*
+
+FORMAT SETTINGS — LIGHTWEIGHT 480p
+
 */
 
-let width = 1920;
+let width = 854;
+let height = 480;
 
-let height = 1080;
-
-let formatName =
-  "YouTube Long";
-
+let formatName = "YouTube Long";
 
 if (
-  format === "youtube-shorts" ||
-  format === "shorts"
+format === "youtube-shorts" ||
+format === "shorts"
 ) {
-
-  width = 1080;
-
-  height = 1920;
-
-  formatName =
-    "YouTube Shorts";
-
-}
-
-
-else if (
-  format === "tiktok"
+width = 480;
+height = 854;
+formatName = "YouTube Shorts";
+} else if (
+format === "tiktok" ||
+format === "instagram-reels" ||
+format === "reels"
 ) {
-
-  width = 1080;
-
-  height = 1920;
-
-  formatName =
-    "TikTok";
-
+width = 480;
+height = 854;
+formatName =
+format === "tiktok"
+? "TikTok"
+: "Instagram Reels";
+} else if (format === "square") {
+width = 480;
+height = 480;
+formatName = "Square";
 }
-
-
-else if (
-  format === "instagram-reels" ||
-  format === "reels"
-) {
-
-  width = 1080;
-
-  height = 1920;
-
-  formatName =
-    "Instagram Reels";
-
-}
-
-
-else if (
-  format === "square"
-) {
-
-  width = 1080;
-
-  height = 1080;
-
-  formatName =
-    "Square";
-
-}
-
-
-else {
-
-  width = 1920;
-
-  height = 1080;
-
-  formatName =
-    "YouTube Long";
-
-}
-
 
 console.log(
-  "VIDEO FORMAT:",
-  formatName,
-  `${width}x${height}`
+"VIDEO FORMAT:",
+formatName,
+"${width}x${height}"
 );
-
-
 /*
 ==================================================
 CAPTION SETTINGS
