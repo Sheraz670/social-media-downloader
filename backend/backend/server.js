@@ -2774,288 +2774,221 @@ app.post(
   }
 );
 /*
-==================================================
-STEP 5:
-AI MOVIE VOICE
-==================================================
+
+/*
+========================================
+STEP 5: AI MOVIE VOICE
+========================================
 */
 
-app.post(
-  "/api/movie-voice",
-  async (req, res) => {
+app.post("/api/voice", async (req, res) => {
+  let tempDir = null;
 
-    let tempDir = null;
+  try {
+    const script = req.body?.script?.trim();
+    const language = req.body?.language || "English";
+    const movie = req.body?.movie?.trim() || "movie-explanation";
+    const requestedVoice = req.body?.voice?.trim();
 
-    try {
+    if (!script) {
+      return res.status(400).json({
+        error: "Script is required."
+      });
+    }
 
-      const script =
-        req.body?.script?.trim();
-
-      const language =
-        req.body?.language ||
-        "English";
-
-      const movie =
-        req.body?.movie?.trim() ||
-        "movie-explanation";
-
-      const requestedVoice =
-        req.body?.voice?.trim();
-
-      if (!script) {
-
-        return res.status(400).json({
-          error:
-            "Script is required."
-        });
-
+    const voiceMap = {
+      English: {
+        aria: "en-US-AriaNeural",
+        guy: "en-US-GuyNeural",
+        jenny: "en-US-JennyNeural",
+        brian: "en-US-BrianMultilingualNeural",
+        andrew: "en-US-AndrewMultilingualNeural",
+        adam: "en-US-AdamMultilingualNeural",
+        josh: "en-US-JoshNeural",
+        davis: "en-US-DavisNeural",
+        sara: "en-US-SaraNeural"
+      },
+      Urdu: {
+        uzma: "ur-PK-UzmaNeural",
+        asad: "ur-PK-AsadNeural"
+      },
+      Hindi: {
+        swara: "hi-IN-SwaraNeural",
+        madhur: "hi-IN-MadhurNeural"
       }
+    };
 
-      const ttsFile =
-        path.join(
-          __dirname,
-          "tts.py"
-        );
+    if (!voiceMap[language]) {
+      return res.status(400).json({
+        error: "Language must be English, Urdu, or Hindi."
+      });
+    }
 
-      if (!existsSync(ttsFile)) {
+    const defaultVoice =
+      language === "English" ? "aria" :
+      language === "Urdu" ? "uzma" : "swara";
 
-        return res.status(500).json({
-          error:
-            "tts.py was not found on the server."
-        });
+    const voiceKey = (requestedVoice || defaultVoice)
+      .toLowerCase()
+      .replace(/[^a-z]/g, "");
 
-      }
+    const voice =
+      voiceMap[language][voiceKey] ||
+      (Object.values(voiceMap[language]).includes(requestedVoice)
+        ? requestedVoice
+        : null);
 
-      const allowedVoices = [
-        "en-US-AriaNeural",
-        "en-US-GuyNeural",
-        "en-US-JennyNeural",
-        "en-US-ChristopherNeural",
-        "en-US-EricNeural",
-        "en-US-MichelleNeural",
-        "en-US-RogerNeural",
-        "ur-PK-UzmaNeural",
-        "hi-IN-SwaraNeural"
-      ];
+    if (!voice) {
+      return res.status(400).json({
+        error: "Selected voice is not available for this language."
+      });
+    }
 
-      let defaultVoice =
-        "en-US-AriaNeural";
+    const fs = require("fs");
+    const os = require("os");
+    const path = require("path");
+    const { spawn } = require("child_process");
 
-      if (language === "Urdu") {
+    const ttsFile = path.join(__dirname, "tts.py");
 
-        defaultVoice =
-          "ur-PK-UzmaNeural";
+    if (!fs.existsSync(ttsFile)) {
+      return res.status(500).json({
+        error: "tts.py was not found on the server."
+      });
+    }
 
-      }
+    tempDir = fs.mkdtempSync(
+      path.join(os.tmpdir(), "movie-voice-")
+    );
 
-      if (language === "Hindi") {
+    const textFile = path.join(tempDir, "script.txt");
+    const outputFile = path.join(tempDir, "voice.mp3");
 
-        defaultVoice =
-          "hi-IN-SwaraNeural";
+    fs.writeFileSync(textFile, script, "utf8");
 
-      }
+    const pythonCommand = process.env.PYTHON || "python3";
 
-      const voiceCode =
-        allowedVoices.includes(
-          requestedVoice
-        )
-          ? requestedVoice
-          : defaultVoice;
+    const pythonProcess = spawn(pythonCommand, [
+      ttsFile,
+      textFile,
+      outputFile,
+      voice
+    ]);
 
-      tempDir =
-        mkdtempSync(
-          path.join(
-            os.tmpdir(),
-            "movie-voice-"
-          )
-        );
+    let stderr = "";
+    let settled = false;
 
-      const textFile =
-        path.join(
-          tempDir,
-          "script.txt"
-        );
+    pythonProcess.stderr.on("data", data => {
+      stderr += data.toString();
+      console.error("TTS:", data.toString());
+    });
 
-      const outputFile =
-        path.join(
-          tempDir,
-          "voice.mp3"
-        );
+    pythonProcess.on("error", error => {
+      if (settled) return;
+      settled = true;
 
-      require("fs").writeFileSync(
-        textFile,
-        script,
-        "utf8"
-      );
-
-      console.log(
-        "Generating AI voice:",
-        voiceCode
-      );
-
-      const pythonProcess =
-        spawn(
-          "python3",
-          [
-            ttsFile,
-            textFile,
-            outputFile,
-            voiceCode
-          ]
-        );
-
-      let stderr = "";
-
-      if (pythonProcess.stderr) {
-
-        pythonProcess.stderr.on(
-          "data",
-          (data) => {
-
-            stderr +=
-              data.toString();
-
-            console.error(
-              "TTS:",
-              data.toString()
-            );
-
-          }
-        );
-
-      }
-
-      const exitCode =
-        await new Promise(
-          (resolve, reject) => {
-
-            pythonProcess.on(
-              "error",
-              reject
-            );
-
-            pythonProcess.on(
-              "close",
-              resolve
-            );
-
-          }
-        );
-
-      if (exitCode !== 0) {
-
-        throw new Error(
-          stderr.trim() ||
-          "AI voice generation failed."
-        );
-
-      }
-
-      if (!existsSync(outputFile)) {
-
-        throw new Error(
-          "AI voice file was not created."
-        );
-
-      }
-
-      const stat =
-        require("fs")
-          .statSync(outputFile);
-
-      if (!stat.size) {
-
-        throw new Error(
-          "AI voice file is empty."
-        );
-
-      }
-
-      res.setHeader(
-        "Content-Type",
-        "audio/mpeg"
-      );
-
-      res.setHeader(
-        "Content-Disposition",
-        `attachment; filename="${movie
-          .replace(
-            /[^a-z0-9]/gi,
-            "_"
-          )}-voice.mp3"`
-      );
-
-      const stream =
-        createReadStream(
-          outputFile
-        );
-
-      stream.on(
-        "close",
-        () => {
-
-          if (tempDir) {
-
-            try {
-
-              rmSync(
-                tempDir,
-                {
-                  recursive: true,
-                  force: true
-                }
-              );
-
-            } catch {}
-
-            tempDir = null;
-
-          }
-
-        }
-      );
-
-      stream.pipe(res);
-
-    } catch (error) {
-
-      console.error(
-        "MOVIE VOICE ERROR:",
-        error
-      );
+      console.error("TTS PROCESS ERROR:", error);
 
       if (tempDir) {
-
         try {
-
-          rmSync(
-            tempDir,
-            {
-              recursive: true,
-              force: true
-            }
-          );
-
+          fs.rmSync(tempDir, { recursive: true, force: true });
         } catch {}
-
+        tempDir = null;
       }
 
       if (!res.headersSent) {
-
-        return res.status(500).json({
-
-          error:
-            error.message ||
-            "Unable to generate AI voice."
-
+        res.status(500).json({
+          error: "Could not start Python voice generator. Check Python and edge-tts installation."
         });
+      }
+    });
 
+    pythonProcess.on("close", code => {
+      if (settled) return;
+      settled = true;
+
+      if (
+        code !== 0 ||
+        !fs.existsSync(outputFile) ||
+        fs.statSync(outputFile).size === 0
+      ) {
+        console.error("TTS FAILED:", stderr);
+
+        if (tempDir) {
+          try {
+            fs.rmSync(tempDir, { recursive: true, force: true });
+          } catch {}
+          tempDir = null;
+        }
+
+        if (!res.headersSent) {
+          res.status(500).json({
+            error: "Voice generation failed. Check server logs for TTS details."
+          });
+        }
+        return;
       }
 
+      const safeMovie = movie.replace(/[^a-z0-9_-]/gi, "-");
+
+      res.setHeader("Content-Type", "audio/mpeg");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${safeMovie}-voice.mp3"`
+      );
+
+      const stream = fs.createReadStream(outputFile);
+
+      stream.on("error", error => {
+        console.error("VOICE STREAM ERROR:", error);
+
+        if (tempDir) {
+          try {
+            fs.rmSync(tempDir, { recursive: true, force: true });
+          } catch {}
+          tempDir = null;
+        }
+
+        if (!res.headersSent) {
+          res.status(500).json({
+            error: "Unable to send generated voice."
+          });
+        } else {
+          res.destroy(error);
+        }
+      });
+
+      stream.on("close", () => {
+        if (tempDir) {
+          try {
+            fs.rmSync(tempDir, { recursive: true, force: true });
+          } catch {}
+          tempDir = null;
+        }
+      });
+
+      stream.pipe(res);
+    });
+  } catch (error) {
+    console.error("MOVIE VOICE ERROR:", error);
+
+    if (tempDir) {
+      try {
+        require("fs").rmSync(tempDir, {
+          recursive: true,
+          force: true
+        });
+      } catch {}
     }
 
+    if (!res.headersSent) {
+      res.status(500).json({
+        error: error.message || "Unable to generate AI voice."
+      });
+    }
   }
-);
+});
+
 
 /*
 ==================================================
