@@ -2616,6 +2616,7 @@ function downloadAudio() {
 async function generateVoice() {
   const script = document.getElementById("scriptOutput").value.trim();
   const voice = document.getElementById("voiceSelect").value;
+  selectedVoice = voice;
   const voiceButton = document.getElementById("voiceButton");
   const voiceLoading = document.getElementById("voiceLoading");
   const voiceResult = document.getElementById("voiceResult");
