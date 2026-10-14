@@ -3185,41 +3185,6 @@ function downloadVideo() {
   link.click();
   link.remove();
 }
-  
-
-
-/*
-==================================================
-GENERATE FINAL EDITED VIDEO
-==================================================
-*/
-
-async function generateFinalEditedVideo() {
-
-  saveVideoEdits();
-
-  const videoPlayer =
-    document.getElementById("videoPlayer");
-
-  if (!videoPlayer || !videoPlayer.src) {
-
-    alert(
-      "Please generate the movie video first."
-    );
-
-    return;
-
-  }
-
-  alert(
-    "🎬 Final edited video rendering will be connected next."
-  );
-
-}
-
-    window.addEventListener("load", function () {
-  console.log("searchMovies available:", typeof searchMovies);
-});
 
 </script>
 </body>
