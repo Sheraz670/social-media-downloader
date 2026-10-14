@@ -777,56 +777,32 @@ animation-duration: 0.01ms !important;
         </label>
 
 
-        <select
-          id="voiceSelect"
-          style="
-            width:100%;
-            padding:12px;
-            border-radius:8px;
-            border:1px solid #ccc;
-            font-size:16px;
-            background:white;
-          "
-        >
-
-          <option value="en-US-AriaNeural">
-            🇺🇸 Aria — Female, Natural
-          </option>
-
-          <option value="en-US-GuyNeural">
-            🇺🇸 Guy — Male, Natural
-          </option>
-
-          <option value="en-US-JennyNeural">
-            🇺🇸 Jenny — Female, Warm
-          </option>
-
-          <option value="en-US-ChristopherNeural">
-            🇺🇸 Christopher — Male, Deep
-          </option>
-
-          <option value="en-US-EricNeural">
-            🇺🇸 Eric — Male, Clear
-          </option>
-
-          <option value="en-US-MichelleNeural">
-            🇺🇸 Michelle — Female, Soft
-          </option>
-
-          <option value="en-US-RogerNeural">
-            🇺🇸 Roger — Male, Storytelling
-          </option>
-
-          <option value="ur-PK-UzmaNeural">
-            🇵🇰 Uzma — Urdu Female
-          </option>
-
-          <option value="hi-IN-SwaraNeural">
-            🇮🇳 Swara — Hindi Female
-          </option>
-
-        </select>
-
+        
+<select
+  id="voiceSelect"
+  style="width:100%;padding:12px;border-radius:8px;border:1px solid #ccc;font-size:16px;background:white;"
+>
+  <optgroup label="English">
+    <option value="en-US-AdamMultilingualNeural">Adam — Male</option>
+    <option value="en-US-BrianMultilingualNeural">Brian — Male</option>
+    <option value="en-US-JoshNeural">Josh — Male</option>
+    <option value="en-US-AndrewMultilingualNeural">Andrew — Male</option>
+    <option value="en-US-DavisNeural">Davis — Male</option>
+    <option value="en-US-GuyNeural">Guy — Male</option>
+    <option value="en-US-AriaNeural">Aria — Female</option>
+    <option value="en-US-JennyNeural">Jenny — Female</option>
+    <option value="en-US-SaraNeural">Sara — Female</option>
+  </optgroup>
+  <optgroup label="Urdu">
+    <option value="ur-PK-AsadNeural">Asad — Male</option>
+    <option value="ur-PK-UzmaNeural">Uzma — Female</option>
+  </optgroup>
+  <optgroup label="Hindi">
+    <option value="hi-IN-MadhurNeural">Madhur — Male</option>
+    <option value="hi-IN-SwaraNeural">Swara — Female</option>
+  </optgroup>
+</select>
+        
       </div>
 
 
@@ -2603,257 +2579,100 @@ function downloadAudio() {
 
     }
     
-/*
-==================================================
-GENERATE AI VOICE
-==================================================
-*/
+/
 
+
+  
 async function generateVoice() {
-
-  const script =
-    document
-      .getElementById("scriptOutput")
-      .value
-      .trim();
-
-  const voice =
-    document
-      .getElementById("voiceSelect")
-      .value;
-  selectedVoice = voice;
-
-  const voiceButton =
-    document
-      .getElementById("voiceButton");
-
-  const voiceLoading =
-    document
-      .getElementById("voiceLoading");
-
-  const voiceResult =
-    document
-      .getElementById("voiceResult");
-
-  const audioPlayer =
-    document
-      .getElementById("audioPlayer");
-
-  const status =
-    document
-      .getElementById("status");
+  const script = document.getElementById("scriptOutput").value.trim();
+  const voice = document.getElementById("voiceSelect").value;
+  const voiceButton = document.getElementById("voiceButton");
+  const voiceLoading = document.getElementById("voiceLoading");
+  const voiceResult = document.getElementById("voiceResult");
+  const audioPlayer = document.getElementById("audioPlayer");
+  const status = document.getElementById("status");
+  const voiceTimer = document.getElementById("voiceTimer");
 
   if (!script) {
-
-    status.textContent =
-      "❌ No script available.";
-
+    status.textContent = "❌ Pehle script generate karein.";
     return;
+  }
 
+  let language;
+  if (voice.startsWith("ur-PK-")) {
+    language = "Urdu";
+  } else if (voice.startsWith("hi-IN-")) {
+    language = "Hindi";
+  } else {
+    language = "English";
   }
 
   voiceButton.disabled = true;
+  voiceButton.textContent = "⏳ Generating Voice...";
+  voiceLoading.classList.remove("hidden");
+  voiceResult.classList.add("hidden");
 
-  voiceButton.textContent =
-    "⏳ Generating Voice...";
-
-  voiceLoading.classList.remove(
-    "hidden"
-  );
-
-  voiceResult.classList.add(
-    "hidden"
-  );
-
+  if (voiceTimerInterval) clearInterval(voiceTimerInterval);
   voiceElapsedSeconds = 0;
+  voiceTimer.textContent = "Elapsed time: 0 seconds";
 
-  document
-    .getElementById("voiceTimer")
-    .textContent =
-      "Elapsed time: 0 seconds";
-
-  if (voiceTimerInterval) {
-
-    clearInterval(
-      voiceTimerInterval
-    );
-
-  }
-
-  voiceTimerInterval =
-    setInterval(
-      function() {
-
-        voiceElapsedSeconds++;
-
-        document
-          .getElementById("voiceTimer")
-          .textContent =
-            "Elapsed time: " +
-            voiceElapsedSeconds +
-            " seconds";
-
-      },
-      1000
-    );
+  voiceTimerInterval = setInterval(() => {
+    voiceElapsedSeconds++;
+    voiceTimer.textContent =
+      "Elapsed time: " + voiceElapsedSeconds + " seconds";
+  }, 1000);
 
   try {
-
-    const response =
-      await fetch(
-        "https://social-media-downloader-f8pv.onrender.com/api/movie-voice",
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json"
-          },
-
-          body: JSON.stringify({
-
-            script: script,
-
-            voice: voice
-
-          })
-
-        }
-      );
+    const response = await fetch(
+      "https://social-media-downloader-f8pv.onrender.com/api/voice",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          script,
+          voice,
+          language
+        })
+      }
+    );
 
     if (!response.ok) {
-
-      let errorMessage =
-        "Voice generation failed.";
-
+      let message = "Voice generation failed.";
       try {
-
-        const data =
-          await response.json();
-
-        errorMessage =
-          data.error ||
-          data.message ||
-          errorMessage;
-
+        const data = await response.json();
+        message = data.error || data.message || message;
       } catch (_) {}
-
-      throw new Error(
-        errorMessage
-      );
-
+      throw new Error(message);
     }
 
-    const audioBlob =
-      await response.blob();
+    const audioBlob = await response.blob();
+    if (!audioBlob.size) throw new Error("Audio file is empty.");
 
-    if (!audioBlob.size) {
+    if (voiceAudioUrl) URL.revokeObjectURL(voiceAudioUrl);
+    voiceAudioUrl = URL.createObjectURL(audioBlob);
 
-      throw new Error(
-        "Audio file is empty."
-      );
-
-    }
-
-    voiceAudioUrl =
-      URL.createObjectURL(
-        audioBlob
-      );
-
-    audioPlayer.src =
-      voiceAudioUrl;
-
+    audioPlayer.src = voiceAudioUrl;
     audioPlayer.load();
 
-    voiceResult.classList.remove(
-      "hidden"
-    );
-    document
-  .getElementById("videoSection")
-  .classList.remove("hidden");
-
-    status.textContent =
-      "✅ AI voice generated successfully!";
-
-    voiceResult.scrollIntoView({
-      behavior: "smooth",
-      block: "center"
-    });
+    voiceResult.classList.remove("hidden");
+    document.getElementById("videoSection").classList.remove("hidden");
+    status.textContent = "✅ Voice generated successfully!";
+    voiceResult.scrollIntoView({ behavior: "smooth", block: "center" });
 
   } catch (error) {
-
-    console.error(
-      "VOICE ERROR:",
-      error
-    );
-
-    status.textContent =
-      "❌ Voice Error: " +
-      (
-        error.message ||
-        "Unable to generate voice."
-      );
+    console.error("VOICE ERROR:", error);
+    status.textContent = "❌ Voice Error: " + error.message;
 
   } finally {
-
     if (voiceTimerInterval) {
-
-      clearInterval(
-        voiceTimerInterval
-      );
-
+      clearInterval(voiceTimerInterval);
       voiceTimerInterval = null;
-
     }
-
-    voiceLoading.classList.add(
-      "hidden"
-    );
-
-    voiceButton.disabled =
-      false;
-
-    voiceButton.textContent =
-      "🎙️ Generate AI Voice";
-
+    voiceLoading.classList.add("hidden");
+    voiceButton.disabled = false;
+    voiceButton.textContent = "🎙️ Generate AI Voice";
   }
-
 }
-    function downloadVideo() {
-
-  const videoPlayer =
-    document.getElementById("videoPlayer");
-
-  if (
-    !videoPlayer ||
-    !videoPlayer.src
-  ) {
-
-    alert(
-      "Please generate the video first."
-    );
-
-    return;
-
-  }
-
-
-  const link =
-    document.createElement("a");
-
-  link.href =
-    videoPlayer.src;
-
-  link.download =
-    "movie-explainer-video.mp4";
-
-  document.body.appendChild(link);
-
-  link.click();
-
-  document.body.removeChild(link);
-
-    }
 
 /*
 ==================================================
