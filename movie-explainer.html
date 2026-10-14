@@ -2653,19 +2653,22 @@ async function generateVoice() {
   }, 1000);
 
   try {
-    const response = await fetch(
-      
-"https://social-media-downloader-f8pv.onrender.com/api/movie-voice",
-      
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          script,
-          voice,
-          language
-        })
-      }
-    );
+    
+const response = await fetch(
+  "https://social-media-downloader-f8pv.onrender.com/api/movie-voice",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      script,
+      voice,
+      language
+    })
+  }
+);
+  
 
     if (!response.ok) {
       let message = "Voice generation failed.";
