@@ -3599,7 +3599,7 @@ else {
 
 
         const imageUrl =
-          `https://image.tmdb.org/t/p/w480${image.file_path}`;
+          `https://image.tmdb.org/t/p/w300${image.file_path}`;
 
 
         const imageResponse =
