@@ -3995,7 +3995,7 @@ if (!existsSync(captionFile)) {
               ),
 
               "-vf",
-  `scale=${width}:${height}:force_original_aspect_ratio=increase,crop=${width}:${height},zoompan=z='${zoomExpression}':d=1:s=${width}x${height}:fps=8`,
+  `scale=${width}:${height}:force_original_aspect_ratio=increase,crop=${width}:${height},zoompan=z='${zoomExpression}':d=1:s=${width}x${height}:fps=6`,
               
           "-an",
 
