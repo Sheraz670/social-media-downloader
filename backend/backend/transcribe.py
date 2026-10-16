@@ -4,7 +4,7 @@ import json
 import os
 import subprocess
 
-# Keep CPU and memory usage low
+# Limit CPU threads to reduce resource usage
 os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["MKL_NUM_THREADS"] = "1"
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
@@ -26,17 +26,23 @@ def get_duration(audio_file):
             "-v", "error",
             "-show_entries", "format=duration",
             "-of", "default=noprint_wrappers=1:nokey=1",
-            audio_file
+            audio_file,
         ],
         capture_output=True,
         text=True,
-        timeout=30
+        timeout=30,
+        check=False,
     )
 
     if result.returncode != 0 or not result.stdout.strip():
         raise RuntimeError("Unable to read audio duration.")
 
-    return float(result.stdout.strip())
+    duration = float(result.stdout.strip())
+
+    if not duration > 0:
+        raise RuntimeError("Audio file is empty or invalid.")
+
+    return duration
 
 
 def main():
@@ -52,12 +58,12 @@ def main():
 
         duration = get_duration(audio_file)
 
-        if duration <= 0:
-            raise RuntimeError("Audio file is empty or invalid.")
-
         if duration > MAX_DURATION:
             send_result({
-                "error": "Audio is longer than 10 minutes. Maximum allowed duration is 10 minutes."
+                "error": (
+                    "Audio is longer than 10 minutes. "
+                    "Maximum allowed duration is 10 minutes."
+                )
             })
             return 1
 
@@ -66,7 +72,7 @@ def main():
             device="cpu",
             compute_type="int8",
             cpu_threads=1,
-            num_workers=1
+            num_workers=1,
         )
 
         segments, info = model.transcribe(
@@ -77,16 +83,16 @@ def main():
             condition_on_previous_text=False,
             vad_filter=True,
             word_timestamps=True,
-            vad_parameters={
-                "min_silence_duration_ms": 500
-            }
+            vad_parameters={"min_silence_duration_ms": 500},
         )
 
         text_parts = []
         words = []
 
+        # faster-whisper yields segments lazily.
+        # Process one segment at a time instead of storing all segments.
         for segment in segments:
-            segment_text = segment.text.strip()
+            segment_text = (segment.text or "").strip()
 
             if segment_text:
                 text_parts.append(segment_text)
@@ -107,7 +113,7 @@ def main():
                         words.append({
                             "start": round(start, 3),
                             "end": round(end, 3),
-                            "text": word_text
+                            "text": word_text,
                         })
 
             elif segment_text:
@@ -119,11 +125,15 @@ def main():
                     start = segment.start + span * index / count
                     end = segment.start + span * (index + 1) / count
 
-                    words.append({
-                        "start": round(max(0.0, start), 3),
-                        "end": round(min(duration, end), 3),
-                        "text": word_text
-                    })
+                    start = max(0.0, start)
+                    end = min(duration, end)
+
+                    if end > start:
+                        words.append({
+                            "start": round(start, 3),
+                            "end": round(end, 3),
+                            "text": word_text,
+                        })
 
         text = " ".join(text_parts).strip()
 
@@ -135,9 +145,13 @@ def main():
 
         send_result({
             "text": text,
-            "language": info.language if info and info.language else "unknown",
-            "duration": duration,
-            "words": words
+            "language": (
+                info.language
+                if info and info.language
+                else "unknown"
+            ),
+            "duration": round(duration, 3),
+            "words": words,
         })
 
         return 0
@@ -150,9 +164,10 @@ def main():
 
     except Exception as error:
         print(
-            f"TRANSCRIPTION PYTHON ERROR: {type(error).__name__}: {error}",
+            f"TRANSCRIPTION PYTHON ERROR: "
+            f"{type(error).__name__}: {error}",
             file=sys.stderr,
-            flush=True
+            flush=True,
         )
 
         send_result({
@@ -163,4 +178,4 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
-        
+    
