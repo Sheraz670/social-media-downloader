@@ -3513,7 +3513,7 @@ else {
                 )
                 .slice(
                   0,
-                  8
+                  4
                 );
 
           }
@@ -3599,7 +3599,7 @@ else {
 
 
         const imageUrl =
-          `https://image.tmdb.org/t/p/w780${image.file_path}`;
+          `https://image.tmdb.org/t/p/w480${image.file_path}`;
 
 
         const imageResponse =
