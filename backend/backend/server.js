@@ -3129,9 +3129,9 @@ formatName = "Square";
 }
 
 console.log(
-"VIDEO FORMAT:",
-formatName,
-"${width}x${height}"
+  "VIDEO FORMAT:",
+  formatName,
+  `${width}x${height}`
 );
 /*
 ==================================================
