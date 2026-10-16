@@ -3099,32 +3099,32 @@ FORMAT SETTINGS — LIGHTWEIGHT 480p
 
 */
 
-let width = 854;
-let height = 480;
-
+let width = 640;
+let height = 360;
+      
 let formatName = "YouTube Long";
 
 if (
 format === "youtube-shorts" ||
 format === "shorts"
 ) {
-width = 480;
-height = 854;
+width = 360;
+height = 640;
 formatName = "YouTube Shorts";
 } else if (
 format === "tiktok" ||
 format === "instagram-reels" ||
 format === "reels"
 ) {
-width = 480;
-height = 854;
+width = 360;
+height = 640;
 formatName =
 format === "tiktok"
 ? "TikTok"
 : "Instagram Reels";
 } else if (format === "square") {
-width = 480;
-height = 480;
+width = 360;
+height = 640;
 formatName = "Square";
 }
 
