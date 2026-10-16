@@ -3607,11 +3607,6 @@ else {
             imageUrl
           );
 
-
-        if (
-          !imageResponse.ok
-        ) {
-
           if (!imageResponse.ok) {
   console.log(
     "Skipping visual:",
@@ -3623,10 +3618,6 @@ else {
   );
   continue;
           }
-
-          continue;
-
-        }
 
 
         const imageBuffer =
