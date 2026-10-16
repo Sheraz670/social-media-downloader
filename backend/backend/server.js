@@ -3599,7 +3599,7 @@ else {
 
 
         const imageUrl =
-          `https://image.tmdb.org/t/p/w1280${image.file_path}`;
+          `https://image.tmdb.org/t/p/w780${image.file_path}`;
 
 
         const imageResponse =
@@ -4412,6 +4412,11 @@ FFMPEG FINAL RENDER
 
 const ffmpegArgs = [
   "-y",
+  "-filter_threads",
+"1",
+
+"-filter_complex_threads",
+"1",
 
   "-f",
   "concat",
