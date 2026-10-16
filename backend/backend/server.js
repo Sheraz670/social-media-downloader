@@ -3612,10 +3612,17 @@ else {
           !imageResponse.ok
         ) {
 
-          console.log(
-            "Skipping visual:",
-            i + 1
-          );
+          if (!imageResponse.ok) {
+  console.log(
+    "Skipping visual:",
+    i + 1,
+    "HTTP STATUS:",
+    imageResponse.status,
+    "URL:",
+    imageUrl
+  );
+  continue;
+          }
 
           continue;
 
