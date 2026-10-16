@@ -3980,6 +3980,8 @@ if (!existsSync(captionFile)) {
             "ffmpeg",
             [
               "-y",
+              "-filter_threads",
+                 "1",
 
               "-loop",
               "1",
